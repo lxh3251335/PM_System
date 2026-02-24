@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建项目 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .create-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .create-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .create-header h1 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .create-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-group label .required {
+            color: #f5222d;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn-submit {
+            padding: 12px 48px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #096dd9;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+        }
+
+        .btn-cancel {
+            padding: 12px 48px;
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.clickable {
+            cursor: pointer;
+        }
+
+        .step.clickable:hover .step-number {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(82, 196, 26, 0.4);
+        }
+
+        .step.clickable .step-number,
+        .step.clickable .step-title {
+            transition: all 0.2s;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <!-- 步骤指示器 -->
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(1);</script>
+
+        <div class="create-header">
+            <h1>新建项目</h1>
+            <p>请填写项目的基本信息</p>
+        </div>
+
+        <div class="form-card">
+            <form id="projectForm">
+                <div class="form-section" id="adminBusinessTypeSection" style="display: none;">
+                    <div class="form-section-title">管理员配置：最终用户与业务类型</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>新增最终用户</label>
+                            <input type="text" name="config_end_customer" placeholder="例如：盒马">
+                        </div>
+                        <div class="form-group">
+                            <label>新增业务类型</label>
+                            <input type="text" name="config_business_type" placeholder="例如：前置仓">
+                        </div>
+                    </div>
+                    <div class="form-grid full" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <button type="button" id="addBusinessTypeBtn" class="btn-cancel" style="width: 220px;">新增关联配置</button>
+                            <div class="form-help">仅管理员可新增。客户登录后只能选择管理员已配置的数据。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目基本信息 -->
+                <div class="form-section">
+                    <div class="form-section-title">项目基本信息</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>项目名称 <span class="required">*</span></label>
+                            <input type="text" name="name" placeholder="请输入项目名称" required>
+                            <div class="form-help">例如：北京朝阳冷库项目</div>
+                        </div>
+                        <div class="form-group">
+                            <label>最终用户 <span class="required">*</span></label>
+                            <select name="end_customer" required>
+                                <option value="">请选择最终用户</option>
+                                <option value="盒马">盒马</option>
+                                <option value="美团">美团</option>
+                                <option value="京东">京东</option>
+                                <option value="永辉">永辉</option>
+                                <option value="大润发">大润发</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>业务类型 <span class="required">*</span></label>
+                            <select name="business_type" required>
+                                <option value="">请选择业务类型</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>城市 <span class="required">*</span></label>
+                            <input type="text" name="city" placeholder="请输入城市" required>
+                        </div>
+                    </div>
+                    <div class="form-grid full" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label>项目地址 <span class="required">*</span></label>
+                            <input type="text" name="address" placeholder="请输入详细地址" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 邮寄信息 -->
+                <div class="form-section">
+                    <div class="form-section-title">邮寄信息</div>
+                    <div class="form-grid full" style="margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>历史收件信息（可选）</label>
+                            <select name="contact_profile">
+                                <option value="">新建收件信息</option>
+                            </select>
+                            <div class="form-help">支持同一最终用户下快速选择历史收件信息，也可直接新建</div>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>收件人 <span class="required">*</span></label>
+                            <input type="text" name="recipient_name" placeholder="请输入收件人姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label>联系电话 <span class="required">*</span></label>
+                            <input type="tel" name="recipient_phone" placeholder="请输入联系电话" required>
+                        </div>
+                    </div>
+                    <div class="form-grid full" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label>邮寄地址 <span class="required">*</span></label>
+                            <input type="text" name="mailing_address" placeholder="请输入邮寄地址" required>
+                            <div class="form-help">如果与项目地址相同，可直接复制</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 时间管理 -->
+                <div class="form-section">
+                    <div class="form-section-title">时间管理</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>期望到货时间 <span class="required">*</span></label>
+                            <input type="date" name="expected_arrival_time" required>
+                            <div class="form-help">用于跟踪项目进度</div>
+                        </div>
+                        <div class="form-group">
+                            <!-- 占位 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 备注 -->
+                <div class="form-section">
+                    <div class="form-section-title">备注信息</div>
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label>项目备注</label>
+                            <textarea name="remarks" placeholder="请输入项目备注信息（可选）"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="window.location.href='project-list.html'">取消</button>
+                    <button type="submit" class="btn-submit">保存并继续</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        requireAuth();
+        const DEFAULT_CUSTOMER_BUSINESS_TYPE_MAP = {
+            '盒马': ['前置仓', '超盒算', '盒马奥莱店', '配送中心', '中央厨房'],
+            '美团': ['美团生鲜零售'],
+            '京东': ['京东生鲜零售'],
+            '永辉': ['永辉生鲜零售'],
+            '大润发': ['大润发生鲜零售']
+        };
+        let customerBusinessTypeMap = { ...DEFAULT_CUSTOMER_BUSINESS_TYPE_MAP };
+        const rawUserRole = (localStorage.getItem('userRole') || 'customer').toLowerCase();
+        const currentUserRole = rawUserRole === 'factory' ? 'admin' : (rawUserRole === 'user' ? 'customer' : rawUserRole);
+
+        // 获取URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('id');
+        const copyFromId = urlParams.get('copyFrom');
+        const isEditMode = !!editId;
+        const isCopyMode = !!copyFromId;
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            setDefaultExpectedArrivalMonth();
+            toggleAdminConfigSection();
+            bindAdminBusinessTypeCreate();
+            await loadBusinessOptions();
+            bindCustomerBusinessTypeCascade();
+            bindContactProfileSelection();
+
+            // 更新页面标题
+            if (isEditMode) {
+                document.querySelector('.create-header h1').textContent = '编辑项目';
+                document.querySelector('.btn-submit').textContent = '保存修改';
+            } else if (isCopyMode) {
+                document.querySelector('.create-header h1').textContent = '复制项目';
+            }
+
+            await loadContactProfiles();
+
+            // 加载项目数据（编辑或复制模式）
+            if (isEditMode || isCopyMode) {
+                await loadProjectData(isCopyMode ? copyFromId : editId, isCopyMode);
+            }
+        });
+
+        // 加载项目数据
+        async function loadProjectData(projectId, isCopy) {
+            try {
+                let project;
+                if (isProductionMode()) {
+                    project = await api.projects.getProject(projectId);
+                } else {
+                    // 演示模式：从localStorage获取
+                    project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+                }
+
+                // 填充表单
+                if (project) {
+                    const form = document.getElementById('projectForm');
+                    form.name.value = isCopy ? project.name + ' (复制)' : project.name;
+                    renderEndCustomerOptions(project.end_customer || '');
+                    renderBusinessTypeOptions(project.end_customer || '', project.business_type || '');
+                    form.city.value = project.city || '';
+                    form.address.value = project.address || '';
+                    form.recipient_name.value = project.recipient_name || '';
+                    form.recipient_phone.value = project.recipient_phone || '';
+                    form.mailing_address.value = project.mailing_address || '';
+                    form.expected_arrival_time.value = project.expected_arrival_time || '';
+                    form.remarks.value = project.remarks || '';
+                    await loadContactProfiles(project.end_customer || '');
+                }
+            } catch (error) {
+                console.error('加载项目数据失败:', error);
+                api.projects.showError('加载项目数据失败: ' + error.message);
+            }
+        }
+
+        function setDefaultExpectedArrivalMonth() {
+            const input = document.querySelector('input[name="expected_arrival_time"]');
+            if (!input || input.value) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            // date 控件需完整日期，这里默认到本年本月的第一天
+            input.value = `${year}-${month}-01`;
+        }
+
+        function toggleAdminConfigSection() {
+            const adminSection = document.getElementById('adminBusinessTypeSection');
+            if (!adminSection) return;
+            adminSection.style.display = currentUserRole === 'admin' ? 'block' : 'none';
+        }
+
+        function renderEndCustomerOptions(selectedCustomer = '') {
+            const endCustomerSelect = document.querySelector('select[name="end_customer"]');
+            if (!endCustomerSelect) return;
+
+            const customers = Object.keys(customerBusinessTypeMap).sort();
+            endCustomerSelect.innerHTML = '<option value="">请选择最终用户</option>';
+
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer;
+                option.textContent = customer;
+                endCustomerSelect.appendChild(option);
+            });
+
+            if (selectedCustomer) {
+                if (!customers.includes(selectedCustomer)) {
+                    const option = document.createElement('option');
+                    option.value = selectedCustomer;
+                    option.textContent = selectedCustomer;
+                    endCustomerSelect.appendChild(option);
+                }
+                endCustomerSelect.value = selectedCustomer;
+            }
+        }
+
+        async function loadBusinessOptions() {
+            if (!isProductionMode()) {
+                renderEndCustomerOptions();
+                return;
+            }
+
+            try {
+                const options = await api.projects.getBusinessOptions();
+                if (options && options.length > 0) {
+                    const grouped = {};
+                    options.forEach(item => {
+                        if (!grouped[item.end_customer]) {
+                            grouped[item.end_customer] = [];
+                        }
+                        grouped[item.end_customer].push(item.business_type);
+                    });
+                    Object.keys(grouped).forEach(key => {
+                        grouped[key] = Array.from(new Set(grouped[key]));
+                    });
+                    customerBusinessTypeMap = grouped;
+                } else if (currentUserRole === 'customer') {
+                    customerBusinessTypeMap = {};
+                }
+            } catch (error) {
+                console.error('加载最终用户与业务类型配置失败:', error);
+            } finally {
+                renderEndCustomerOptions();
+            }
+        }
+
+        function bindAdminBusinessTypeCreate() {
+            const addBtn = document.getElementById('addBusinessTypeBtn');
+            if (!addBtn || currentUserRole !== 'admin') return;
+
+            addBtn.addEventListener('click', async function() {
+                const form = document.getElementById('projectForm');
+                const endCustomer = (form.config_end_customer.value || '').trim();
+                const businessType = (form.config_business_type.value || '').trim();
+
+                if (!endCustomer || !businessType) {
+                    api.projects.showError('请填写最终用户和业务类型');
+                    return;
+                }
+
+                try {
+                    if (isProductionMode()) {
+                        await api.projects.createBusinessOption(
+                            { end_customer: endCustomer, business_type: businessType },
+                            currentUserRole
+                        );
+                    } else {
+                        if (!customerBusinessTypeMap[endCustomer]) {
+                            customerBusinessTypeMap[endCustomer] = [];
+                        }
+                        if (!customerBusinessTypeMap[endCustomer].includes(businessType)) {
+                            customerBusinessTypeMap[endCustomer].push(businessType);
+                        }
+                    }
+
+                    await loadBusinessOptions();
+                    renderEndCustomerOptions(endCustomer);
+                    renderBusinessTypeOptions(endCustomer, businessType);
+                    form.end_customer.value = endCustomer;
+                    form.config_business_type.value = '';
+                    api.projects.showSuccess('最终用户与业务类型配置新增成功');
+                } catch (error) {
+                    api.projects.showError('新增配置失败: ' + error.message);
+                }
+            });
+        }
+
+        function renderBusinessTypeOptions(customer, selectedValue = '') {
+            const businessTypeSelect = document.querySelector('select[name="business_type"]');
+            if (!businessTypeSelect) return;
+
+            const types = customerBusinessTypeMap[customer] || [];
+            businessTypeSelect.innerHTML = '<option value="">请选择业务类型</option>';
+
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                businessTypeSelect.appendChild(option);
+            });
+
+            if (selectedValue && types.includes(selectedValue)) {
+                businessTypeSelect.value = selectedValue;
+            } else if (types.length === 1) {
+                businessTypeSelect.value = types[0];
+            } else if (selectedValue) {
+                const option = document.createElement('option');
+                option.value = selectedValue;
+                option.textContent = selectedValue;
+                businessTypeSelect.appendChild(option);
+                businessTypeSelect.value = selectedValue;
+            }
+        }
+
+        function bindCustomerBusinessTypeCascade() {
+            const endCustomerSelect = document.querySelector('select[name="end_customer"]');
+            if (!endCustomerSelect) return;
+
+            renderEndCustomerOptions(endCustomerSelect.value);
+            renderBusinessTypeOptions(endCustomerSelect.value);
+
+            endCustomerSelect.addEventListener('change', async function() {
+                const customer = this.value;
+                renderBusinessTypeOptions(customer);
+                await loadContactProfiles(customer);
+            });
+        }
+
+        async function loadContactProfiles(endCustomer = '') {
+            const contactSelect = document.querySelector('select[name="contact_profile"]');
+            if (!contactSelect) return;
+
+            contactSelect.innerHTML = '<option value="">新建收件信息</option>';
+
+            if (!isProductionMode()) {
+                return;
+            }
+
+            try {
+                const contacts = await api.projects.getContactProfiles(
+                    endCustomer ? { end_customer: endCustomer } : {}
+                );
+                contacts.forEach((item, index) => {
+                    const option = document.createElement('option');
+                    option.value = String(index);
+                    option.textContent = `${item.recipient_name} / ${item.recipient_phone}`;
+                    option.dataset.recipientName = item.recipient_name;
+                    option.dataset.recipientPhone = item.recipient_phone;
+                    option.dataset.mailingAddress = item.mailing_address;
+                    contactSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('加载历史收件信息失败:', error);
+            }
+        }
+
+        function bindContactProfileSelection() {
+            const contactSelect = document.querySelector('select[name="contact_profile"]');
+            if (!contactSelect) return;
+
+            contactSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (!selectedOption || !selectedOption.value) return;
+
+                const form = document.getElementById('projectForm');
+                form.recipient_name.value = selectedOption.dataset.recipientName || '';
+                form.recipient_phone.value = selectedOption.dataset.recipientPhone || '';
+                form.mailing_address.value = selectedOption.dataset.mailingAddress || '';
+            });
+        }
+
+        // 表单提交处理
+        document.getElementById('projectForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 收集表单数据
+            const formData = new FormData(this);
+            const projectData = {
+                name: formData.get('name'),
+                end_customer: formData.get('end_customer'),
+                business_type: formData.get('business_type'),
+                city: formData.get('city'),
+                address: formData.get('address'),
+                recipient_name: formData.get('recipient_name'),
+                recipient_phone: formData.get('recipient_phone'),
+                mailing_address: formData.get('mailing_address'),
+                expected_arrival_time: formData.get('expected_arrival_time'),
+                remarks: formData.get('remarks')
+            };
+
+            try {
+                let result;
+                
+                if (isProductionMode()) {
+                    // 生产模式：调用API
+                    if (isEditMode) {
+                        result = await api.projects.updateProject(editId, projectData);
+                        api.projects.showSuccess('项目更新成功！');
+                    } else if (isCopyMode) {
+                        result = await api.projects.copyProject(copyFromId, projectData);
+                        api.projects.showSuccess('项目复制成功！');
+                    } else {
+                        result = await api.projects.createProject(projectData);
+                        alert('项目创建成功！\n项目编号：' + result.project_no);
+                    }
+                } else {
+                    // 演示模式：保存到localStorage
+                    const projectId = editId || Date.now();
+                    result = {
+                        id: projectId,
+                        project_no: 'PRJ' + new Date().toISOString().slice(0,10).replace(/-/g, '') + String(projectId).slice(-3),
+                        ...projectData,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('currentProject', JSON.stringify(result));
+                    alert('项目' + (isEditMode ? '更新' : '创建') + '成功！\n项目编号：' + result.project_no + '\n\n下一步：创建冷库');
+                }
+                
+                // 保存项目ID用于后续步骤
+                if (result && result.id) {
+                    localStorage.setItem('currentProjectId', result.id);
+                    localStorage.setItem('currentProject', JSON.stringify(result));
+                }
+                
+                // 跳转到冷库创建页面
+                setTimeout(() => {
+                    window.location.href = 'cold-room-create.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('保存项目失败:', error);
+                api.projects.showError('保存项目失败: ' + error.message);
+            }
+        });
+        
+        // 复制项目地址到邮寄地址
+        const addressInput = document.querySelector('input[name="address"]');
+        const mailingInput = document.querySelector('input[name="mailing_address"]');
+        
+        if (addressInput && mailingInput) {
+            addressInput.addEventListener('blur', function() {
+                if (!mailingInput.value && this.value) {
+                    mailingInput.value = this.value;
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 冷库项目信息管理系统</title>
+    <script src="assets/js/config.js?v=20260223"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #8c8c8c;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #262626;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .user-type-btn {
+            padding: 16px;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .user-type-btn:hover {
+            border-color: #667eea;
+        }
+
+        .user-type-btn.active {
+            border-color: #667eea;
+            background: #f0f5ff;
+            color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .login-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .demo-accounts {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f0f2f5;
+            border-radius: 8px;
+        }
+
+        .demo-accounts h3 {
+            font-size: 14px;
+            color: #8c8c8c;
+            margin-bottom: 12px;
+        }
+
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 12px;
+            color: #262626;
+            border-bottom: 1px solid #d9d9d9;
+        }
+
+        .demo-account:last-child {
+            border-bottom: none;
+        }
+
+        .demo-account code {
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">📦</div>
+            <h1>欢迎登录</h1>
+            <p class="subtitle">冷库项目信息管理系统</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>选择用户类型</label>
+                <div class="user-type-selector">
+                    <div class="user-type-btn active" data-type="customer">
+                        <div style="font-size: 24px; margin-bottom: 4px;">👤</div>
+                        <div>客户</div>
+                    </div>
+                    <div class="user-type-btn" data-type="admin">
+                        <div style="font-size: 24px; margin-bottom: 4px;">🏭</div>
+                        <div>管理员</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required value="customer001">
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required value="password123">
+            </div>
+
+            <button type="submit" class="btn-login">立即登录</button>
+        </form>
+
+        <div class="demo-accounts">
+            <h3>演示账号</h3>
+            <div class="demo-account">
+                <span>客户：</span>
+                <code>customer001 / password123</code>
+            </div>
+            <div class="demo-account">
+                <span>管理员：</span>
+                <code>admin001 / password123</code>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <a href="index.html">← 返回首页</a>
+            <p style="margin-top: 12px; font-size: 12px; color: #bfbfbf;">&copy; 2026 天津天商酷凌科技有限公司 | V1.0.0</p>
+        </div>
+    </div>
+
+    <script>
+        // 用户类型切换
+        const userTypeBtns = document.querySelectorAll('.user-type-btn');
+        const usernameInput = document.getElementById('username');
+
+        userTypeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                userTypeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 根据类型自动填充用户名
+                if (btn.dataset.type === 'customer') {
+                    usernameInput.value = 'customer001';
+                } else {
+                    usernameInput.value = 'admin001';
+                }
+            });
+        });
+
+        // 登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const selectedType = document.querySelector('.user-type-btn.active')?.dataset.type || 'customer';
+            const passwordInput = document.getElementById('password');
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            const btn = document.querySelector('.btn-login');
+            btn.textContent = '登录中...';
+            btn.disabled = true;
+
+            // 演示模式：直接使用本地验证
+            if (typeof isDemoMode === 'function' && isDemoMode()) {
+                const demoAccounts = {
+                    'customer001': { role: 'customer', id: 1, company: '演示客户公司' },
+                    'admin001': { role: 'admin', id: 2, company: '系统管理' }
+                };
+                const account = demoAccounts[username];
+                if (!account || password !== 'password123') {
+                    alert('用户名或密码错误（演示账号：customer001 / admin001，密码：password123）');
+                    btn.textContent = '立即登录';
+                    btn.disabled = false;
+                    return;
+                }
+                if (selectedType !== account.role) {
+                    alert('账号角色为' + (account.role === 'admin' ? '管理员' : '客户') + '，请切换后重试');
+                    btn.textContent = '立即登录';
+                    btn.disabled = false;
+                    return;
+                }
+                localStorage.setItem('userRole', account.role);
+                localStorage.setItem('currentUserId', String(account.id));
+                localStorage.setItem('currentUsername', username);
+                localStorage.setItem('companyName', account.company);
+                localStorage.setItem(getStorageKey('token'), 'demo-token-' + username);
+                window.location.href = 'project-list.html';
+                return;
+            }
+
+            // 生产模式：调用后端API
+            try {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.detail || '登录失败');
+                }
+
+                const dbRoleRaw = (result.role || 'customer').toLowerCase();
+                const dbRole = dbRoleRaw === 'factory' ? 'admin' : (dbRoleRaw === 'user' ? 'customer' : dbRoleRaw);
+                if (selectedType !== dbRole) {
+                    throw new Error(`账号角色为${dbRole === 'admin' ? '管理员' : '客户'}，请切换后重试`);
+                }
+
+                localStorage.setItem('userRole', dbRole);
+                localStorage.setItem('currentUserId', String(result.id || ''));
+                localStorage.setItem('currentUsername', result.username || username);
+                localStorage.setItem('companyName', result.company_name || '');
+                localStorage.setItem(getStorageKey('token'), result.access_token || '');
+                window.location.href = 'project-list.html';
+            } catch (error) {
+                alert(error.message || '登录失败');
+                btn.textContent = '立即登录';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

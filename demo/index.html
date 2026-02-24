@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/landing.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 7H4C2.9 7 2 7.9 2 9V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V9C22 7.9 21.1 7 20 7Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 3L4 7L12 11L20 7L12 3Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 11V21" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">核心功能</a>
+                <a href="#benefits" class="nav-link">产品优势</a>
+                <a href="#demo" class="nav-link">在线演示</a>
+                <a href="#pricing" class="nav-link">价格方案</a>
+                <a href="login.html" class="btn-nav">立即体验</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-icon">🚀</span>
+                    <span>全新V1.1 MVP版本，15天快速上线</span>
+                </div>
+                <h1 class="hero-title">
+                    告别Excel表格<br>
+                    智能管理<span class="gradient-text">冷库项目</span>
+                </h1>
+                <p class="hero-subtitle">
+                    专为冷库设备集成商和运营企业打造的云端管理平台<br>
+                    一键复制项目 · 到货时间提醒 · 设备自动编号 · 流程可视化
+                </p>
+                <div class="hero-actions">
+                    <a href="login.html" class="btn-primary btn-lg">
+                        <span>免费试用</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="#demo" class="btn-secondary btn-lg">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 7L13 10L8 13V7Z" fill="currentColor"/>
+                        </svg>
+                        <span>观看演示</span>
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">15天</div>
+                        <div class="stat-label">快速上线</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">80%</div>
+                        <div class="stat-label">效率提升</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">云端访问</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="mockup-browser">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="browser-url">pm-system.example.com</div>
+                    </div>
+                    <div class="browser-content">
+                        <img src="assets/img/dashboard-preview.png" alt="系统预览" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="placeholder-image" style="display: none;">
+                            <svg width="200" height="150" viewBox="0 0 200 150">
+                                <rect width="200" height="150" fill="#f0f2f5"/>
+                                <text x="50%" y="50%" text-anchor="middle" fill="#8c8c8c" font-size="14">系统预览图</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心功能 -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">核心功能</h2>
+                <p class="section-subtitle">完整覆盖冷库项目管理全流程，提升工作效率80%</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1 21 21 20.1 21 19V7C21 5.9 20.1 5 19 5H5C3.9 5 3 5.9 3 7V19C3 20.1 3.9 21 5 21Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">项目复制功能</h3>
+                    <p class="feature-desc">一键复制历史项目，包含冷库和设备信息，快速创建相似项目，节省80%录入时间</p>
+                    <div class="feature-tag">新功能</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 8V12L15 15M21 12C21 16.97 16.97 21 12 21C7.03 21 3 16.97 3 12C3 7.03 7.03 3 12 3C16.97 3 21 7.03 21 12Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">到货时间管理</h3>
+                    <p class="feature-desc">标注货物期望到货时间，自动提醒逾期项目，支持按时间筛选，进度一目了然</p>
+                    <div class="feature-tag">新功能</div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M20 7H4C2.9 7 2 7.9 2 9V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V9C22 7.9 21.1 7 20 7Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M2 9L12 14L22 9" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">设备自动编号</h3>
+                    <p class="feature-desc">自动生成设备唯一编号，支持5种设备类型，智能关联冷库，避免人为错误</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M9 11L12 14L22 4M21 12V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H16" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">流程可视化</h3>
+                    <p class="feature-desc">8个流程节点清晰展示，实时更新项目进度，支持流程历史记录查询</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15M17 8L12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">一键导出</h3>
+                    <p class="feature-desc">支持导出项目信息、设备清单、网关配置，Excel格式，便于打印和分享</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 15C15.87 15 19 12.76 19 10C19 7.24 15.87 5 12 5C8.13 5 5 7.24 5 10C5 12.76 8.13 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M5 10V14C5 16.76 8.13 19 12 19C15.87 19 19 16.76 19 14V10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">云端存储</h3>
+                    <p class="feature-desc">数据安全加密存储，每日自动备份，支持多人远程协作，随时随地访问</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品优势 -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="benefits-content">
+                <div class="benefits-text">
+                    <h2 class="section-title">为什么选择我们？</h2>
+                    <p class="section-subtitle">专业、高效、易用，让项目管理更简单</p>
+                    <div class="benefit-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div>
+                                <h4>提升效率80%</h4>
+                                <p>项目复制功能让相似项目录入时间从1小时缩短到10分钟</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div>
+                                <h4>减少错误50%</h4>
+                                <p>自动计算、自动编号、智能验证，避免人为错误</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div>
+                                <h4>15天快速上线</h4>
+                                <p>MVP版本聚焦核心功能，快速替代Excel表格</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div>
+                                <h4>数据安全保障</h4>
+                                <p>云端加密存储，每日自动备份，永不丢失</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="benefits-visual">
+                    <div class="stat-card">
+                        <div class="stat-big">50+</div>
+                        <div class="stat-label">项目数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-big">500+</div>
+                        <div class="stat-label">设备管理</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-big">99%</div>
+                        <div class="stat-label">正常运行</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 在线演示 -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">在线演示</h2>
+                <p class="section-subtitle">点击查看各功能页面实际效果</p>
+            </div>
+            <div class="demo-grid">
+                <a href="project-list.html" class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-placeholder">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 11L12 14L22 4M21 12V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H16" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>项目列表</h3>
+                    <p>查看、搜索、筛选项目，支持到货时间提醒</p>
+                </a>
+
+                <a href="project-detail.html" class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-placeholder">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M14 2V8H20M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>项目详情</h3>
+                    <p>查看项目完整信息，管理冷库和设备</p>
+                </a>
+
+                <a href="device-management.html" class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-placeholder">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 7H4C2.9 7 2 7.9 2 9V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V9C22 7.9 21.1 7 20 7Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 3L4 7L12 11L20 7L12 3Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>设备管理</h3>
+                    <p>添加、编辑设备，自动生成编号</p>
+                </a>
+
+                <a href="gateway-inventory.html" class="demo-card">
+                    <div class="demo-preview">
+                        <div class="demo-placeholder">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 4V2M12 22V20M4 12H2M22 12H20" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3>网关库存</h3>
+                    <p>管理网关库存，入库和分配</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 价格方案 -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">价格方案</h2>
+                <p class="section-subtitle">灵活的定价，满足不同规模需求</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>免费试用</h3>
+                        <div class="price">
+                            <span class="price-amount">¥0</span>
+                            <span class="price-period">/30天</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ 最多10个项目</li>
+                        <li>✓ 最多50个设备</li>
+                        <li>✓ 基础功能</li>
+                        <li>✓ 邮件支持</li>
+                    </ul>
+                    <a href="login.html" class="btn-pricing">开始试用</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">推荐</div>
+                    <div class="pricing-header">
+                        <h3>专业版</h3>
+                        <div class="price">
+                            <span class="price-amount">¥299</span>
+                            <span class="price-period">/月</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ 无限项目</li>
+                        <li>✓ 无限设备</li>
+                        <li>✓ 全部功能</li>
+                        <li>✓ 优先技术支持</li>
+                        <li>✓ 数据导出</li>
+                    </ul>
+                    <a href="login.html" class="btn-pricing btn-primary">立即购买</a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>企业版</h3>
+                        <div class="price">
+                            <span class="price-amount">¥999</span>
+                            <span class="price-period">/月</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>✓ 专业版全部功能</li>
+                        <li>✓ 私有化部署</li>
+                        <li>✓ 定制开发</li>
+                        <li>✓ 专属客服</li>
+                        <li>✓ 上门培训</li>
+                    </ul>
+                    <a href="login.html" class="btn-pricing">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>准备好开始了吗？</h2>
+                <p>立即注册，享受30天免费试用，无需信用卡</p>
+                <a href="login.html" class="btn-primary btn-lg">
+                    <span>立即开始</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4>产品</h4>
+                    <ul>
+                        <li><a href="#features">核心功能</a></li>
+                        <li><a href="#pricing">价格方案</a></li>
+                        <li><a href="#demo">在线演示</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>支持</h4>
+                    <ul>
+                        <li><a href="#">使用文档</a></li>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">联系我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>公司</h4>
+                    <ul>
+                        <li><a href="#">关于我们</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        <li><a href="#">服务条款</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>联系方式</h4>
+                    <p>邮箱: support@example.com<br>电话: 400-888-8888</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 天津天商酷凌科技有限公司 版权所有 | 冷库项目信息管理系统 V1.0.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/landing.js"></script>
+</body>
+</html>

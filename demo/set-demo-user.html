@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置Demo用户</title>
+    <script src="assets/js/config.js?v=20260223"></script>
+</head>
+<body>
+    <h1>正在设置Demo用户...</h1>
+    <script>
+        // 设置客户用户信息到LocalStorage
+        localStorage.setItem('userRole', 'customer');
+        localStorage.setItem('currentUsername', 'customer001');
+        localStorage.setItem('currentUserId', '1');
+        localStorage.setItem('companyName', 'Demo客户公司');
+        localStorage.setItem(getStorageKey('token'), 'demo-token-customer001');
+        
+        console.log('LocalStorage已设置:');
+        console.log('userRole:', localStorage.getItem('userRole'));
+        console.log('currentUsername:', localStorage.getItem('currentUsername'));
+        console.log('currentUserId:', localStorage.getItem('currentUserId'));
+        
+        // 立即跳转到项目列表页面
+        window.location.href = 'project-list.html';
+    </script>
+</body>
+</html>

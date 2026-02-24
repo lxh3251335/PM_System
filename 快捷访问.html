@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷库项目管理系统 - 快捷访问</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .status {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        .status h3 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .status p {
+            color: #555;
+            font-size: 14px;
+            margin: 4px 0;
+        }
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .link-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .link-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .link-card p {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        .api-link {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .demo-link {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .project-link {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .guide-link {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .home-link {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        }
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 冷库项目管理系统</h1>
+        <p class="subtitle">快捷访问入口 - 点击下方卡片打开对应页面</p>
+
+        <div class="status">
+            <h3>✅ 系统状态：运行中</h3>
+            <p>📡 后端服务：http://localhost:8000</p>
+            <p>📊 数据库：SQLite (pm_system.db)</p>
+            <p>💾 测试数据：2个项目，3个冷库</p>
+        </div>
+
+        <div class="links-grid">
+            <a href="http://localhost:8000/docs" class="link-card api-link" target="_blank">
+                <h3>📚 API 文档</h3>
+                <p>查看和测试所有 API 接口，支持在线调试</p>
+                <span class="badge">推荐首选</span>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/index.html" class="link-card home-link" target="_blank">
+                <h3>🏠 系统首页</h3>
+                <p>产品介绍、功能展示、在线演示导航</p>
+                <span class="badge">营销页面</span>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/project-list.html" class="link-card project-link" target="_blank">
+                <h3>📋 项目列表</h3>
+                <p>查看所有项目，搜索筛选，查看测试数据</p>
+                <span class="badge">核心功能</span>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/project-create.html" class="link-card demo-link" target="_blank">
+                <h3>➕ 创建项目</h3>
+                <p>新建项目，填写项目信息，添加冷库</p>
+                <span class="badge">核心功能</span>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/demo-guide.html" class="link-card guide-link" target="_blank">
+                <h3>🎯 演示向导</h3>
+                <p>完整功能演示流程，一步步体验系统</p>
+                <span class="badge">新手指南</span>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/login.html" class="link-card" target="_blank">
+                <h3>🔐 登录页面</h3>
+                <p>系统登录入口（演示版本）</p>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/device-management.html" class="link-card" target="_blank">
+                <h3>⚙️ 设备管理</h3>
+                <p>添加、编辑设备，自动生成编号</p>
+            </a>
+
+            <a href="file:///D:/projects/PM_System/demo/gateway-config.html" class="link-card" target="_blank">
+                <h3>📡 网关配置</h3>
+                <p>配置网关端口，分配485地址</p>
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h3>💡 使用说明</h3>
+            <ol>
+                <li><strong>直接点击上方卡片</strong>即可在浏览器中打开对应页面</li>
+                <li><strong>推荐首选 "API 文档"</strong>，可以直接测试后端接口</li>
+                <li>如需在 Cursor 内置浏览器中打开：
+                    <ul style="margin-top: 8px;">
+                        <li>按 <code>Ctrl+Shift+P</code> 打开命令面板</li>
+                        <li>输入 <code>Simple Browser: Show</code></li>
+                        <li>粘贴上方任一链接地址</li>
+                    </ul>
+                </li>
+                <li>后端服务正在运行，请勿关闭终端窗口</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

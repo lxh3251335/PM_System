@@ -1,0 +1,17 @@
+[Unit]
+Description=PM System FastAPI Application
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/pm_system/backend
+Environment="PATH=/opt/pm_system/venv/bin"
+ExecStart=/opt/pm_system/venv/bin/gunicorn app.main:app -c /opt/pm_system/deploy/gunicorn.conf.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

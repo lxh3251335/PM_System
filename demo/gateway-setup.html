@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网关配置 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .project-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .project-info-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-group label .required {
+            color: #f5222d;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group input[readonly] {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .gateway-item {
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .gateway-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .gateway-item-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .gateway-item-actions button {
+            padding: 6px 16px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .gateway-item-actions button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .gateway-item-actions button.delete:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+
+        .gateway-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .gateway-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gateway-info-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .gateway-info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #096dd9;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #389e0d;
+        }
+
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(82,196,26,0.4); }
+        .step.clickable .step-number, .step.clickable .step-title { transition: all 0.2s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 步骤指示器 -->
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(6);</script>
+
+        <!-- 项目信息 -->
+        <div class="project-info-card">
+            <h3>📦 当前项目</h3>
+            <div class="project-info-grid" id="projectInfo"></div>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>网关配置</h1>
+            <p>为项目配置网关设备和物联网卡信息，用于远程通讯和数据采集。RS485端口和网口端口数根据品牌型号自动设置。</p>
+        </div>
+
+        <!-- 从库存选择 -->
+        <div class="form-card" id="inventorySelectCard" style="display:none;">
+            <h3 style="margin: 0 0 20px 0; color: #52c41a;">从库存选择网关</h3>
+            <p style="color:#595959;margin-bottom:16px;font-size:14px;">管理员已预录入的网关库存，选择后直接分配到当前项目。</p>
+            <div style="display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap;">
+                <div class="form-group" style="width:220px;">
+                    <label>筛选型号</label>
+                    <select id="invModelFilter" class="form-control" onchange="loadAvailableInventory()" style="padding:8px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+            </div>
+            <div id="inventoryList" style="max-height:300px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- 网关表单（手动添加） -->
+        <div class="form-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; color: var(--primary-color);">添加网关</h3>
+                <button type="button" class="btn btn-secondary" onclick="toggleInventorySelect()" id="toggleInvBtn" style="font-size:13px;">从库存选择 ↓</button>
+            </div>
+            <form id="gatewayForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>网关品牌 <span class="required">*</span></label>
+                        <select name="brand" id="brandSelect" required>
+                            <option value="">请选择网关品牌</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>网关型号 <span class="required">*</span></label>
+                        <select name="model" id="modelSelect" required>
+                            <option value="">请先选择品牌</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>RS485端口数</label>
+                        <input type="text" id="rs485Ports" name="rs485_ports" readonly style="background: #f5f5f5;">
+                        <div class="form-help">根据品牌和型号自动填充</div>
+                    </div>
+                    <div class="form-group">
+                        <label>网口端口数</label>
+                        <input type="text" id="ethPorts" name="eth_ports" readonly style="background: #f5f5f5;">
+                        <div class="form-help">根据品牌和型号自动填充</div>
+                    </div>
+                    <div class="form-group">
+                        <label>物联网卡号</label>
+                        <input type="text" name="iot_card_no" placeholder="请输入物联网卡号">
+                        <div class="form-help">用于4G/5G网络通讯</div>
+                    </div>
+                    <div class="form-group">
+                        <label>运营商</label>
+                        <select name="sim_operator">
+                            <option value="">请选择运营商</option>
+                            <option value="中国移动">中国移动</option>
+                            <option value="中国联通">中国联通</option>
+                            <option value="中国电信">中国电信</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ICCID</label>
+                        <input type="text" name="sim_iccid" placeholder="请输入ICCID（可选）">
+                        <div class="form-help">物联网卡唯一识别号</div>
+                    </div>
+                    <div class="form-group">
+                        <label>IP地址</label>
+                        <input type="text" name="ip_address" placeholder="例如：192.168.1.100">
+                    </div>
+                    <div class="form-group">
+                        <label>MAC地址</label>
+                        <input type="text" name="mac_address" placeholder="例如：00:11:22:33:44:55">
+                    </div>
+                    <div class="form-group">
+                        <label>网关SN号</label>
+                        <input type="text" name="serial_no" id="serialNoInput" placeholder="请输入网关序列号">
+                        <div class="form-help">网关设备唯一序列号，从库存选择时自动填充</div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary">添加网关</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('gatewayForm').reset()" style="margin-left: 12px;">重置</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 已添加的网关 -->
+        <div class="form-card">
+            <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">已添加的网关 <span style="font-weight: normal; color: var(--text-secondary);" id="gatewayCount">(0个)</span></h3>
+            <div id="gatewayList">
+                <p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">
+                    暂无网关，请添加第一个网关
+                </p>
+            </div>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <button class="btn btn-secondary" onclick="window.location.href='device-relations.html'">← 返回上一步</button>
+            <button class="btn btn-success" onclick="completeProject()">完成网关配置，继续通讯配置 →</button>
+        </div>
+    </div>
+
+    <script>
+        requireAuth();
+        // 权限检查：步骤5~7仅管理员可操作
+        (function checkAdminOnly() {
+            const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+            const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
+            if (normalizedRole !== 'admin') {
+                document.body.innerHTML = `
+                    <div style="text-align:center;padding:120px 20px;font-family:sans-serif;">
+                        <h2 style="color:#e74c3c;margin-bottom:16px;">无权访问</h2>
+                        <p style="color:#666;font-size:16px;">网关配置、通讯配置由管理员完成，客户无需操作此步骤。</p>
+                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">返回项目列表</button>
+                    </div>`;
+                throw new Error('ACCESS_DENIED');
+            }
+        })();
+        const project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+        const gwProjectId = localStorage.getItem('currentProjectId');
+        const coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+        const devKey = gwProjectId ? 'devices_' + gwProjectId : 'devices';
+        const devices = JSON.parse(localStorage.getItem(devKey) || '[]');
+        let gateways = JSON.parse(localStorage.getItem('gateways') || '[]');
+
+        // 显示项目信息
+        document.getElementById('projectInfo').innerHTML = `
+            <div><strong>项目编号：</strong>${project.project_no}</div>
+            <div><strong>项目名称：</strong>${project.name}</div>
+            <div><strong>最终用户：</strong>${project.end_customer}</div>
+            <div><strong>冷库数量：</strong>${coldRooms.length}个</div>
+            <div><strong>设备数量：</strong>${devices.length}台</div>
+        `;
+
+        // 从网关型号库动态加载品牌和型号
+        let gwModelLibrary = [];
+
+        async function loadGwModelLibrary() {
+            try {
+                gwModelLibrary = await api.gatewayLibrary.getModels();
+            } catch(e) {
+                console.warn('加载网关型号库失败，将使用本地兜底:', e.message);
+                gwModelLibrary = [];
+            }
+
+            const brandSelect = document.getElementById('brandSelect');
+            const brands = [...new Set(gwModelLibrary.map(m => m.brand))];
+            
+            if (brands.length > 0) {
+                brandSelect.innerHTML = '<option value="">请选择网关品牌</option>' +
+                    brands.map(b => `<option value="${b}">${b}</option>`).join('');
+            } else {
+                brandSelect.innerHTML = '<option value="">请选择网关品牌</option>' +
+                    '<option value="华为">华为</option><option value="中兴">中兴</option>' +
+                    '<option value="西门子">西门子</option><option value="研华">研华</option>';
+            }
+
+            // 库存选择的型号下拉
+            const invFilter = document.getElementById('invModelFilter');
+            invFilter.innerHTML = '<option value="">全部</option>' +
+                gwModelLibrary.map(m => `<option value="${m.id}">${m.brand} ${m.model_name}</option>`).join('');
+        }
+
+        loadGwModelLibrary();
+
+        document.getElementById('brandSelect').addEventListener('change', function() {
+            const brand = this.value;
+            const modelSelect = document.getElementById('modelSelect');
+            const rs485Input = document.getElementById('rs485Ports');
+            const ethInput = document.getElementById('ethPorts');
+            rs485Input.value = '';
+            ethInput.value = '';
+
+            const filtered = gwModelLibrary.filter(m => m.brand === brand);
+            if (filtered.length > 0) {
+                modelSelect.innerHTML = '<option value="">请选择网关型号</option>' +
+                    filtered.map(m => `<option value="${m.model_name}" data-gw-id="${m.id}" data-serial="${m.serial_port_count}" data-eth="${m.ethernet_port_count}">${m.model_name} (RS485:${m.serial_port_count}口 网口:${m.ethernet_port_count}口)</option>`).join('');
+                modelSelect.disabled = false;
+            } else {
+                modelSelect.innerHTML = '<option value="">该品牌无型号数据</option>';
+                modelSelect.disabled = true;
+            }
+        });
+
+        document.getElementById('modelSelect').addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            const rs485Input = document.getElementById('rs485Ports');
+            const ethInput = document.getElementById('ethPorts');
+            if (selected && selected.dataset.serial) {
+                rs485Input.value = selected.dataset.serial + '口';
+                ethInput.value = selected.dataset.eth + '口';
+            } else {
+                rs485Input.value = '';
+                ethInput.value = '';
+            }
+        });
+
+        // 库存选择功能
+        let availableInventory = [];
+
+        function toggleInventorySelect() {
+            const card = document.getElementById('inventorySelectCard');
+            const isVisible = card.style.display !== 'none';
+            card.style.display = isVisible ? 'none' : 'block';
+            document.getElementById('toggleInvBtn').textContent = isVisible ? '从库存选择 ↓' : '收起库存 ↑';
+            if (!isVisible) loadAvailableInventory();
+        }
+
+        async function loadAvailableInventory() {
+            try {
+                const modelId = document.getElementById('invModelFilter').value;
+                const params = modelId ? { gateway_model_id: modelId } : {};
+                availableInventory = await api.gatewayLibrary.getAvailableInventory(params);
+                renderAvailableInventory();
+            } catch(e) {
+                console.warn('加载库存失败:', e.message);
+                document.getElementById('inventoryList').innerHTML = '<p style="color:#999;text-align:center;padding:20px;">无法加载库存数据</p>';
+            }
+        }
+
+        function renderAvailableInventory() {
+            const container = document.getElementById('inventoryList');
+            if (!availableInventory.length) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">暂无可用库存</p>';
+                return;
+            }
+            container.innerHTML = availableInventory.map(item => {
+                const gm = item.gateway_model;
+                const label = gm ? `${gm.brand} ${gm.model_name}` : '未知型号';
+                const ports = gm ? `${gm.serial_port_count}串口/${gm.ethernet_port_count}网口` : '';
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:8px;background:#fafafa;">
+                    <div>
+                        <strong style="font-family:monospace;">${item.serial_no}</strong>
+                        <span style="color:#595959;margin-left:12px;">${label}</span>
+                        <span style="color:#999;margin-left:8px;font-size:12px;">${ports}</span>
+                        ${item.sim_card_no ? '<span style="color:#999;margin-left:8px;font-size:12px;">SIM:' + item.sim_card_no + '</span>' : ''}
+                    </div>
+                    <button class="btn btn-primary" style="padding:4px 16px;font-size:13px;height:28px;" onclick="selectFromInventory(${item.id})">选择</button>
+                </div>`;
+            }).join('');
+        }
+
+        async function selectFromInventory(itemId) {
+            if (!gwProjectId) return alert('请先确保项目信息存在');
+            const item = availableInventory.find(i => i.id === itemId);
+            if (!item) return;
+            const gm = item.gateway_model;
+
+            try {
+                await api.gatewayLibrary.allocateToProject(itemId, parseInt(gwProjectId));
+            } catch(e) {
+                alert('分配失败: ' + e.message);
+                return;
+            }
+
+            const gatewayCount = gateways.length;
+            const gatewayNo = `GW-001-${String(gatewayCount + 1).padStart(3, '0')}`;
+
+            const gateway = {
+                id: Date.now(),
+                project_id: gwProjectId,
+                gateway_no: gatewayNo,
+                brand: gm ? gm.brand : '-',
+                model: gm ? gm.model_name : '-',
+                rs485_ports: gm ? gm.serial_port_count + '口' : '-',
+                eth_ports: gm ? gm.ethernet_port_count + '口' : '-',
+                iot_card_no: item.sim_card_no || '',
+                sim_operator: item.sim_operator || '',
+                sim_iccid: item.sim_iccid || '',
+                ip_address: item.ip_address || '',
+                mac_address: item.mac_address || '',
+                inventory_id: item.id,
+                serial_no: item.serial_no,
+                created_at: new Date().toISOString()
+            };
+
+            gateways.push(gateway);
+            localStorage.setItem('gateways', JSON.stringify(gateways));
+
+            if (isProductionMode() && gwProjectId) {
+                try {
+                    const totalPorts = gm ? gm.serial_port_count : 8;
+                    await api.gateways.post('/gateways/?project_id=' + gwProjectId, {
+                        brand: gateway.brand,
+                        model: gateway.model,
+                        total_ports: totalPorts,
+                        sim_card_no: gateway.iot_card_no,
+                        sim_operator: gateway.sim_operator,
+                        sim_iccid: gateway.sim_iccid,
+                        ip_address: gateway.ip_address,
+                        mac_address: gateway.mac_address,
+                        specifications: JSON.stringify({ inventory_id: item.id, serial_no: item.serial_no })
+                    });
+                } catch(e) { console.warn('同步到后端失败:', e.message); }
+            }
+
+            renderGateways();
+            loadAvailableInventory();
+        }
+
+        let editingGatewayId = null;
+
+        document.getElementById('gatewayForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+
+            if (editingGatewayId) {
+                const idx = gateways.findIndex(g => g.id === editingGatewayId);
+                if (idx !== -1) {
+                    gateways[idx] = {
+                        ...gateways[idx],
+                        brand: formData.get('brand'),
+                        model: formData.get('model'),
+                        rs485_ports: formData.get('rs485_ports'),
+                        eth_ports: formData.get('eth_ports'),
+                        iot_card_no: formData.get('iot_card_no'),
+                        sim_operator: formData.get('sim_operator'),
+                        sim_iccid: formData.get('sim_iccid'),
+                        ip_address: formData.get('ip_address'),
+                        mac_address: formData.get('mac_address'),
+                        serial_no: formData.get('serial_no')
+                    };
+                }
+                editingGatewayId = null;
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.textContent = '添加网关';
+                submitBtn.style.background = '';
+            } else {
+                const gatewayCount = gateways.length;
+                const gatewayNo = `GW-001-${String(gatewayCount + 1).padStart(3, '0')}`;
+
+                const gateway = {
+                    id: Date.now(),
+                    project_id: gwProjectId,
+                    gateway_no: gatewayNo,
+                    brand: formData.get('brand'),
+                    model: formData.get('model'),
+                    rs485_ports: formData.get('rs485_ports'),
+                    eth_ports: formData.get('eth_ports'),
+                    iot_card_no: formData.get('iot_card_no'),
+                    sim_operator: formData.get('sim_operator'),
+                    sim_iccid: formData.get('sim_iccid'),
+                    ip_address: formData.get('ip_address'),
+                    mac_address: formData.get('mac_address'),
+                    serial_no: formData.get('serial_no'),
+                    created_at: new Date().toISOString()
+                };
+
+                gateways.push(gateway);
+
+                if (isProductionMode() && gwProjectId) {
+                    try {
+                        const brand = formData.get('brand');
+                        const model = formData.get('model');
+                        const rs485 = parseInt((formData.get('rs485_ports') || '0').replace(/\D/g, '')) || 8;
+                        const result = await api.gateways.post('/gateways/?project_id=' + gwProjectId, {
+                            brand: brand,
+                            model: model,
+                            total_ports: rs485,
+                            sim_card_no: formData.get('iot_card_no'),
+                            sim_operator: formData.get('sim_operator'),
+                            sim_iccid: formData.get('sim_iccid'),
+                            ip_address: formData.get('ip_address'),
+                            mac_address: formData.get('mac_address')
+                        });
+                        if (result && result.id) {
+                            gateway.id = result.id;
+                            gateway.gateway_no = result.gateway_no;
+                        }
+                    } catch(e) { console.warn('API网关保存失败:', e.message); }
+                }
+            }
+
+            localStorage.setItem('gateways', JSON.stringify(gateways));
+            this.reset();
+            document.getElementById('modelSelect').disabled = true;
+            renderGateways();
+        });
+
+        function editGateway(id) {
+            const gw = gateways.find(g => g.id === id);
+            if (!gw) return;
+
+            editingGatewayId = id;
+            const form = document.getElementById('gatewayForm');
+            document.getElementById('brandSelect').value = gw.brand;
+            document.getElementById('brandSelect').dispatchEvent(new Event('change'));
+
+            setTimeout(() => {
+                document.getElementById('modelSelect').value = gw.model;
+                document.getElementById('modelSelect').dispatchEvent(new Event('change'));
+            }, 50);
+
+            form.iot_card_no.value = gw.iot_card_no || '';
+            form.sim_operator.value = gw.sim_operator || '';
+            form.sim_iccid.value = gw.sim_iccid || '';
+            form.ip_address.value = gw.ip_address || '';
+            form.mac_address.value = gw.mac_address || '';
+            form.serial_no.value = gw.serial_no || '';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = '保存修改';
+            submitBtn.style.background = '#faad14';
+        }
+
+        // 渲染网关列表
+        function renderGateways() {
+            const listDiv = document.getElementById('gatewayList');
+            const countSpan = document.getElementById('gatewayCount');
+            
+            countSpan.textContent = `(${gateways.length}个)`;
+            
+            if (gateways.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">暂无网关，请添加第一个网关</p>';
+            } else {
+                listDiv.innerHTML = gateways.map(gateway => `
+                    <div class="gateway-item">
+                        <div class="gateway-item-header">
+                            <div class="gateway-item-title">${gateway.gateway_no} - ${gateway.brand} ${gateway.model}</div>
+                            <div class="gateway-item-actions">
+                                <button onclick="editGateway(${gateway.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">编辑</button>
+                                <button onclick="deleteGateway(${gateway.id})" class="delete">删除</button>
+                            </div>
+                        </div>
+                        <div class="gateway-info">
+                            ${gateway.serial_no ? `
+                                <div class="gateway-info-item">
+                                    <div class="gateway-info-label">SN号</div>
+                                    <div class="gateway-info-value" style="font-family:monospace;">${gateway.serial_no}</div>
+                                </div>
+                            ` : ''}
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">RS485端口数</div>
+                                <div class="gateway-info-value">${gateway.rs485_ports || '-'}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">网口端口数</div>
+                                <div class="gateway-info-value">${gateway.eth_ports || '-'}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">物联网卡号</div>
+                                <div class="gateway-info-value">${gateway.iot_card_no}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">运营商</div>
+                                <div class="gateway-info-value">${gateway.sim_operator || '-'}</div>
+                            </div>
+                            ${gateway.ip_address ? `
+                                <div class="gateway-info-item">
+                                    <div class="gateway-info-label">IP地址</div>
+                                    <div class="gateway-info-value">${gateway.ip_address}</div>
+                                </div>
+                            ` : ''}
+                            ${gateway.mac_address ? `
+                                <div class="gateway-info-item">
+                                    <div class="gateway-info-label">MAC地址</div>
+                                    <div class="gateway-info-value">${gateway.mac_address}</div>
+                                </div>
+                            ` : ''}
+                            ${gateway.sim_iccid ? `
+                                <div class="gateway-info-item">
+                                    <div class="gateway-info-label">ICCID</div>
+                                    <div class="gateway-info-value">${gateway.sim_iccid}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 删除网关
+        function deleteGateway(id) {
+            if (confirm('确定要删除这个网关吗？')) {
+                gateways = gateways.filter(g => g.id !== id);
+                localStorage.setItem('gateways', JSON.stringify(gateways));
+                renderGateways();
+            }
+        }
+
+        // 继续到通讯配置
+        function completeProject() {
+            if (gateways.length === 0) {
+                if (!confirm('还没有添加网关，确定要继续吗？\n\n建议至少添加一个网关以便进行通讯配置。')) {
+                    return;
+                }
+            }
+            window.location.href = 'communication-setup.html';
+        }
+
+        // 初始化
+        renderGateways();
+    </script>
+</body>
+</html>

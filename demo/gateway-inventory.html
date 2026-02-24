@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网关库存管理 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        .page-container { padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 2px -2px rgba(0,0,0,.16), 0 3px 6px 0 rgba(0,0,0,.12); margin-bottom: 24px; padding: 24px; }
+        .toolbar { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .toolbar-spacer { flex: 1; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 13px; color: #595959; }
+        .form-control { height: 32px; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+        .form-control:focus { border-color: #1890ff; outline: none; box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 4px 15px; font-size: 14px; border-radius: 4px; height: 32px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; transition: all 0.3s; }
+        .btn-primary { color: #fff; background: #1890ff; border-color: #1890ff; }
+        .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; }
+        .btn-success { color: #fff; background: #52c41a; border-color: #52c41a; }
+        .btn-success:hover { background: #73d13d; }
+        .btn-danger { color: #fff; background: #ff4d4f; border-color: #ff4d4f; }
+        .btn-danger:hover { background: #ff7875; }
+        .btn-sm { padding: 0 7px; height: 24px; font-size: 12px; }
+        .btn-icon { padding: 0 8px; border: none; background: transparent; cursor: pointer; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { text-align: left; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; font-size: 14px; }
+        .data-table th { font-weight: 600; color: #333; background: #fafafa; }
+        .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .status-in_stock { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .status-allocated { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .status-shipped { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .status-installed { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .status-returned { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+        .stats-bar { display: flex; gap: 24px; margin-bottom: 20px; }
+        .stat-item { display: flex; align-items: baseline; gap: 8px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #262626; }
+        .stat-label { font-size: 13px; color: #8c8c8c; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay.open { display: flex; }
+        .modal-content { background: #fff; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.15); width: 560px; max-width: calc(100vw - 32px); max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 16px; }
+        .modal-body { padding: 24px; overflow-y: auto; }
+        .modal-footer { padding: 10px 16px; text-align: right; border-top: 1px solid #f0f0f0; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>网关库存管理</h1>
+                <div class="user-menu"></div>
+            </header>
+            <div class="page-container">
+                <!-- 统计 -->
+                <div class="card">
+                    <div class="stats-bar" id="statsBar">
+                        <div class="stat-item"><span class="stat-value" id="statTotal">0</span><span class="stat-label">总数</span></div>
+                        <div class="stat-item"><span class="stat-value" style="color:#52c41a" id="statInStock">0</span><span class="stat-label">在库</span></div>
+                        <div class="stat-item"><span class="stat-value" style="color:#1890ff" id="statAllocated">0</span><span class="stat-label">已分配</span></div>
+                        <div class="stat-item"><span class="stat-value" style="color:#fa8c16" id="statShipped">0</span><span class="stat-label">已发货</span></div>
+                        <div class="stat-item"><span class="stat-value" style="color:#722ed1" id="statInstalled">0</span><span class="stat-label">已安装</span></div>
+                    </div>
+                </div>
+
+                <!-- 操作栏 -->
+                <div class="card">
+                    <div class="toolbar">
+                        <div class="form-group" style="width: 180px;">
+                            <label>网关型号</label>
+                            <select id="filterModel" class="form-control" onchange="loadInventory()">
+                                <option value="">全部型号</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 140px;">
+                            <label>状态</label>
+                            <select id="filterStatus" class="form-control" onchange="loadInventory()">
+                                <option value="">全部</option>
+                                <option value="in_stock">在库</option>
+                                <option value="allocated">已分配</option>
+                                <option value="shipped">已发货</option>
+                                <option value="installed">已安装</option>
+                                <option value="returned">已退回</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="width: 200px;">
+                            <label>序列号查找</label>
+                            <input id="filterSerial" class="form-control" placeholder="输入SN搜索..." oninput="applySerialFilter()">
+                        </div>
+                        <div class="toolbar-spacer"></div>
+                        <button class="btn btn-primary" onclick="openAddModal()">+ 入库登记</button>
+                        <button class="btn" onclick="exportTemplate()">导出模板</button>
+                        <label class="btn" style="margin:0;cursor:pointer;">
+                            批量导入
+                            <input type="file" accept=".xlsx,.xls,.csv" onchange="importFromFile(event)" style="display:none;">
+                        </label>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead><tr>
+                                <th>出厂编号/SN</th><th>品牌/型号</th><th>串口/网口</th>
+                                <th>SIM卡号</th><th>MAC地址</th><th>IP地址</th><th>状态</th><th>关联项目</th>
+                                <th style="text-align:right">操作</th>
+                            </tr></thead>
+                            <tbody id="inventoryBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 入库弹窗 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="addModalTitle">入库登记</h3>
+                <button class="btn-icon" onclick="closeModal('addModal')" style="font-size:18px;color:#999;">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label>网关型号 <span style="color:red">*</span></label>
+                    <select id="addModelId" class="form-control"></select>
+                </div>
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label>设备序列号 <span style="color:red">*</span></label>
+                    <input id="addSerialNo" class="form-control" placeholder="出厂编号 / SN">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="form-group">
+                        <label>SIM卡号</label>
+                        <input id="addSimCard" class="form-control" placeholder="选填">
+                    </div>
+                    <div class="form-group">
+                        <label>运营商</label>
+                        <input id="addSimOp" class="form-control" placeholder="如：中国移动">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="form-group">
+                        <label>ICCID</label>
+                        <input id="addIccid" class="form-control" placeholder="选填">
+                    </div>
+                    <div class="form-group">
+                        <label>IP地址</label>
+                        <input id="addIp" class="form-control" placeholder="选填">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>MAC地址</label>
+                    <input id="addMac" class="form-control" placeholder="选填">
+                </div>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>备注</label>
+                    <input id="addRemarks" class="form-control" placeholder="选填">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('addModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveInventory()" style="margin-left:8px;">确认入库</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分配弹窗 -->
+    <div class="modal-overlay" id="allocateModal">
+        <div class="modal-content" style="width:420px;">
+            <div class="modal-header">
+                <h3>分配至项目</h3>
+                <button class="btn-icon" onclick="closeModal('allocateModal')" style="font-size:18px;color:#999;">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom:16px;color:#595959;">将网关 <strong id="allocateSerialNo"></strong> 分配给项目：</p>
+                <div class="form-group">
+                    <label>选择项目</label>
+                    <select id="allocateProjectId" class="form-control"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('allocateModal')">取消</button>
+                <button class="btn btn-success" onclick="doAllocate()" style="margin-left:8px;">确认分配</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gwModels = [];
+        let inventory = [];
+        let filteredInventory = [];
+        let editingItemId = null;
+        let allocatingItemId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            requireAuth();
+            await loadGwModels();
+            await loadInventory();
+        });
+
+        async function loadGwModels() {
+            try {
+                gwModels = await api.gatewayLibrary.getModels();
+                const sel1 = document.getElementById('filterModel');
+                const sel2 = document.getElementById('addModelId');
+                const filterOpts = gwModels.map(m => `<option value="${m.id}">${m.model_name} (${m.serial_port_count}串口/${m.ethernet_port_count}网口)</option>`).join('');
+                const addOpts = gwModels.map(m => `<option value="${m.id}">${m.brand} ${m.model_name} (${m.serial_port_count}串口/${m.ethernet_port_count}网口)</option>`).join('');
+                sel1.innerHTML = '<option value="">全部型号</option>' + filterOpts;
+                sel2.innerHTML = '<option value="">请选择...</option>' + addOpts;
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadInventory() {
+            try {
+                const params = {};
+                const modelId = document.getElementById('filterModel').value;
+                const status = document.getElementById('filterStatus').value;
+                if (modelId) params.gateway_model_id = modelId;
+                if (status) params.status = status;
+                inventory = await api.gatewayLibrary.getInventory(params);
+                applySerialFilter();
+            } catch(e) { console.error(e); }
+        }
+
+        function applySerialFilter() {
+            const keyword = (document.getElementById('filterSerial').value || '').trim().toLowerCase();
+            if (!keyword) {
+                filteredInventory = inventory;
+            } else {
+                filteredInventory = inventory.filter(function(item) {
+                    return (item.serial_no || '').toLowerCase().indexOf(keyword) !== -1;
+                });
+            }
+            renderTable();
+            updateStats();
+        }
+
+        function updateStats() {
+            const counts = { total: filteredInventory.length, in_stock: 0, allocated: 0, shipped: 0, installed: 0 };
+            filteredInventory.forEach(i => {
+                if (counts[i.status] !== undefined) counts[i.status]++;
+            });
+            document.getElementById('statTotal').textContent = counts.total;
+            document.getElementById('statInStock').textContent = counts.in_stock;
+            document.getElementById('statAllocated').textContent = counts.allocated;
+            document.getElementById('statShipped').textContent = counts.shipped;
+            document.getElementById('statInstalled').textContent = counts.installed;
+        }
+
+        const STATUS_MAP = {
+            'in_stock': '在库', 'allocated': '已分配', 'shipped': '已发货',
+            'installed': '已安装', 'returned': '已退回'
+        };
+
+        function renderTable() {
+            const tbody = document.getElementById('inventoryBody');
+            if (!filteredInventory.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#999;padding:40px;">暂无库存数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = filteredInventory.map(item => {
+                const gm = item.gateway_model;
+                const brandModel = gm ? `${gm.brand} / ${gm.model_name}` : '-';
+                const ports = gm ? `${gm.serial_port_count}串 / ${gm.ethernet_port_count}网` : '-';
+                const statusLabel = STATUS_MAP[item.status] || item.status;
+
+                let actions = '';
+                if (item.status === 'in_stock') {
+                    actions = `<button class="btn btn-success btn-sm" onclick="openAllocateModal(${item.id})">分配</button>
+                               <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})" style="margin-left:4px;">删除</button>`;
+                } else if (item.status === 'allocated') {
+                    actions = `<button class="btn btn-sm" onclick="releaseItem(${item.id})">释放</button>`;
+                } else {
+                    actions = `<button class="btn btn-sm" onclick="editStatus(${item.id}, '${item.status}')">改状态</button>`;
+                }
+
+                return `<tr>
+                    <td style="font-weight:600;font-family:monospace;">${item.serial_no}</td>
+                    <td>${brandModel}</td>
+                    <td>${ports}</td>
+                    <td>${item.sim_card_no || '-'}</td>
+                    <td style="font-family:monospace;">${item.mac_address || '-'}</td>
+                    <td>${item.ip_address || '-'}</td>
+                    <td><span class="status-tag status-${item.status}">${statusLabel}</span></td>
+                    <td>${item.project_id ? '项目#' + item.project_id : '-'}</td>
+                    <td style="text-align:right">${actions}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openAddModal() {
+            editingItemId = null;
+            document.getElementById('addModalTitle').textContent = '入库登记';
+            document.getElementById('addModelId').value = '';
+            document.getElementById('addSerialNo').value = '';
+            document.getElementById('addSimCard').value = '';
+            document.getElementById('addSimOp').value = '';
+            document.getElementById('addIccid').value = '';
+            document.getElementById('addIp').value = '';
+            document.getElementById('addMac').value = '';
+            document.getElementById('addRemarks').value = '';
+            document.getElementById('addModal').classList.add('open');
+        }
+
+        async function saveInventory() {
+            const modelId = document.getElementById('addModelId').value;
+            const serialNo = document.getElementById('addSerialNo').value.trim();
+            if (!modelId || !serialNo) return alert('请选择型号并填写序列号');
+
+            const data = {
+                gateway_model_id: parseInt(modelId),
+                serial_no: serialNo,
+                sim_card_no: document.getElementById('addSimCard').value.trim() || null,
+                sim_operator: document.getElementById('addSimOp').value.trim() || null,
+                sim_iccid: document.getElementById('addIccid').value.trim() || null,
+                ip_address: document.getElementById('addIp').value.trim() || null,
+                mac_address: document.getElementById('addMac').value.trim() || null,
+                remarks: document.getElementById('addRemarks').value.trim() || null,
+            };
+            try {
+                await api.gatewayLibrary.createInventory(data);
+                closeModal('addModal');
+                loadInventory();
+            } catch(e) { alert('入库失败: ' + e.message); }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('确定删除该库存记录？')) return;
+            try {
+                await api.gatewayLibrary.deleteInventory(id);
+                loadInventory();
+            } catch(e) { alert('删除失败: ' + e.message); }
+        }
+
+        async function openAllocateModal(itemId) {
+            allocatingItemId = itemId;
+            const item = inventory.find(i => i.id === itemId);
+            document.getElementById('allocateSerialNo').textContent = item ? item.serial_no : '';
+
+            try {
+                const projects = await api.projects.getProjects();
+                const projList = Array.isArray(projects) ? projects : (projects.items || []);
+                const sel = document.getElementById('allocateProjectId');
+                sel.innerHTML = '<option value="">请选择项目...</option>' +
+                    projList.map(p => `<option value="${p.id}">${p.project_name || p.name} (#${p.id})</option>`).join('');
+            } catch(e) {
+                console.error(e);
+            }
+            document.getElementById('allocateModal').classList.add('open');
+        }
+
+        async function doAllocate() {
+            const projectId = document.getElementById('allocateProjectId').value;
+            if (!projectId) return alert('请选择项目');
+            try {
+                await api.gatewayLibrary.allocateToProject(allocatingItemId, parseInt(projectId));
+                closeModal('allocateModal');
+                loadInventory();
+            } catch(e) { alert('分配失败: ' + e.message); }
+        }
+
+        async function releaseItem(id) {
+            if (!confirm('确定将此网关从项目中释放回库存？')) return;
+            try {
+                await api.gatewayLibrary.releaseFromProject(id);
+                loadInventory();
+            } catch(e) { alert('释放失败: ' + e.message); }
+        }
+
+        async function editStatus(id, currentStatus) {
+            const newStatus = prompt(
+                '当前状态: ' + (STATUS_MAP[currentStatus] || currentStatus) +
+                '\n请输入新状态: in_stock / allocated / shipped / installed / returned'
+            );
+            if (!newStatus) return;
+            try {
+                await api.gatewayLibrary.updateInventory(id, { status: newStatus.trim() });
+                loadInventory();
+            } catch(e) { alert('更新失败: ' + e.message); }
+        }
+
+        function exportTemplate() {
+            var modelHint = gwModels.map(function(m) { return m.id + ' = ' + m.model_name; }).join(', ');
+            var headers = ['网关型号ID', '设备序列号(SN)', 'SIM卡号', '运营商', 'ICCID', 'IP地址', 'MAC地址', '备注'];
+            var example = [gwModels.length ? gwModels[0].id : 1, 'GW-SN-001', '1440012345678', '中国移动', '', '', '', ''];
+            var ws = XLSX.utils.aoa_to_sheet([headers, example]);
+            ws['!cols'] = [{ wch: 14 }, { wch: 20 }, { wch: 18 }, { wch: 12 }, { wch: 22 }, { wch: 16 }, { wch: 20 }, { wch: 16 }];
+            if (!ws['A4']) XLSX.utils.sheet_add_aoa(ws, [['型号ID对照: ' + modelHint]], { origin: 'A4' });
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '网关入库模板');
+            XLSX.writeFile(wb, '网关批量入库模板.xlsx');
+        }
+
+        async function importFromFile(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+
+            var reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    var wb = XLSX.read(e.target.result, { type: 'array' });
+                    var ws = wb.Sheets[wb.SheetNames[0]];
+                    var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+                    if (rows.length < 2) return alert('模板内无数据行');
+
+                    var dataRows = rows.slice(1).filter(function(r) {
+                        return r[0] && r[1];
+                    });
+                    if (dataRows.length === 0) return alert('未找到有效数据（需要填写型号ID和序列号）');
+
+                    if (!confirm('检测到 ' + dataRows.length + ' 条记录，确认批量入库？')) return;
+
+                    var success = 0, fail = 0, errors = [];
+                    for (var i = 0; i < dataRows.length; i++) {
+                        var r = dataRows[i];
+                        var data = {
+                            gateway_model_id: parseInt(r[0]),
+                            serial_no: String(r[1]).trim(),
+                            sim_card_no: r[2] ? String(r[2]).trim() : null,
+                            sim_operator: r[3] ? String(r[3]).trim() : null,
+                            sim_iccid: r[4] ? String(r[4]).trim() : null,
+                            ip_address: r[5] ? String(r[5]).trim() : null,
+                            mac_address: r[6] ? String(r[6]).trim() : null,
+                            remarks: r[7] ? String(r[7]).trim() : null
+                        };
+                        try {
+                            await api.gatewayLibrary.createInventory(data);
+                            success++;
+                        } catch(err) {
+                            fail++;
+                            errors.push('SN ' + data.serial_no + ': ' + err.message);
+                        }
+                    }
+
+                    var msg = '批量入库完成: 成功 ' + success + ' / 失败 ' + fail;
+                    if (errors.length > 0) msg += '\n\n失败详情:\n' + errors.slice(0, 10).join('\n');
+                    alert(msg);
+                    loadInventory();
+                } catch(err) {
+                    alert('文件解析失败: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+    </script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

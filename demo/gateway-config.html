@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网关配置 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; }
+        .card h3 { margin: 0 0 16px 0; }
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 14px; }
+        .info-grid strong { color: var(--text-secondary); }
+        .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-bar select { padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 14px; min-width: 260px; }
+        .port-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
+        .port-card { padding: 20px; background: var(--bg-color); border-radius: 8px; border: 2px solid var(--border-color); transition: all 0.3s; }
+        .port-card:hover { border-color: var(--primary-color); }
+        .port-card.assigned { border-color: var(--success-color); background: #f6ffed; }
+        .port-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .port-number { font-size: 18px; font-weight: 700; color: var(--primary-color); }
+        .port-status { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .port-status.unassigned { background: #f5f5f5; color: var(--text-secondary); }
+        .port-status.assigned { background: var(--success-color); color: white; }
+        .port-device { font-weight: 500; margin-bottom: 4px; }
+        .port-address { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+        .btn { padding: 8px 20px; border-radius: 4px; font-size: 14px; cursor: pointer; border: none; transition: all 0.3s; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: #096dd9; }
+        .btn-secondary { background: white; color: var(--text-primary); border: 1px solid #d9d9d9; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        .btn-success { background: #52c41a; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; }
+        .empty-state { text-align: center; padding: 60px 0; color: var(--text-secondary); }
+        .assign-form select, .assign-form input { padding: 6px 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; width: 100%; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>网关端口配置</h1>
+                <div class="user-menu"></div>
+            </header>
+            <div class="content-wrapper">
+
+        <div class="card">
+            <div class="filter-bar">
+                <label style="font-weight:500;">选择项目：</label>
+                <select id="projectSelect" onchange="onProjectChange()">
+                    <option value="">-- 请选择 --</option>
+                </select>
+                <label style="font-weight:500; margin-left: 16px;">选择网关：</label>
+                <select id="gatewaySelect" onchange="onGatewayChange()">
+                    <option value="">-- 请先选择项目 --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card" id="gatewayInfoCard" style="display: none;">
+            <h3>网关信息</h3>
+            <div class="info-grid" id="gatewayInfo"></div>
+        </div>
+
+        <div class="card" id="portConfigCard" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin: 0;">端口配置</h3>
+                <button class="btn-success btn-sm" id="autoAssignBtn" onclick="autoAssign()" style="display:none;">自动分配地址</button>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 4px;">绿色 = 已分配，灰色 = 未分配。仅管理员可操作。</p>
+            <div class="port-grid" id="portGrid"></div>
+        </div>
+
+            </div><!-- content-wrapper -->
+        </main>
+    </div><!-- app-container -->
+
+    <script src="assets/js/nav.js"></script>
+    <script>
+        requireAuth();
+
+        let currentProjectId = null;
+        let currentGateway = null;
+        let devices = [];
+        let portAssignments = {};
+
+        async function initPage() {
+            if (isAdmin()) {
+                var autoBtn = document.getElementById('autoAssignBtn');
+                if (autoBtn) autoBtn.style.display = '';
+            }
+
+            try {
+                const projects = await api.projects.getProjects();
+                const sel = document.getElementById('projectSelect');
+                (projects || []).forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = p.project_no + ' - ' + p.name;
+                    sel.appendChild(opt);
+                });
+                const savedProjId = localStorage.getItem('currentProjectId');
+                if (savedProjId) {
+                    sel.value = savedProjId;
+                    onProjectChange();
+                }
+            } catch (e) {
+                console.warn('加载项目列表失败:', e.message);
+            }
+        }
+
+        async function onProjectChange() {
+            currentProjectId = document.getElementById('projectSelect').value;
+            const gwSel = document.getElementById('gatewaySelect');
+            gwSel.innerHTML = '<option value="">-- 加载中 --</option>';
+            document.getElementById('gatewayInfoCard').style.display = 'none';
+            document.getElementById('portConfigCard').style.display = 'none';
+
+            if (!currentProjectId) { gwSel.innerHTML = '<option value="">-- 请先选择项目 --</option>'; return; }
+
+            try {
+                const gateways = await api.gateways.getGateways({ project_id: currentProjectId });
+                gwSel.innerHTML = '<option value="">-- 请选择网关 --</option>';
+                (gateways || []).forEach(gw => {
+                    const opt = document.createElement('option');
+                    opt.value = gw.id;
+                    opt.textContent = gw.gateway_no + ' (' + (gw.brand || '-') + ' ' + (gw.model || '') + ')';
+                    opt.dataset.gateway = JSON.stringify(gw);
+                    gwSel.appendChild(opt);
+                });
+            } catch (e) {
+                gwSel.innerHTML = '<option value="">加载失败</option>';
+            }
+
+            try {
+                devices = await api.devices.getDevices({ project_id: currentProjectId });
+            } catch (e) {
+                devices = [];
+            }
+        }
+
+        async function onGatewayChange() {
+            const gwSel = document.getElementById('gatewaySelect');
+            const selected = gwSel.options[gwSel.selectedIndex];
+            if (!selected || !selected.dataset.gateway) {
+                document.getElementById('gatewayInfoCard').style.display = 'none';
+                document.getElementById('portConfigCard').style.display = 'none';
+                return;
+            }
+
+            currentGateway = JSON.parse(selected.dataset.gateway);
+            loadPortAssignments();
+
+            document.getElementById('gatewayInfoCard').style.display = '';
+            document.getElementById('gatewayInfo').innerHTML =
+                '<div><strong>编号：</strong>' + currentGateway.gateway_no + '</div>' +
+                '<div><strong>品牌型号：</strong>' + (currentGateway.brand || '-') + ' ' + (currentGateway.model || '') + '</div>' +
+                '<div><strong>端口数：</strong>' + (currentGateway.total_ports || 8) + ' 口</div>' +
+                '<div><strong>SIM卡号：</strong>' + (currentGateway.sim_card_no || '-') + '</div>' +
+                '<div><strong>IP地址：</strong>' + (currentGateway.ip_address || '-') + '</div>' +
+                '<div><strong>MAC地址：</strong>' + (currentGateway.mac_address || '-') + '</div>';
+
+            document.getElementById('portConfigCard').style.display = '';
+            renderPorts();
+        }
+
+        function loadPortAssignments() {
+            const key = 'port_assign_' + currentGateway.id;
+            portAssignments = JSON.parse(localStorage.getItem(key) || '{}');
+
+            // Also check device model for gateway_id + gateway_port
+            (devices || []).forEach(d => {
+                if (d.gateway_id === currentGateway.id && d.gateway_port) {
+                    const portKey = String(d.gateway_port);
+                    if (!portAssignments[portKey]) {
+                        portAssignments[portKey] = {
+                            device_id: d.id,
+                            device_no: d.device_no,
+                            device_type: d.device_type,
+                            brand: d.brand,
+                            model: d.model,
+                            rs485_address: d.rs485_address || null,
+                        };
+                    }
+                }
+            });
+        }
+
+        function renderPorts() {
+            const totalPorts = currentGateway.total_ports || 8;
+            const grid = document.getElementById('portGrid');
+            const adminMode = isAdmin();
+            let html = '';
+
+            for (let i = 1; i <= totalPorts; i++) {
+                const key = String(i);
+                const a = portAssignments[key];
+                if (a) {
+                    html += '<div class="port-card assigned">' +
+                        '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status assigned">已分配</span></div>' +
+                        '<div class="port-device">' + (a.device_no || '-') + '</div>' +
+                        '<div class="port-address">485地址: ' + (a.rs485_address || '未设置') + '</div>' +
+                        '<div style="font-size:13px; color:#999;">' + (a.brand || '') + ' ' + (a.model || '') + '</div>' +
+                        (adminMode ? '<button class="btn btn-sm" style="margin-top:8px;" onclick="clearPort(' + i + ')">清除</button>' : '') +
+                        '</div>';
+                } else {
+                    if (adminMode) {
+                        html += '<div class="port-card" id="port_card_' + i + '">' +
+                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">未分配</span></div>' +
+                            '<div class="assign-form">' +
+                            '<select id="port_device_' + i + '"><option value="">选择设备...</option>' +
+                            getUnassignedDeviceOptions() +
+                            '</select>' +
+                            '<input type="number" id="port_addr_' + i + '" placeholder="485地址 (1-247)" min="1" max="247">' +
+                            '<button class="btn btn-primary btn-sm" onclick="assignPort(' + i + ')">分配</button>' +
+                            '</div></div>';
+                    } else {
+                        html += '<div class="port-card">' +
+                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">未分配</span></div>' +
+                            '<div style="color:#999;">待管理员配置</div></div>';
+                    }
+                }
+            }
+            grid.innerHTML = html;
+        }
+
+        function getUnassignedDeviceOptions() {
+            const assignedDeviceIds = new Set(Object.values(portAssignments).map(a => a.device_id).filter(Boolean));
+            return (devices || [])
+                .filter(d => !assignedDeviceIds.has(d.id))
+                .map(d => '<option value="' + d.id + '">' + d.device_no + ' (' + (d.brand || '') + ' ' + (d.model || '') + ')</option>')
+                .join('');
+        }
+
+        function assignPort(portNum) {
+            const deviceSel = document.getElementById('port_device_' + portNum);
+            const addrInput = document.getElementById('port_addr_' + portNum);
+            const deviceId = deviceSel.value;
+            if (!deviceId) { alert('请选择设备'); return; }
+
+            const addr = addrInput.value ? parseInt(addrInput.value) : null;
+            if (addr && (addr < 1 || addr > 247)) { alert('485地址范围: 1-247'); return; }
+
+            // Check address conflict
+            if (addr) {
+                for (const [k, v] of Object.entries(portAssignments)) {
+                    if (v.rs485_address === addr && k !== String(portNum)) {
+                        alert('485地址 ' + addr + ' 已被 Port ' + k + ' 使用');
+                        return;
+                    }
+                }
+            }
+
+            const device = devices.find(d => String(d.id) === String(deviceId));
+            portAssignments[String(portNum)] = {
+                device_id: device.id,
+                device_no: device.device_no,
+                device_type: device.device_type,
+                brand: device.brand,
+                model: device.model,
+                rs485_address: addr,
+            };
+
+            savePortAssignments();
+            renderPorts();
+
+            // Update device backend
+            try {
+                api.devices.updateDevice(device.id, {
+                    gateway_id: currentGateway.id,
+                    gateway_port: portNum,
+                    rs485_address: addr,
+                });
+            } catch (e) { console.warn('更新设备网关信息失败:', e.message); }
+        }
+
+        function clearPort(portNum) {
+            if (!confirm('清除 Port ' + portNum + ' 的配置？')) return;
+            const a = portAssignments[String(portNum)];
+            if (a && a.device_id) {
+                try {
+                    api.devices.updateDevice(a.device_id, {
+                        gateway_id: null,
+                        gateway_port: null,
+                        rs485_address: null,
+                    });
+                } catch (e) { console.warn('清除设备网关信息失败:', e.message); }
+            }
+            delete portAssignments[String(portNum)];
+            savePortAssignments();
+            renderPorts();
+        }
+
+        function autoAssign() {
+            if (!currentGateway || !devices.length) { alert('请先选择网关和确保有设备'); return; }
+            const totalPorts = currentGateway.total_ports || 8;
+            const assignedIds = new Set(Object.values(portAssignments).map(a => a.device_id).filter(Boolean));
+            const unassigned = devices.filter(d => !assignedIds.has(d.id));
+            let nextAddr = 1;
+            const usedAddrs = new Set(Object.values(portAssignments).map(a => a.rs485_address).filter(Boolean));
+
+            for (let port = 1; port <= totalPorts; port++) {
+                if (portAssignments[String(port)]) continue;
+                const dev = unassigned.shift();
+                if (!dev) break;
+
+                while (usedAddrs.has(nextAddr) && nextAddr <= 247) nextAddr++;
+                if (nextAddr > 247) break;
+
+                portAssignments[String(port)] = {
+                    device_id: dev.id,
+                    device_no: dev.device_no,
+                    device_type: dev.device_type,
+                    brand: dev.brand,
+                    model: dev.model,
+                    rs485_address: nextAddr,
+                };
+                usedAddrs.add(nextAddr);
+
+                try {
+                    api.devices.updateDevice(dev.id, {
+                        gateway_id: currentGateway.id,
+                        gateway_port: port,
+                        rs485_address: nextAddr,
+                    });
+                } catch (e) { /* skip */ }
+                nextAddr++;
+            }
+
+            savePortAssignments();
+            renderPorts();
+            api.projects.showSuccess('自动分配完成');
+        }
+
+        function savePortAssignments() {
+            if (!currentGateway) return;
+            localStorage.setItem('port_assign_' + currentGateway.id, JSON.stringify(portAssignments));
+        }
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

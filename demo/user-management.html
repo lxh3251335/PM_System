@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .page-container { max-width: 1200px; margin: 24px auto; width: calc(100% - 32px); }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr 160px 120px auto; gap: 10px; align-items: end; }
+        .form-group label { display: block; font-size: 14px; margin-bottom: 6px; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 4px; }
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        .table { width: 100%; min-width: 900px; border-collapse: collapse; }
+        .table th, .table td { text-align: left; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; font-size: 14px; }
+        .action-link { cursor: pointer; color: #1677ff; margin-right: 10px; }
+        .action-link.danger { color: #d4380d; }
+        .empty { color: #888; text-align: center; padding: 24px; }
+        .no-access { color: #d4380d; background: #fff2e8; border: 1px solid #ffd8bf; padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; }
+        .badge-role { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-role.admin { background: #e6f4ff; color: #1677ff; }
+        .badge-role.customer { background: #f6ffed; color: #389e0d; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">📦</div>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="project-list.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="device-management.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span>设备管理</span>
+                </a>
+                <a href="gateway-config.html" class="nav-item">
+                    <span class="nav-icon">📡</span>
+                    <span>网关配置</span>
+                </a>
+                <a href="business-options.html" class="nav-item" id="navBusinessOptions">
+                    <span class="nav-icon">⚙️</span>
+                    <span>业务类型配置</span>
+                </a>
+                <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
+                    <span class="nav-icon">🧩</span>
+                    <span>设备配置管理</span>
+                </a>
+                <a href="user-management.html" class="nav-item active" id="navUserManagement">
+                    <span class="nav-icon">👥</span>
+                    <span>用户管理</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">←</span>
+                    <span>返回首页</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <header class="top-bar">
+                <h1>用户管理</h1>
+                <div class="user-menu">
+                    <span class="user-name" id="userDisplayName">👤 客户</span>
+                    <button class="btn-logout" onclick="window.location.href='index.html'">退出</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper page-container">
+                <div id="noAccessTip" class="no-access" style="display: none;">仅管理员可新增账号。</div>
+
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" id="usernameInput" placeholder="例如：customer002">
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" id="passwordInput" placeholder="至少6位">
+                        </div>
+                        <div class="form-group">
+                            <label>企业名称</label>
+                            <input type="text" id="companyInput" placeholder="例如：南京XX冷链有限公司">
+                        </div>
+                        <div class="form-group">
+                            <label>角色</label>
+                            <select id="roleInput">
+                                <option value="customer">客户</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>状态</label>
+                            <select id="activeInput">
+                                <option value="true">启用</option>
+                                <option value="false">停用</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" id="createUserBtn">新增账号</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">账号列表</h3>
+                    <div class="table-wrapper" id="userListContainer"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const rawRole = (localStorage.getItem('userRole') || 'customer').toLowerCase();
+        const role = rawRole === 'factory' ? 'admin' : (rawRole === 'user' ? 'customer' : rawRole);
+        const username = localStorage.getItem('currentUsername') || '';
+        let currentUsers = [];
+
+        function initUserContext() {
+            const roleText = role === 'admin' ? '管理员' : '客户';
+            const displayEl = document.getElementById('userDisplayName');
+            if (displayEl) {
+                displayEl.textContent = `${roleText}${username ? ' - ' + username : ''}`;
+            }
+            if (role !== 'admin') {
+                document.getElementById('noAccessTip').style.display = '';
+                document.getElementById('createUserBtn').disabled = true;
+                document.getElementById('usernameInput').disabled = true;
+                document.getElementById('passwordInput').disabled = true;
+                document.getElementById('companyInput').disabled = true;
+                document.getElementById('roleInput').disabled = true;
+                document.getElementById('activeInput').disabled = true;
+            }
+        }
+
+        function roleBadge(roleValue) {
+            const value = (roleValue || '').toLowerCase();
+            const text = value === 'admin' ? '管理员' : '客户';
+            return `<span class="badge-role ${value === 'admin' ? 'admin' : 'customer'}">${text}</span>`;
+        }
+
+        async function loadUsers() {
+            const container = document.getElementById('userListContainer');
+            try {
+                const list = await api.users.getUsers(role);
+                currentUsers = list || [];
+                if (!list || list.length === 0) {
+                    container.innerHTML = '<div class="empty">暂无账号</div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>用户名</th>
+                                <th>企业名称</th>
+                                <th>角色</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${list.map((item, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.username}</td>
+                                    <td>${item.company_name || '-'}</td>
+                                    <td>${roleBadge(item.role)}</td>
+                                    <td>${item.is_active ? '启用' : '停用'}</td>
+                                    <td>${item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}</td>
+                                    <td>
+                                        ${role === 'admin' ? `
+                                            <span class="action-link" onclick="showEditUser(${item.id})">编辑</span>
+                                            <span class="action-link" onclick="toggleUserActive(${item.id}, ${item.is_active})">${item.is_active ? '停用' : '启用'}</span>
+                                            <span class="action-link danger" onclick="deleteUser(${item.id})">删除</span>
+                                        ` : '-'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                container.innerHTML = `<div class="empty">加载失败：${error.message}</div>`;
+            }
+        }
+
+        async function createUser() {
+            if (role !== 'admin') return;
+            const usernameValue = document.getElementById('usernameInput').value.trim();
+            const passwordValue = document.getElementById('passwordInput').value.trim();
+            const companyValue = document.getElementById('companyInput').value.trim();
+            const roleValue = document.getElementById('roleInput').value;
+            const activeValue = document.getElementById('activeInput').value === 'true';
+
+            if (!usernameValue || !passwordValue) {
+                api.projects.showError('请输入用户名和密码');
+                return;
+            }
+
+            try {
+                await api.users.createUser({
+                    username: usernameValue,
+                    password: passwordValue,
+                    company_name: companyValue,
+                    role: roleValue,
+                    is_active: activeValue
+                }, role);
+                api.projects.showSuccess('账号创建成功');
+                document.getElementById('usernameInput').value = '';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('companyInput').value = '';
+                document.getElementById('roleInput').value = 'customer';
+                document.getElementById('activeInput').value = 'true';
+                await loadUsers();
+            } catch (error) {
+                // #region agent log
+                fetch('http://127.0.0.1:7487/ingest/b1782c58-c736-4a26-b251-acb345c57f1c',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'20b895'},body:JSON.stringify({sessionId:'20b895',location:'user-management.html:createUser-catch',message:'createUser error caught',data:{errorType:typeof error,errorMessage:error?.message,errorStr:String(error),isError:error instanceof Error},timestamp:Date.now(),hypothesisId:'H1-H4'})}).catch(()=>{});
+                // #endregion
+                api.projects.showError(error.message);
+            }
+        }
+
+        async function toggleUserActive(userId, currentActive) {
+            if (role !== 'admin') return;
+            const target = currentUsers.find(item => item.id === userId);
+            if (!target) return;
+
+            const actionText = currentActive ? '停用' : '启用';
+            const confirmed = confirm(`确定要${actionText}账号 ${target.username} 吗？`);
+            if (!confirmed) return;
+
+            try {
+                await api.users.updateUser(userId, { is_active: !currentActive }, role);
+                api.projects.showSuccess(`${actionText}成功`);
+                await loadUsers();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (role !== 'admin') return;
+            const target = currentUsers.find(item => item.id === userId);
+            if (!target) return;
+
+            const confirmed = confirm(`确定删除账号 ${target.username} 吗？`);
+            if (!confirmed) return;
+
+            try {
+                await api.users.deleteUser(userId, role);
+                api.projects.showSuccess('删除成功');
+                await loadUsers();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        function showEditUser(userId) {
+            const user = currentUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            // Remove existing modal if any
+            const old = document.getElementById('editUserModal');
+            if (old) old.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'editUserModal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            modal.innerHTML = `
+                <div style="background:white;border-radius:8px;padding:32px;width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
+                    <h3 style="margin:0 0 20px 0;">编辑用户 - ${user.username}</h3>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">企业名称</label>
+                        <input type="text" id="editCompany" value="${user.company_name || ''}" placeholder="企业名称" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">新密码（留空不修改）</label>
+                        <input type="password" id="editPassword" placeholder="至少6位" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">角色</label>
+                        <select id="editRole" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                            <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>客户</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>管理员</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">状态</label>
+                        <select id="editActive" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                            <option value="true" ${user.is_active ? 'selected' : ''}>启用</option>
+                            <option value="false" ${!user.is_active ? 'selected' : ''}>停用</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:12px;justify-content:flex-end;">
+                        <button class="btn-primary" onclick="saveEditUser(${userId})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;">保存</button>
+                        <button onclick="document.getElementById('editUserModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;">取消</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function saveEditUser(userId) {
+            const companyValue = document.getElementById('editCompany').value.trim();
+            const password = document.getElementById('editPassword').value.trim();
+            const roleValue = document.getElementById('editRole').value;
+            const activeValue = document.getElementById('editActive').value === 'true';
+
+            const payload = { company_name: companyValue, role: roleValue, is_active: activeValue };
+            if (password) {
+                if (password.length < 6) {
+                    api.projects.showError('密码至少6位');
+                    return;
+                }
+                payload.password = password;
+            }
+
+            try {
+                await api.users.updateUser(userId, payload, role);
+                api.projects.showSuccess('用户信息更新成功');
+                document.getElementById('editUserModal').remove();
+                await loadUsers();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            initUserContext();
+            document.getElementById('createUserBtn').addEventListener('click', createUser);
+            await loadUsers();
+        });
+    </script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

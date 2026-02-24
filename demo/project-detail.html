@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目详情 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 12px 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 信息和流程布局 */
+        .info-flow-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .info-section, .flow-section {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 4px;
+        }
+        .info-label {
+            color: var(--text-secondary);
+            min-width: 140px;
+        }
+        .info-value {
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        /* 一键复制按钮 */
+        .btn-copy {
+            padding: 4px 12px;
+            font-size: 12px;
+            color: var(--primary-color);
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-copy:hover {
+            background: #bae7ff;
+        }
+        .btn-copy.copied {
+            color: var(--success-color);
+            background: #f6ffed;
+            border-color: #b7eb8f;
+        }
+        .gateway-info-card {
+            background: var(--bg-color);
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .gateway-info-card:last-child { margin-bottom: 0; }
+        .gateway-info-card .gw-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        .gateway-info-card .gw-row {
+            display: flex;
+            gap: 8px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        .gateway-info-card .gw-label {
+            color: var(--text-secondary);
+            min-width: 90px;
+            flex-shrink: 0;
+        }
+        .gateway-info-card .gw-val {
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .shipping-card {
+            background: var(--bg-color);
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .shipping-card:last-child { margin-bottom: 0; }
+        .shipping-card .ship-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .shipping-card .ship-row {
+            display: flex;
+            gap: 8px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        .shipping-card .ship-label {
+            color: var(--text-secondary);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+        .section-divider {
+            border: none;
+            border-top: 1px dashed var(--border-color);
+            margin: 20px 0;
+        }
+        .btn-copy-inline {
+            padding: 1px 6px;
+            font-size: 11px;
+            color: var(--primary-color);
+            background: transparent;
+            border: 1px solid #91d5ff;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 6px;
+            vertical-align: middle;
+            transition: all 0.2s;
+        }
+        .btn-copy-inline:hover {
+            background: #e6f7ff;
+        }
+        .btn-copy-inline.copied {
+            color: var(--success-color);
+            border-color: #b7eb8f;
+        }
+        
+        /* 设备分组样式 */
+        .device-group {
+            margin-bottom: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .device-group-header {
+            background: var(--bg-color);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .device-group-header:hover {
+            background: #e6f7ff;
+        }
+        .device-group-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .device-group-icon {
+            font-size: 24px;
+        }
+        .device-group-body {
+            padding: 20px;
+            display: block;
+        }
+        .device-group-body.collapsed {
+            display: none;
+        }
+        .collapse-icon {
+            font-size: 14px;
+            transition: transform 0.3s;
+            margin-right: 8px;
+        }
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        /* 冷库折叠 */
+        .coldroom-table {
+            margin-bottom: 32px;
+        }
+        .coldroom-header {
+            cursor: pointer;
+            user-select: none;
+        }
+        .coldroom-body {
+            display: table-row-group;
+        }
+        .coldroom-body.collapsed {
+            display: none;
+        }
+        
+        /* 冷库卡片 */
+        .coldroom-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .coldroom-card {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .coldroom-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .coldroom-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--bg-color);
+        }
+        .coldroom-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .coldroom-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        .coldroom-devices {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--bg-color);
+        }
+        .coldroom-devices-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .device-item-small {
+            font-size: 12px;
+            padding: 4px 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        
+        /* 关系配置 */
+        .relation-config {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+        .relation-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">📦</div>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="project-list.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="device-management.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span>设备管理</span>
+                </a>
+                <a href="gateway-config.html" class="nav-item">
+                    <span class="nav-icon">📡</span>
+                    <span>网关配置</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">←</span>
+                    <span>返回首页</span>
+                </a>
+            </nav>
+            <!-- 收缩按钮 -->
+            <div style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button onclick="toggleSidebar()" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; cursor: pointer;">
+                    <span id="collapseIcon">◀</span>
+                    <span class="brand-name"> 收起</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="projectTitle">项目详情</h1>
+                <div class="user-menu">
+                    <button class="btn-primary" onclick="exportReport()">导出报表</button>
+                    <button class="btn-edit" onclick="editProject()">编辑项目</button>
+                    <button class="btn-logout" onclick="window.location.href='project-list.html'">返回列表</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Tab导航 -->
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab(0)">📋 基础信息</button>
+                        <button class="tab" onclick="switchTab(1)">📝 设备登记</button>
+                        <button class="tab" onclick="switchTab(2)">📡 网关配置</button>
+                        <button class="tab" onclick="switchTab(3)">🔗 通讯设置</button>
+                        <button class="tab" onclick="switchTab(4)">📦 发货物流</button>
+                    </div>
+
+                    <!-- Tab 1: 基础信息 & 流程进度 -->
+                    <div class="tab-content active">
+                        <div class="info-flow-container">
+                            <!-- 基础信息 -->
+                            <div class="info-section">
+                                <h3 style="margin-bottom: 20px; color: var(--primary-color);">📋 项目基础信息</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">项目编号</span>
+                                        <span class="info-value"><code id="detailProjectNo">-</code></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">项目名称</span>
+                                        <span class="info-value" id="detailName">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">最终用户</span>
+                                        <span class="info-value"><span class="badge badge-primary" id="detailEndCustomer">-</span></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">业务类型</span>
+                                        <span class="info-value" id="detailBusinessType">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">城市</span>
+                                        <span class="info-value" id="detailCity">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">项目地址</span>
+                                        <span class="info-value" id="detailAddress">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">期望到货时间</span>
+                                        <span class="info-value"><span class="delivery-date delivery-normal" id="detailExpectedArrival">-</span></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">邮寄地址</span>
+                                        <span class="info-value" id="detailMailingAddress">-</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">邮寄联系人</span>
+                                        <span class="info-value" id="detailRecipient">-</span>
+                                    </div>
+                                    <div style="text-align:right; margin-top:4px;">
+                                        <button class="btn-copy" onclick="copyMailingInfo()" id="btnCopyMailing">复制邮寄信息</button>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">创建时间</span>
+                                        <span class="info-value" id="detailCreatedAt">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 网关信息 & 发货物流 -->
+                            <div class="flow-section">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                                    <h3 style="margin:0; color: var(--primary-color);">网关信息</h3>
+                                    <button class="btn-copy" onclick="copyGatewayInfo()" id="btnCopyGateway">复制</button>
+                                </div>
+                                <div id="gatewayInfoPanel">
+                                    <p style="text-align:center; color:var(--text-secondary); padding:16px; font-size:13px;">加载中...</p>
+                                </div>
+                                <hr class="section-divider">
+                                <div style="margin-bottom:14px;">
+                                    <h3 style="margin:0; color: var(--primary-color);">发货物流</h3>
+                                </div>
+                                <div id="shippingInfoPanel">
+                                    <p style="text-align:center; color:var(--text-secondary); padding:16px; font-size:13px;">加载中...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 项目统计摘要 -->
+                        <div style="background: var(--bg-color); padding: 20px; border-radius: 8px;">
+                            <h3 style="margin-bottom: 16px;">📊 项目设备统计</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">🏠</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statColdRoomCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">冷库间数</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">❄️</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statCoolerCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">冷风机</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">🌡️</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statThermostatCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">温控器</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">🔌</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statUnitCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">机组</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">⚡</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statMeterCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">电表</div>
+                                </div>
+                                <div style="text-align: center; padding: 12px; background: white; border-radius: 4px;">
+                                    <div style="font-size: 24px;">🧊</div>
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);" id="statDefrostCount">0</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">融霜控制器</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: 设备登记 -->
+                    <div class="tab-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">设备登记概览</h3>
+                            <button class="btn-primary" onclick="goToDeviceRegister()">前往设备登记页面</button>
+                        </div>
+                        <div id="deviceOverviewContainer">
+                            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">加载设备数据...</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: 网关配置 -->
+                    <div class="tab-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">网关配置概览</h3>
+                            <button class="btn-primary" onclick="goToGatewaySetup()">前往网关配置页面</button>
+                        </div>
+                        <div id="gatewayOverviewContainer">
+                            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">加载网关数据...</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: 通讯设置 -->
+                    <div class="tab-content">
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0;">通讯设置概览</h3>
+                            <p style="color: var(--text-secondary); font-size: 13px; margin-top: 6px;">展示每台设备与网关的绑定关系、通讯端口和地址，用于现场安装接线参考</p>
+                        </div>
+                        <div id="commOverviewContainer">
+                            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">加载通讯配置...</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: 发货物流 -->
+                    <div class="tab-content">
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="margin: 0;">发货物流信息</h3>
+                            <p style="color: var(--text-secondary); font-size: 13px; margin-top: 6px;">管理员发货后，物流信息会显示在此处，方便跟踪到货情况</p>
+                        </div>
+                        <div id="shippingOverviewContainer">
+                            <p style="text-align: center; color: var(--text-secondary); padding: 40px;">加载物流信息...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/nav.js"></script>
+    <script>
+        let currentProjectId = null;
+
+        const DEVICE_TYPE_NAMES = {
+            'air_cooler': '冷风机',
+            'thermostat': '温控器',
+            'unit': '制冷机组',
+            'meter': '电表',
+            'freezer': '冷柜',
+            'defrost_controller': '融霜控制器',
+            'temp-controller': '温控器',
+            'refrigeration_unit': '制冷机组',
+            'electric_meter': '电表'
+        };
+
+        const NORMALIZE_TYPE = {
+            'temp-controller': 'thermostat', 'thermostat': 'thermostat',
+            'air_cooler': 'air_cooler',
+            'refrigeration_unit': 'unit', 'unit': 'unit',
+            'electric_meter': 'meter', 'meter': 'meter',
+            'freezer': 'freezer', 'defrost_controller': 'defrost_controller'
+        };
+
+        function textOrDash(value) {
+            if (value === null || value === undefined) return '-';
+            const str = String(value).trim();
+            return str ? str : '-';
+        }
+
+        function formatDateTime(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return textOrDash(value);
+            return date.toLocaleString('zh-CN');
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return textOrDash(value);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function getRoomTypeName(type) {
+            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库' };
+            return names[type] || type || '-';
+        }
+
+        // ========== Tab切换 ==========
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+            contents.forEach((c, i) => c.classList.toggle('active', i === index));
+
+            if (index === 1 && !deviceOverviewLoaded) loadDeviceOverview();
+            if (index === 2 && !gatewayOverviewLoaded) loadGatewayOverview();
+            if (index === 3 && !commOverviewLoaded) loadCommOverview();
+            if (index === 4 && !shippingOverviewLoaded) loadShippingOverview();
+        }
+        let deviceOverviewLoaded = false;
+        let gatewayOverviewLoaded = false;
+        let commOverviewLoaded = false;
+        let shippingOverviewLoaded = false;
+
+        // ========== 页面初始化 ==========
+        document.addEventListener('DOMContentLoaded', async function() {
+            const params = new URLSearchParams(window.location.search);
+            currentProjectId = params.get('id');
+            if (!currentProjectId) {
+                document.getElementById('projectTitle').textContent = '项目详情 - 未指定项目';
+                return;
+            }
+            localStorage.setItem('currentProjectId', currentProjectId);
+
+            await Promise.all([
+                loadProjectDetail(),
+                loadDeviceStats(),
+                loadGatewayInfoPanel(),
+                loadShippingInfoPanel()
+            ]);
+        });
+
+        // ========== 1. 加载项目基础信息 ==========
+        async function loadProjectDetail() {
+            var project = null;
+            try {
+                project = await api.projects.getProject(currentProjectId);
+            } catch (error) {
+                console.warn('API加载项目详情失败，使用本地数据:', error.message);
+            }
+            if (!project || !project.name) {
+                project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+            }
+            if (project && project.name) {
+                localStorage.setItem('currentProject', JSON.stringify(project));
+                document.getElementById('projectTitle').textContent = '项目详情 - ' + textOrDash(project.name);
+                document.getElementById('detailProjectNo').textContent = textOrDash(project.project_no);
+                document.getElementById('detailName').textContent = textOrDash(project.name);
+                document.getElementById('detailEndCustomer').textContent = textOrDash(project.end_customer);
+                document.getElementById('detailBusinessType').textContent = textOrDash(project.business_type);
+                document.getElementById('detailCity').textContent = textOrDash(project.city);
+                document.getElementById('detailAddress').textContent = textOrDash(project.address);
+                document.getElementById('detailExpectedArrival').textContent = formatDate(project.expected_arrival_time);
+                document.getElementById('detailMailingAddress').textContent = textOrDash(project.mailing_address);
+                var recipientText = textOrDash(project.recipient_name) + ' / ' + textOrDash(project.recipient_phone);
+                document.getElementById('detailRecipient').textContent = recipientText === '- / -' ? '-' : recipientText;
+                document.getElementById('detailCreatedAt').textContent = formatDateTime(project.created_at);
+            } else {
+                document.getElementById('projectTitle').textContent = '项目详情 - 未找到数据';
+            }
+        }
+
+        // ========== 2. 加载设备统计 ==========
+        async function loadDeviceStats() {
+            let roomsLoaded = false;
+
+            try {
+                const coldRooms = await api.projects.getColdRooms(currentProjectId);
+                const rooms = Array.isArray(coldRooms) ? coldRooms : (coldRooms.data || []);
+                document.getElementById('statColdRoomCount').textContent = rooms.length;
+                roomsLoaded = rooms.length > 0;
+            } catch (e) {
+                console.warn('冷库数据加载失败:', e.message);
+            }
+            if (!roomsLoaded) {
+                const allRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+                const localRooms = allRooms.filter(r => String(r.project_id) === String(currentProjectId));
+                if (localRooms.length > 0) {
+                    document.getElementById('statColdRoomCount').textContent = localRooms.length;
+                }
+            }
+
+            var apiStats = null;
+            try {
+                const stats = await api.devices.getDeviceStats(currentProjectId);
+                if (stats && typeof stats.total_devices === 'number') {
+                    apiStats = stats;
+                }
+            } catch (e) {
+                console.warn('设备统计API加载失败:', e.message);
+            }
+
+            var merged;
+            if (apiStats) {
+                merged = {
+                    air_cooler: apiStats.air_coolers || 0,
+                    thermostat: apiStats.thermostats || 0,
+                    unit: apiStats.units || 0,
+                    meter: apiStats.meters || 0,
+                    defrost_controller: apiStats.defrost_controllers || 0
+                };
+            } else {
+                var localCounts = getLocalDeviceCounts();
+                merged = {
+                    air_cooler: localCounts.air_cooler || 0,
+                    thermostat: localCounts.thermostat || 0,
+                    unit: localCounts.unit || 0,
+                    meter: localCounts.meter || 0,
+                    defrost_controller: localCounts.defrost_controller || 0
+                };
+            }
+
+            document.getElementById('statCoolerCount').textContent = merged.air_cooler;
+            document.getElementById('statThermostatCount').textContent = merged.thermostat;
+            document.getElementById('statUnitCount').textContent = merged.unit;
+            document.getElementById('statMeterCount').textContent = merged.meter;
+            document.getElementById('statDefrostCount').textContent = merged.defrost_controller;
+        }
+
+        function getLocalDeviceCounts() {
+            var localDevices = JSON.parse(localStorage.getItem('devices_' + currentProjectId) || '[]');
+            if (localDevices.length === 0) return {};
+
+            var codeNormalize = {
+                'temp-controller': 'thermostat', 'thermostat': 'thermostat',
+                'air_cooler': 'air_cooler',
+                'refrigeration_unit': 'unit', 'unit': 'unit',
+                'electric_meter': 'meter', 'meter': 'meter',
+                'freezer': 'freezer',
+                'defrost_controller': 'defrost_controller'
+            };
+
+            var counts = {};
+            localDevices.forEach(function(d) {
+                var raw = (d.device_type || d.type || '').toLowerCase();
+                var type = codeNormalize[raw] || raw;
+                if (type) { counts[type] = (counts[type] || 0) + 1; }
+            });
+            return counts;
+        }
+
+        // ========== 3. 网关信息面板 ==========
+        let _panelGateways = [];
+        async function loadGatewayInfoPanel() {
+            const panel = document.getElementById('gatewayInfoPanel');
+            let gateways = [];
+            try {
+                gateways = await api.gateways.getGateways({ project_id: currentProjectId });
+                if (!Array.isArray(gateways)) gateways = [];
+            } catch(e) { console.warn('加载网关:', e.message); }
+            if (gateways.length === 0) {
+                const local = JSON.parse(localStorage.getItem('gateways_' + currentProjectId) || '[]');
+                if (local.length > 0) gateways = local;
+            }
+            _panelGateways = gateways;
+
+            if (gateways.length === 0) {
+                panel.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:16px; font-size:13px;">暂无网关数据</p>';
+                document.getElementById('btnCopyGateway').style.display = 'none';
+                return;
+            }
+
+            panel.innerHTML = gateways.map(function(g, i) {
+                var sn = g.serial_no || '';
+                var iot = g.sim_card_no || g.iot_card_no || '';
+                var snCopyBtn = sn ? ' <button class="btn-copy-inline" onclick="doCopyInline(this,\'' + sn.replace(/'/g, "\\'") + '\')">复制</button>' : '';
+                var iotCopyBtn = iot ? ' <button class="btn-copy-inline" onclick="doCopyInline(this,\'' + iot.replace(/'/g, "\\'") + '\')">复制</button>' : '';
+                return '<div class="gateway-info-card">'
+                    + '<div class="gw-title">' + (g.gateway_no || ('网关' + (i+1))) + '</div>'
+                    + '<div class="gw-row"><span class="gw-label">型号</span><span class="gw-val">' + textOrDash((g.brand ? g.brand + ' ' : '') + (g.model || '')) + '</span></div>'
+                    + '<div class="gw-row"><span class="gw-label">SN号</span><span class="gw-val">' + textOrDash(sn) + snCopyBtn + '</span></div>'
+                    + '<div class="gw-row"><span class="gw-label">物联网卡号</span><span class="gw-val">' + textOrDash(iot) + iotCopyBtn + '</span></div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        // ========== 3b. 发货物流面板 ==========
+        async function loadShippingInfoPanel() {
+            const panel = document.getElementById('shippingInfoPanel');
+            let records = [];
+            try {
+                records = await api.mailing.getRecords(currentProjectId);
+                if (!Array.isArray(records)) records = [];
+            } catch(e) { console.warn('加载物流:', e.message); }
+
+            if (records.length === 0) {
+                panel.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:16px; font-size:13px;">暂无发货记录</p>';
+                return;
+            }
+
+            panel.innerHTML = records.map(function(r) {
+                const statusLabel = r.actual_arrival_date ? '已签收' : (r.mailing_date ? '运输中' : '待发货');
+                const statusCls = r.actual_arrival_date ? 'badge-success' : (r.mailing_date ? 'badge-primary' : 'badge-warning');
+                let html = '<div class="shipping-card">';
+                html += '<div class="ship-header"><span style="font-weight:600;">' + (r.courier_company || '快递') + '</span><span class="badge ' + statusCls + '">' + statusLabel + '</span></div>';
+                if (r.tracking_no) html += '<div class="ship-row"><span class="ship-label">快递单号</span><span style="font-family:monospace;">' + r.tracking_no + ' <button class="btn-copy-inline" onclick="doCopyInline(this,\'' + r.tracking_no.replace(/'/g, "\\'") + '\')">复制</button></span></div>';
+                if (r.mailing_date) html += '<div class="ship-row"><span class="ship-label">发货日期</span><span>' + formatDate(r.mailing_date) + '</span></div>';
+                if (r.expected_arrival_date) html += '<div class="ship-row"><span class="ship-label">预计到达</span><span>' + formatDate(r.expected_arrival_date) + '</span></div>';
+                if (r.actual_arrival_date) html += '<div class="ship-row"><span class="ship-label">实际签收</span><span style="color:#52c41a; font-weight:500;">' + formatDate(r.actual_arrival_date) + '</span></div>';
+                if (r.recipient_name) html += '<div class="ship-row"><span class="ship-label">收件人</span><span>' + r.recipient_name + (r.recipient_phone ? ' / ' + r.recipient_phone : '') + '</span></div>';
+                if (r.recipient_address) html += '<div class="ship-row"><span class="ship-label">收件地址</span><span>' + r.recipient_address + '</span></div>';
+                html += '</div>';
+                return html;
+            }).join('');
+        }
+
+        // ========== 3c. 一键复制 ==========
+        function doCopy(text, btnId) {
+            navigator.clipboard.writeText(text).then(function() {
+                var btn = document.getElementById(btnId);
+                if (!btn) return;
+                var orig = btn.textContent;
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+            }).catch(function() {
+                alert('复制失败，请手动选择复制');
+            });
+        }
+
+        function doCopyInline(btn, text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(function() {
+                var orig = btn.textContent;
+                btn.textContent = '已复制';
+                btn.classList.add('copied');
+                setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+            }).catch(function() {
+                alert('复制失败，请手动选择复制');
+            });
+        }
+
+        function copyGatewayInfo() {
+            if (_panelGateways.length === 0) return;
+            var lines = [];
+            _panelGateways.forEach(function(g, i) {
+                lines.push((g.gateway_no || ('网关' + (i+1))));
+                lines.push('  型号: ' + ((g.brand ? g.brand + ' ' : '') + (g.model || '-')));
+                lines.push('  SN号: ' + (g.serial_no || '-'));
+                lines.push('  物联网卡号: ' + (g.sim_card_no || g.iot_card_no || '-'));
+            });
+            doCopy(lines.join('\n'), 'btnCopyGateway');
+        }
+
+        function copyMailingInfo() {
+            var addr = (document.getElementById('detailMailingAddress').textContent || '').trim();
+            var recipient = (document.getElementById('detailRecipient').textContent || '').trim();
+            if (addr === '-' && recipient === '-') return;
+            var lines = [];
+            if (addr && addr !== '-') lines.push('邮寄地址: ' + addr);
+            if (recipient && recipient !== '-') lines.push('联系人: ' + recipient);
+            doCopy(lines.join('\n'), 'btnCopyMailing');
+        }
+
+        // ========== 4. 编辑项目 ==========
+        function editProject() {
+            if (!currentProjectId) return;
+            window.location.href = 'project-create.html?id=' + currentProjectId;
+        }
+
+        // ========== 5. 导出报表 ==========
+        async function exportReport() {
+            try {
+                const project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+                const stats = await api.devices.getDeviceStats(currentProjectId).catch(() => ({}));
+                let coldRooms = [];
+                try {
+                    const result = await api.projects.getColdRooms(currentProjectId);
+                    coldRooms = Array.isArray(result) ? result : (result.data || []);
+                } catch(e) {}
+
+                let devices = [];
+                try {
+                    devices = await api.devices.getDevices({ project_id: currentProjectId });
+                } catch(e) {}
+
+                let gateways = [];
+                try {
+                    gateways = await api.gateways.getGateways({ project_id: currentProjectId });
+                } catch(e) {}
+
+                let csvContent = '\uFEFF';
+                csvContent += '项目报表\n\n';
+                csvContent += '项目编号,' + (project.project_no || '') + '\n';
+                csvContent += '项目名称,' + (project.name || '') + '\n';
+                csvContent += '最终用户,' + (project.end_customer || '') + '\n';
+                csvContent += '业务类型,' + (project.business_type || '') + '\n';
+                csvContent += '城市,' + (project.city || '') + '\n';
+                csvContent += '地址,' + (project.address || '') + '\n';
+                csvContent += '\n设备统计\n';
+                csvContent += '冷库,' + (coldRooms.length || 0) + '\n';
+                csvContent += '冷风机,' + (stats.air_coolers || 0) + '\n';
+                csvContent += '温控器,' + (stats.thermostats || 0) + '\n';
+                csvContent += '机组,' + (stats.units || 0) + '\n';
+                csvContent += '电表,' + (stats.meters || 0) + '\n';
+                csvContent += '融霜控制器,' + (stats.defrost_controllers || 0) + '\n';
+
+                if (coldRooms.length > 0) {
+                    csvContent += '\n冷库列表\n';
+                    csvContent += '名称,类型,面积,高度,容积,设计温度\n';
+                    coldRooms.forEach(r => {
+                        csvContent += r.name + ',' + getRoomTypeName(r.room_type) + ',' + r.area + ',' + r.height + ',' + r.volume + ',' + (r.design_temp_min || '') + '~' + (r.design_temp_max || '') + '\n';
+                    });
+                }
+
+                if (devices.length > 0) {
+                    csvContent += '\n设备列表\n';
+                    csvContent += '编号,类型,品牌,型号\n';
+                    devices.forEach(d => {
+                        csvContent += (d.device_no || '') + ',' + (DEVICE_TYPE_NAMES[d.device_type] || d.device_type || '') + ',' + (d.brand || '') + ',' + (d.model || '') + '\n';
+                    });
+                }
+
+                if (gateways.length > 0) {
+                    csvContent += '\n网关列表\n';
+                    csvContent += '编号,品牌,型号,端口数\n';
+                    gateways.forEach(g => {
+                        csvContent += (g.gateway_no || '') + ',' + (g.brand || '') + ',' + (g.model || '') + ',' + (g.total_ports || '') + '\n';
+                    });
+                }
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (project.project_no || 'project') + '_report.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert('导出失败: ' + e.message);
+            }
+        }
+
+        // ========== 6. 设备登记Tab ==========
+        async function loadDeviceOverview() {
+            const container = document.getElementById('deviceOverviewContainer');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">加载中...</p>';
+
+            let devices = [];
+            let coldRooms = [];
+
+            try { devices = await api.devices.getDevices({ project_id: currentProjectId }); } catch(e) { console.warn('API设备加载:', e.message); }
+            if (!Array.isArray(devices)) devices = [];
+            if (devices.length === 0) {
+                devices = JSON.parse(localStorage.getItem('devices_' + currentProjectId) || '[]');
+            }
+
+            try { const r = await api.projects.getColdRooms(currentProjectId); coldRooms = Array.isArray(r) ? r : (r.data || []); } catch(e) { console.warn('API冷库加载:', e.message); }
+            if (coldRooms.length === 0) {
+                coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]').filter(r => String(r.project_id) === String(currentProjectId));
+            }
+
+            if (devices.length === 0 && coldRooms.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px; color: var(--text-secondary);"><div style="font-size: 48px; margin-bottom: 16px;">📦</div><p style="margin-bottom: 16px;">暂无设备和冷库数据</p><button class="btn-primary" onclick="goToDeviceRegister()">前往设备登记</button></div>';
+                deviceOverviewLoaded = true;
+                return;
+            }
+
+            const roomMap = {};
+            coldRooms.forEach(r => { roomMap[r.id] = r; });
+
+            let html = '';
+
+            // 冷库筛选栏
+            if (coldRooms.length > 0) {
+                html += '<div style="margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap;">';
+                html += '<button class="btn-sm btn-primary" onclick="filterDeviceByRoom(null)" style="padding:6px 16px; border-radius:16px;">全部</button>';
+                coldRooms.forEach(r => {
+                    html += '<button class="btn-sm" onclick="filterDeviceByRoom(' + r.id + ')" style="padding:6px 16px; border-radius:16px; border:1px solid #d9d9d9; background:white; cursor:pointer;">' + (r.name || '-') + '</button>';
+                });
+                html += '</div>';
+            }
+
+            html += '<div id="deviceOverviewList"></div>';
+            container.innerHTML = html;
+
+            window._detailDevices = devices;
+            window._detailColdRooms = coldRooms;
+            filterDeviceByRoom(null);
+            deviceOverviewLoaded = true;
+        }
+
+        function filterDeviceByRoom(roomId) {
+            const devices = window._detailDevices || [];
+            const coldRooms = window._detailColdRooms || [];
+            const filtered = roomId ? devices.filter(d => String(d.cold_room_id) === String(roomId)) : devices;
+
+            const btns = document.querySelectorAll('#deviceOverviewContainer > div:first-child button');
+            btns.forEach(b => { b.style.background = 'white'; b.style.color = ''; b.className = 'btn-sm'; });
+            if (!roomId) {
+                if (btns[0]) { btns[0].className = 'btn-sm btn-primary'; }
+            } else {
+                const idx = coldRooms.findIndex(r => r.id === roomId);
+                if (idx >= 0 && btns[idx + 1]) { btns[idx + 1].style.background = 'var(--primary-color)'; btns[idx + 1].style.color = 'white'; }
+            }
+
+            const grouped = {};
+            filtered.forEach(d => {
+                const raw = d.device_type || d.type || 'other';
+                const type = NORMALIZE_TYPE[raw] || raw;
+                if (!grouped[type]) grouped[type] = [];
+                grouped[type].push(d);
+            });
+
+            const badgeClasses = { 'air_cooler': 'badge-info', 'thermostat': 'badge-success', 'unit': 'badge-danger', 'meter': 'badge-warning', 'defrost_controller': 'badge-info', 'freezer': 'badge-info' };
+            const listEl = document.getElementById('deviceOverviewList');
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:40px;">该冷库下暂无设备</p>';
+                return;
+            }
+
+            let html = '';
+            for (const [type, items] of Object.entries(grouped)) {
+                const typeName = DEVICE_TYPE_NAMES[type] || type;
+                const badge = badgeClasses[type] || 'badge-info';
+                html += '<div class="device-group"><div class="device-group-header" onclick="toggleDeviceGroup(this)"><div class="device-group-title"><span class="collapse-icon">&#9660;</span><span>' + typeName + '</span><span class="badge ' + badge + '">' + items.length + '台</span></div></div>';
+                html += '<div class="device-group-body"><table class="data-table"><thead><tr><th>设备编号</th><th>品牌</th><th>型号</th><th>所属冷库</th><th>状态</th></tr></thead><tbody>';
+                items.forEach(d => {
+                    const roomName = d.cold_room_name || (coldRooms.find(r => r.id == d.cold_room_id) || {}).name || '-';
+                    html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td><td>' + roomName + '</td><td><span class="badge badge-success">已登记</span></td></tr>';
+                });
+                html += '</tbody></table></div></div>';
+            }
+            listEl.innerHTML = html;
+        }
+
+        function goToDeviceRegister() {
+            window.location.href = 'device-register.html';
+        }
+
+        // ========== 7. 网关配置Tab ==========
+        async function loadGatewayOverview() {
+            const container = document.getElementById('gatewayOverviewContainer');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">加载中...</p>';
+
+            let gateways = [];
+            try {
+                gateways = await api.gateways.getGateways({ project_id: currentProjectId });
+                if (!Array.isArray(gateways)) gateways = [];
+            } catch(e) {
+                console.warn('API网关加载:', e.message);
+            }
+
+            if (gateways.length === 0) {
+                const localAll = JSON.parse(localStorage.getItem('gateways') || '[]');
+                const localProject = JSON.parse(localStorage.getItem('gateways_' + currentProjectId) || '[]');
+                gateways = localProject.length > 0 ? localProject : localAll;
+            }
+
+            if (gateways.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px; color: var(--text-secondary);"><div style="font-size: 48px; margin-bottom: 16px;">📡</div><p style="margin-bottom: 16px;">暂无网关数据</p><button class="btn-primary" onclick="goToGatewaySetup()">前往网关配置</button></div>';
+                gatewayOverviewLoaded = true;
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>网关编号</th><th>品牌</th><th>型号</th><th>端口数</th><th>物联网卡号</th><th>运营商</th><th>IP地址</th></tr></thead><tbody>';
+            gateways.forEach(g => {
+                html += '<tr>';
+                html += '<td><code>' + (g.gateway_no || '-') + '</code></td>';
+                html += '<td>' + (g.brand || '-') + '</td>';
+                html += '<td>' + (g.model || '-') + '</td>';
+                html += '<td>' + (g.total_ports || g.rs485_ports || '-') + '</td>';
+                html += '<td>' + (g.sim_card_no || g.iot_card_no || '-') + '</td>';
+                html += '<td>' + (g.sim_operator || '-') + '</td>';
+                html += '<td>' + (g.ip_address || '-') + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            gatewayOverviewLoaded = true;
+        }
+
+        function goToGatewaySetup() {
+            const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+            const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
+            if (normalizedRole !== 'admin') {
+                alert('网关配置由管理员操作，客户无需进行此步骤。');
+                return;
+            }
+            window.location.href = 'gateway-setup.html';
+        }
+
+        // ========== 8. 通讯设置Tab ==========
+        async function loadCommOverview() {
+            const container = document.getElementById('commOverviewContainer');
+            container.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:20px;">加载中...</p>';
+
+            let devices = [];
+            let gateways = [];
+            let coldRooms = [];
+
+            try { devices = await api.devices.getDevices({ project_id: currentProjectId }); } catch(e) {}
+            if (!Array.isArray(devices)) devices = [];
+            try { gateways = await api.gateways.getGateways({ project_id: currentProjectId }); } catch(e) {}
+            if (!Array.isArray(gateways)) gateways = [];
+            try { const r = await api.projects.getColdRooms(currentProjectId); coldRooms = Array.isArray(r) ? r : (r.data || []); } catch(e) {}
+
+            const gwMap = {};
+            gateways.forEach(g => { gwMap[g.id] = g; });
+            const roomMap = {};
+            coldRooms.forEach(r => { roomMap[r.id] = r; });
+
+            var localComConfigs = JSON.parse(localStorage.getItem('comConfigs') || '[]');
+            var localConfiguredDevNos = new Set(localComConfigs.map(c => c.device_no));
+
+            const configured = devices.filter(d => d.gateway_id || d.gateway_port || d.rs485_address || localConfiguredDevNos.has(d.device_no));
+            const unconfigured = devices.filter(d => !d.gateway_id && !d.gateway_port && !d.rs485_address && !localConfiguredDevNos.has(d.device_no));
+
+            if (devices.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-secondary);"><div style="font-size:48px; margin-bottom:16px;">🔗</div><p>暂无设备数据，无法展示通讯配置</p></div>';
+                commOverviewLoaded = true;
+                return;
+            }
+
+            let html = '';
+
+            // 统计卡片
+            html += '<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">';
+            html += '<div style="background:#f6ffed; padding:16px; border-radius:8px; text-align:center;"><div style="font-size:28px; font-weight:700; color:#52c41a;">' + configured.length + '</div><div style="font-size:13px; color:#595959;">已配置通讯</div></div>';
+            html += '<div style="background:#fff7e6; padding:16px; border-radius:8px; text-align:center;"><div style="font-size:28px; font-weight:700; color:#fa8c16;">' + unconfigured.length + '</div><div style="font-size:13px; color:#595959;">待配置</div></div>';
+            html += '<div style="background:#e6f7ff; padding:16px; border-radius:8px; text-align:center;"><div style="font-size:28px; font-weight:700; color:#1890ff;">' + gateways.length + '</div><div style="font-size:13px; color:#595959;">网关总数</div></div>';
+            html += '</div>';
+
+            var localComMap = {};
+            localComConfigs.forEach(c => { localComMap[c.device_no] = c; });
+            var comPortSettings = JSON.parse(localStorage.getItem('comPortSettings') || '{}');
+            var devMap = {};
+            devices.forEach(d => { devMap[d.device_no] = d; });
+
+            if (configured.length > 0) {
+                html += '<h4 style="margin-bottom:12px; color:#52c41a;">通讯组态拓扑图</h4>';
+                var topoData = {};
+                configured.forEach(d => {
+                    var lc = localComMap[d.device_no];
+                    var gwNo = '-', comPort = '-', addr = '-';
+                    if (lc) {
+                        gwNo = lc.gateway_no || '-';
+                        comPort = lc.com_port || '-';
+                        addr = lc.rs485_address || '-';
+                    } else {
+                        var gw = gwMap[d.gateway_id];
+                        gwNo = gw ? (gw.gateway_no || '-') : (d.gateway_id ? '#' + d.gateway_id : '-');
+                        comPort = d.gateway_port != null ? 'COM' + d.gateway_port : '-';
+                        addr = d.rs485_address || '-';
+                    }
+                    if (!topoData[gwNo]) topoData[gwNo] = {};
+                    if (!topoData[gwNo][comPort]) topoData[gwNo][comPort] = [];
+                    topoData[gwNo][comPort].push({ device: d, addr: addr });
+                });
+
+                Object.keys(topoData).forEach(gwNo => {
+                    var gwObj = gateways.find(g => g.gateway_no === gwNo);
+                    var gwModel = gwObj ? (gwObj.brand + ' ' + gwObj.model) : '';
+                    var gwSN = gwObj ? (gwObj.serial_no || gwObj.sim_card_no || '') : '';
+
+                    html += '<div style="background:#f0f5ff; border:2px solid #597ef7; border-radius:12px; padding:20px; margin-bottom:24px;">';
+                    html += '<div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">';
+                    html += '<div style="width:48px;height:48px;background:#597ef7;border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700;">GW</div>';
+                    html += '<div><div style="font-size:16px;font-weight:700;color:#1d39c4;">' + gwNo + '</div>';
+                    html += '<div style="font-size:13px;color:#595959;">' + gwModel + (gwSN ? ' | SN: ' + gwSN : '') + '</div></div></div>';
+
+                    html += '<div style="display:flex; flex-wrap:wrap; gap:20px;">';
+                    Object.keys(topoData[gwNo]).sort().forEach(comPort => {
+                        var portDevs = topoData[gwNo][comPort];
+                        var psKey = gwNo + '_' + comPort;
+                        var ps = comPortSettings[psKey] || { baud_rate: 9600, parity: 'N', stop_bits: 1 };
+                        var parityText = ps.parity === 'E' ? '偶校验' : (ps.parity === 'O' ? '奇校验' : '无校验');
+
+                        html += '<div style="flex:1;min-width:280px;background:white;border-radius:10px;border:1px solid #d6e4ff;overflow:hidden;">';
+                        html += '<div style="background:linear-gradient(135deg,#597ef7,#85a5ff);color:white;padding:12px 16px;">';
+                        html += '<div style="font-weight:700;font-size:15px;">' + comPort + ' (RS485)</div>';
+                        html += '<div style="font-size:12px;opacity:0.9;margin-top:4px;">' + ps.baud_rate + ' bps | ' + parityText + ' | 停止位 ' + ps.stop_bits + '</div>';
+                        html += '</div>';
+
+                        html += '<div style="padding:8px 0;">';
+                        portDevs.forEach(function(item, idx) {
+                            var d = item.device;
+                            var typeName = DEVICE_TYPE_NAMES[d.device_type] || d.device_type || '-';
+                            var roomName = roomMap[d.cold_room_id] ? roomMap[d.cold_room_id].name : '';
+                            html += '<div style="display:flex;align-items:center;padding:10px 16px;' + (idx > 0 ? 'border-top:1px solid #f0f0f0;' : '') + '">';
+                            html += '<div style="width:32px;height:32px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#52c41a;flex-shrink:0;">' + item.addr + '</div>';
+                            html += '<div style="margin-left:12px;flex:1;min-width:0;">';
+                            html += '<div style="font-weight:600;font-size:13px;color:#262626;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + typeName + '</div>';
+                            html += '<div style="font-size:12px;color:#8c8c8c;">' + (d.device_no || '-') + (roomName ? ' | ' + roomName : '') + '</div>';
+                            html += '</div>';
+                            html += '<div style="font-size:11px;color:#bfbfbf;flex-shrink:0;">' + (d.brand || '') + ' ' + (d.model || '') + '</div>';
+                            html += '</div>';
+                        });
+                        html += '</div></div>';
+                    });
+                    html += '</div></div>';
+                });
+            }
+
+            if (unconfigured.length > 0) {
+                html += '<h4 style="margin-bottom:12px; color:#fa8c16;">待配置通讯的设备 (' + unconfigured.length + ')</h4>';
+                html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;">';
+                unconfigured.forEach(d => {
+                    const typeName = DEVICE_TYPE_NAMES[d.device_type] || d.device_type || '-';
+                    const roomName = roomMap[d.cold_room_id] ? roomMap[d.cold_room_id].name : '';
+                    html += '<div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;padding:10px 14px;min-width:180px;">';
+                    html += '<div style="font-weight:600;font-size:13px;color:#d48806;">' + typeName + '</div>';
+                    html += '<div style="font-size:12px;color:#8c8c8c;">' + (d.device_no || '-') + (roomName ? ' | ' + roomName : '') + '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+            commOverviewLoaded = true;
+        }
+
+        // ========== 9. 发货物流Tab ==========
+        async function loadShippingOverview() {
+            const container = document.getElementById('shippingOverviewContainer');
+            container.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:20px;">加载中...</p>';
+
+            let records = [];
+            try {
+                records = await api.mailing.getRecords(currentProjectId);
+                if (!Array.isArray(records)) records = [];
+            } catch(e) {
+                console.warn('加载发货记录失败:', e.message);
+            }
+
+            if (records.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:60px; color:var(--text-secondary);"><div style="font-size:48px; margin-bottom:16px;">📦</div><p style="margin-bottom:8px;">暂无发货记录</p><p style="font-size:13px;">管理员完成发货登记后，物流信息会显示在此处</p></div>';
+                shippingOverviewLoaded = true;
+                return;
+            }
+
+            let html = '';
+
+            // 时间线风格
+            html += '<div style="position:relative; padding-left:24px;">';
+            records.forEach((r, i) => {
+                const isLatest = (i === 0);
+                const borderColor = isLatest ? '#1890ff' : '#d9d9d9';
+                const dotColor = isLatest ? '#1890ff' : '#d9d9d9';
+
+                html += '<div style="position:relative; padding-bottom:32px; border-left:2px solid ' + borderColor + '; padding-left:24px;">';
+                html += '<div style="position:absolute; left:-7px; top:0; width:12px; height:12px; border-radius:50%; background:' + dotColor + '; border:2px solid white; box-shadow:0 0 0 2px ' + dotColor + ';"></div>';
+
+                html += '<div style="background:white; border:1px solid #f0f0f0; border-radius:8px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">';
+
+                // 头部：快递公司 + 单号
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">';
+                html += '<div>';
+                html += '<span style="font-size:16px; font-weight:600;">' + (r.courier_company || '快递') + '</span>';
+                if (r.tracking_no) {
+                    html += ' <code style="font-size:13px; margin-left:8px;">' + r.tracking_no + '</code>';
+                }
+                html += '</div>';
+                const statusLabel = r.actual_arrival_date ? '已签收' : (r.mailing_date ? '运输中' : '待发货');
+                const statusClass = r.actual_arrival_date ? 'badge-success' : (r.mailing_date ? 'badge-primary' : 'badge-warning');
+                html += '<span class="badge ' + statusClass + '">' + statusLabel + '</span>';
+                html += '</div>';
+
+                // 详情网格
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">';
+
+                if (r.mailing_date) {
+                    html += '<div style="padding:8px 12px; background:var(--bg-color); border-radius:4px;"><div style="font-size:12px; color:var(--text-secondary);">发货日期</div><div style="font-weight:500;">' + formatDate(r.mailing_date) + '</div></div>';
+                }
+                if (r.expected_arrival_date) {
+                    html += '<div style="padding:8px 12px; background:var(--bg-color); border-radius:4px;"><div style="font-size:12px; color:var(--text-secondary);">预计到达</div><div style="font-weight:500;">' + formatDate(r.expected_arrival_date) + '</div></div>';
+                }
+                if (r.actual_arrival_date) {
+                    html += '<div style="padding:8px 12px; background:#f6ffed; border-radius:4px;"><div style="font-size:12px; color:var(--text-secondary);">实际签收</div><div style="font-weight:600; color:#52c41a;">' + formatDate(r.actual_arrival_date) + '</div></div>';
+                }
+                if (r.recipient_name) {
+                    html += '<div style="padding:8px 12px; background:var(--bg-color); border-radius:4px;"><div style="font-size:12px; color:var(--text-secondary);">收件人</div><div style="font-weight:500;">' + textOrDash(r.recipient_name) + (r.recipient_phone ? ' / ' + r.recipient_phone : '') + '</div></div>';
+                }
+                if (r.recipient_address) {
+                    html += '<div style="padding:8px 12px; background:var(--bg-color); border-radius:4px; grid-column:1/-1;"><div style="font-size:12px; color:var(--text-secondary);">收件地址</div><div style="font-weight:500;">' + textOrDash(r.recipient_address) + '</div></div>';
+                }
+                if (r.item_description) {
+                    html += '<div style="padding:8px 12px; background:var(--bg-color); border-radius:4px; grid-column:1/-1;"><div style="font-size:12px; color:var(--text-secondary);">邮寄物品</div><div style="font-weight:500;">' + textOrDash(r.item_description) + '</div></div>';
+                }
+                if (r.remarks) {
+                    html += '<div style="padding:8px 12px; background:#fffbe6; border-radius:4px; grid-column:1/-1;"><div style="font-size:12px; color:var(--text-secondary);">备注</div><div>' + textOrDash(r.remarks) + '</div></div>';
+                }
+
+                html += '</div></div></div>';
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+            shippingOverviewLoaded = true;
+        }
+
+        // ========== 工具函数 ==========
+        function toggleDeviceGroup(header) {
+            const body = header.nextElementSibling;
+            const icon = header.querySelector('.collapse-icon');
+            body.classList.toggle('collapsed');
+            if (icon) icon.classList.toggle('collapsed');
+        }
+
+        function toggleColdroom(id) {
+            const body = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            if (body) body.classList.toggle('collapsed');
+            if (icon) icon.classList.toggle('collapsed');
+        }
+    </script>
+</body>
+</html>

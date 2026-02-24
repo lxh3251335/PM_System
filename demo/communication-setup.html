@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通讯配置及485地址分配 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .project-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .project-info-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+
+        .step-title {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .gateway-card {
+            background: white;
+            border-radius: 8px;
+            padding: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .gateway-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .gateway-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .gateway-badge {
+            background: #f0f5ff;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .gateway-info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .gateway-info-item {
+            background: #fafafa;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .gateway-info-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .gateway-info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .com-section {
+            margin-bottom: 24px;
+        }
+
+        .com-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 100%);
+            padding: 14px 20px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #d6e4ff;
+            border-bottom: none;
+        }
+
+        .com-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .com-stats {
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            border: 1px solid #d6e4ff;
+        }
+
+        .com-params {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-left: auto;
+            margin-right: 16px;
+        }
+        .com-params label {
+            font-size: 12px;
+            color: #595959;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .com-params select {
+            font-size: 12px;
+            padding: 2px 6px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .com-params select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .com-content {
+            border: 1px solid #e8e8e8;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        /* 表格样式 */
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .device-table th {
+            background: #f8f9fa;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8c8c8c;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+
+        .device-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid #f5f5f5;
+            vertical-align: middle;
+        }
+
+        .device-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .device-table tr:hover td {
+            background: #fafafa;
+        }
+
+        .device-no {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .device-protocol {
+            display: inline-block;
+            background: #f0f5ff;
+            color: #2f54eb;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .address-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 36px;
+            justify-content: center;
+        }
+
+        .address-edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            transition: background 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .address-edit-btn:hover {
+            background: rgba(255,255,255,0.45);
+        }
+
+        .address-input {
+            width: 70px;
+            padding: 4px 8px;
+            border: 2px solid var(--primary-color);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+        }
+
+        .address-save-btn {
+            padding: 3px 10px;
+            background: #52c41a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+
+        .address-cancel-btn {
+            padding: 3px 10px;
+            background: #d9d9d9;
+            color: #666;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+
+        .btn-action {
+            padding: 4px 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-action.danger:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+
+        .add-device-btn {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 2px dashed #d9d9d9;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .add-device-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #f0f5ff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.08);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: #096dd9; }
+        .btn-secondary { background: white; color: var(--text-primary); border: 1px solid #d9d9d9; }
+        .btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-success { background: #52c41a; color: white; }
+        .btn-success:hover { background: #389e0d; }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .info-box {
+            background: #fff7e6;
+            border-left: 4px solid #faad14;
+            padding: 16px 20px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+        }
+
+        .info-box h4 { margin: 0 0 8px 0; color: #d48806; font-size: 14px; }
+        .info-box p { margin: 0; color: #8c6d1f; font-size: 13px; line-height: 1.6; }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 32px 20px;
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { background: #52c41a; }
+        .toast.error { background: #ff4d4f; }
+
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(82,196,26,0.4); }
+        .step.clickable .step-number, .step.clickable .step-title { transition: all 0.2s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(7);</script>
+
+        <div class="project-info-card">
+            <h3>当前项目</h3>
+            <div class="project-info-grid" id="projectInfo"></div>
+        </div>
+
+        <div class="page-header">
+            <h1>通讯配置及485地址分配</h1>
+            <p>为网关的每个COM口(RS485端口)添加通讯从站设备，并设置485地址。一个COM口下可以添加多台从站设备。</p>
+        </div>
+
+        <div class="info-box">
+            <h4>配置说明</h4>
+            <p>一个485端口(如COM1)下可以添加多台从站设备。每个设备需要分配唯一的485地址(1-247)。同一COM口下的设备485地址不能重复。点击地址上的编辑图标可修改已分配的地址。</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="stat-value" id="totalComCount">0</div>
+                <div class="stat-label">COM口总数</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="assignedDevicesCount">0</div>
+                <div class="stat-label">已分配设备</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalCommDevicesCount">0</div>
+                <div class="stat-label">通讯设备总数</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="configProgress">0%</div>
+                <div class="stat-label">配置进度</div>
+            </div>
+        </div>
+
+        <div id="gatewayList"></div>
+
+        <!-- 添加设备弹窗 -->
+        <div class="modal" id="deviceModal">
+            <div class="modal-content">
+                <div class="modal-header" id="modalTitle">添加从站设备</div>
+                <form id="deviceForm">
+                    <div class="form-group">
+                        <label>选择设备 <span style="color: #f5222d;">*</span></label>
+                        <select name="device" id="deviceSelect" required>
+                            <option value="">请选择通讯设备</option>
+                        </select>
+                        <div class="form-help">只显示已配置通讯协议且未分配的设备</div>
+                    </div>
+                    <div class="form-group">
+                        <label>485从站地址 <span style="color: #f5222d;">*</span></label>
+                        <input type="number" name="rs485_address" min="1" max="247" placeholder="输入1-247之间的地址" required>
+                        <div class="form-help" id="addressHelp">每个设备的485地址必须唯一(1-247)</div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeDeviceModal()">取消</button>
+                        <button type="submit" class="btn btn-primary">添加设备</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn btn-secondary" onclick="window.location.href='gateway-setup.html'">&#8592; 返回上一步</button>
+            <button class="btn btn-success" onclick="completeProject()">完成通讯配置，继续发货登记 &#8594;</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        requireAuth();
+        // 权限检查：步骤5~7仅管理员可操作
+        (function checkAdminOnly() {
+            const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+            const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
+            if (normalizedRole !== 'admin') {
+                document.body.innerHTML = `
+                    <div style="text-align:center;padding:120px 20px;font-family:sans-serif;">
+                        <h2 style="color:#e74c3c;margin-bottom:16px;">无权访问</h2>
+                        <p style="color:#666;font-size:16px;">通讯配置由管理员完成，客户无需操作此步骤。</p>
+                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">返回项目列表</button>
+                    </div>`;
+                throw new Error('ACCESS_DENIED');
+            }
+        })();
+        let project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+        const projectId = localStorage.getItem('currentProjectId');
+        let coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+
+        const devicesKey = projectId ? `devices_${projectId}` : 'devices';
+        let devices = JSON.parse(localStorage.getItem(devicesKey) || '[]');
+
+        let gateways = JSON.parse(localStorage.getItem('gateways') || '[]');
+        let relations = JSON.parse(localStorage.getItem('deviceRelations') || '[]');
+        let comConfigs = JSON.parse(localStorage.getItem('comConfigs') || '[]');
+        let comPortSettings = JSON.parse(localStorage.getItem('comPortSettings') || '{}');
+
+        let currentGateway = null;
+        let currentComPort = null;
+        let commDevices = [];
+
+        function getPortSetting(gwNo, comPort) {
+            var key = gwNo + '_' + comPort;
+            return comPortSettings[key] || { baud_rate: 9600, parity: 'N', stop_bits: 1 };
+        }
+
+        function savePortSetting(gwNo, comPort, field, value) {
+            var key = gwNo + '_' + comPort;
+            if (!comPortSettings[key]) comPortSettings[key] = { baud_rate: 9600, parity: 'N', stop_bits: 1 };
+            comPortSettings[key][field] = value;
+            localStorage.setItem('comPortSettings', JSON.stringify(comPortSettings));
+        }
+
+        const DEVICE_TYPE_CN = {
+            'air_cooler': '冷风机', 'thermostat': '温控器', 'unit': '制冷机组',
+            'meter': '电表', 'freezer': '冷柜', 'defrost_controller': '融霜控制器',
+            'temp-controller': '温控器', 'refrigeration_unit': '制冷机组', 'electric_meter': '电表'
+        };
+
+        function getDeviceTypeName(d) {
+            var t = d.device_type || d.type || '';
+            return DEVICE_TYPE_CN[t] || t || '设备';
+        }
+
+        function getCommInfo(device) {
+            const specs = device.specifications || {};
+            return {
+                comm_port: device.comm_port || device.comm_port_type || specs.comm_port || specs['通讯口'] || specs['通讯端口'] || '',
+                comm_protocol: device.comm_protocol || specs.comm_protocol || specs['通讯协议'] || specs['协议'] || ''
+            };
+        }
+
+        function hasCommConfig(device) {
+            const info = getCommInfo(device);
+            return !!(info.comm_port || info.comm_protocol);
+        }
+
+        function buildCommDevices() {
+            commDevices = devices.map(d => {
+                const info = getCommInfo(d);
+                return { ...d, comm_port: info.comm_port, comm_protocol: info.comm_protocol };
+            });
+        }
+
+        function renderProjectInfoBar() {
+            document.getElementById('projectInfo').innerHTML =
+                '<div><strong>项目编号：</strong>' + (project.project_no || '-') + '</div>' +
+                '<div><strong>项目名称：</strong>' + (project.name || '-') + '</div>' +
+                '<div><strong>冷库数量：</strong>' + coldRooms.length + '个</div>' +
+                '<div><strong>设备数量：</strong>' + devices.length + '台</div>' +
+                '<div><strong>关系数量：</strong>' + relations.length + '条</div>' +
+                '<div><strong>网关数量：</strong>' + gateways.length + '个</div>';
+        }
+
+        async function loadDataFromApi() {
+            if (!projectId) {
+                buildCommDevices();
+                renderProjectInfoBar();
+                return;
+            }
+
+            try {
+                var apiProject = await api.projects.getProject(projectId);
+                if (apiProject && apiProject.name) project = apiProject;
+            } catch (e) { console.warn('API加载项目失败:', e.message); }
+
+            try {
+                var apiRooms = await api.projects.getColdRooms(projectId);
+                if (Array.isArray(apiRooms) && apiRooms.length > 0) coldRooms = apiRooms;
+            } catch (e) { console.warn('API加载冷库失败:', e.message); }
+
+            try {
+                var apiDevices = await api.devices.getDevices({ project_id: projectId });
+                if (Array.isArray(apiDevices) && apiDevices.length > 0) {
+                    devices = apiDevices;
+                }
+            } catch (e) { console.warn('API加载设备失败:', e.message); }
+
+            try {
+                var apiGateways = await api.gateways.getGateways({ project_id: projectId });
+                if (Array.isArray(apiGateways) && apiGateways.length > 0) {
+                    gateways = apiGateways;
+                }
+            } catch (e) { console.warn('API加载网关失败:', e.message); }
+
+            try {
+                var apiRelations = await api.devices.getRelations({ project_id: projectId });
+                if (Array.isArray(apiRelations) && apiRelations.length > 0) {
+                    relations = apiRelations;
+                }
+            } catch (e) { console.warn('API加载设备关系失败:', e.message); }
+
+            buildCommDevices();
+            renderProjectInfoBar();
+        }
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function renderGateways() {
+            const listDiv = document.getElementById('gatewayList');
+
+            if (gateways.length === 0) {
+                listDiv.innerHTML = `
+                    <div class="gateway-card">
+                        <p class="empty-message">暂无网关，请先在"配置网关"步骤中添加网关</p>
+                    </div>`;
+                return;
+            }
+
+            listDiv.innerHTML = gateways.map(gateway => {
+                const rs485Count = parseInt(gateway.rs485_ports) || parseInt(gateway.total_ports) || 0;
+                const totalConfigured = comConfigs.filter(c => c.gateway_no === gateway.gateway_no).length;
+                const iotCard = gateway.iot_card_no || gateway.sim_card_no || '-';
+                const rs485Display = gateway.rs485_ports || (gateway.total_ports ? gateway.total_ports + '口' : '-');
+                return `
+                    <div class="gateway-card">
+                        <div class="gateway-header">
+                            <div class="gateway-title">${gateway.gateway_no} - ${gateway.brand} ${gateway.model}</div>
+                            <div class="gateway-badge">已配置 ${totalConfigured} 台设备</div>
+                        </div>
+                        <div class="gateway-info">
+                            ${(gateway.serial_no) ? '<div class="gateway-info-item"><div class="gateway-info-label">SN号</div><div class="gateway-info-value" style="font-family:monospace;">' + gateway.serial_no + '</div></div>' : ''}
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">RS485端口数</div>
+                                <div class="gateway-info-value">${rs485Display}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">网口端口数</div>
+                                <div class="gateway-info-value">${gateway.eth_ports || '-'}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">物联网卡号</div>
+                                <div class="gateway-info-value">${iotCard}</div>
+                            </div>
+                            <div class="gateway-info-item">
+                                <div class="gateway-info-label">IP地址</div>
+                                <div class="gateway-info-value">${gateway.ip_address || '-'}</div>
+                            </div>
+                        </div>
+                        ${renderComSections(gateway, rs485Count)}
+                    </div>`;
+            }).join('');
+
+            updateStats();
+        }
+
+        function renderComSections(gateway, count) {
+            if (count === 0) return '';
+
+            return Array.from({length: count}, (_, i) => {
+                const comPort = `COM${i + 1}`;
+                const configs = comConfigs.filter(c =>
+                    c.gateway_no === gateway.gateway_no && c.com_port === comPort
+                );
+
+                let bodyHtml;
+                if (configs.length > 0) {
+                    bodyHtml = `
+                        <table class="device-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">#</th>
+                                    <th>设备编号</th>
+                                    <th>品牌型号</th>
+                                    <th>通讯协议</th>
+                                    <th style="width: 160px;">485地址</th>
+                                    <th style="width: 100px; text-align: center;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${configs.map((config, idx) => renderDeviceRow(config, idx + 1)).join('')}
+                            </tbody>
+                        </table>`;
+                } else {
+                    bodyHtml = '<p class="empty-message">该COM口暂未添加设备</p>';
+                }
+
+                var ps = getPortSetting(gateway.gateway_no, comPort);
+                return `
+                    <div class="com-section">
+                        <div class="com-header">
+                            <div class="com-title">COM${i + 1} (RS485)</div>
+                            <div class="com-params">
+                                <label>波特率
+                                    <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','baud_rate',this.value)">
+                                        ${[1200,2400,4800,9600,19200,38400,57600,115200].map(b => '<option value="'+b+'"'+(String(ps.baud_rate)===String(b)?' selected':'')+'>'+b+'</option>').join('')}
+                                    </select>
+                                </label>
+                                <label>校验
+                                    <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','parity',this.value)">
+                                        <option value="N"${ps.parity==='N'?' selected':''}>无(N)</option>
+                                        <option value="E"${ps.parity==='E'?' selected':''}>偶(E)</option>
+                                        <option value="O"${ps.parity==='O'?' selected':''}>奇(O)</option>
+                                    </select>
+                                </label>
+                                <label>停止位
+                                    <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','stop_bits',this.value)">
+                                        <option value="1"${String(ps.stop_bits)==='1'?' selected':''}>1</option>
+                                        <option value="2"${String(ps.stop_bits)==='2'?' selected':''}>2</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <div class="com-stats">已配置 ${configs.length} 台设备</div>
+                        </div>
+                        <div class="com-content">
+                            ${bodyHtml}
+                            <button class="add-device-btn" onclick="openDeviceModal('${gateway.gateway_no}', '${comPort}')">
+                                + 添加从站设备
+                            </button>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderDeviceRow(config, index) {
+            const device = commDevices.find(d => d.device_no === config.device_no)
+                        || devices.find(d => d.device_no === config.device_no);
+            const typeName = device ? getDeviceTypeName(device) : '-';
+            const brand = device ? device.brand : '-';
+            const model = device ? device.model : '-';
+            const protocol = (device && device.comm_protocol && device.comm_protocol !== 'undefined')
+                ? device.comm_protocol : '-';
+
+            return `
+                <tr>
+                    <td style="color: #999;">${index}</td>
+                    <td><span class="device-no">${config.device_no}</span></td>
+                    <td>${typeName} / ${brand} ${model}</td>
+                    <td>${protocol !== '-' ? '<span class="device-protocol">' + protocol + '</span>' : '-'}</td>
+                    <td>
+                        <span id="addr-display-${config.id}">
+                            <span class="address-badge">
+                                ${config.rs485_address}
+                                <button class="address-edit-btn" onclick="startEditAddress(${config.id}, '${config.rs485_address}', '${config.gateway_no}', '${config.com_port}')" title="编辑地址">&#9998;</button>
+                            </span>
+                        </span>
+                        <span id="addr-edit-${config.id}" style="display:none;">
+                            <input class="address-input" type="number" id="addr-input-${config.id}" min="1" max="247" value="${config.rs485_address}">
+                            <button class="address-save-btn" onclick="saveAddress(${config.id}, '${config.gateway_no}', '${config.com_port}')">保存</button>
+                            <button class="address-cancel-btn" onclick="cancelEditAddress(${config.id})">取消</button>
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <button class="btn-action danger" onclick="deleteDevice(${config.id})">删除</button>
+                    </td>
+                </tr>`;
+        }
+
+        function startEditAddress(configId, currentAddr, gatewayNo, comPort) {
+            document.getElementById('addr-display-' + configId).style.display = 'none';
+            document.getElementById('addr-edit-' + configId).style.display = 'inline';
+            const input = document.getElementById('addr-input-' + configId);
+            input.focus();
+            input.select();
+
+            input.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveAddress(configId, gatewayNo, comPort);
+                } else if (e.key === 'Escape') {
+                    cancelEditAddress(configId);
+                }
+            };
+        }
+
+        function cancelEditAddress(configId) {
+            const config = comConfigs.find(c => c.id === configId);
+            if (config) {
+                document.getElementById('addr-input-' + configId).value = config.rs485_address;
+            }
+            document.getElementById('addr-display-' + configId).style.display = 'inline';
+            document.getElementById('addr-edit-' + configId).style.display = 'none';
+        }
+
+        function saveAddress(configId, gatewayNo, comPort) {
+            const input = document.getElementById('addr-input-' + configId);
+            const newAddr = input.value.trim();
+
+            if (!newAddr || newAddr < 1 || newAddr > 247) {
+                showToast('485地址必须在1-247之间', 'error');
+                return;
+            }
+
+            const conflict = comConfigs.some(c =>
+                c.id !== configId &&
+                c.gateway_no === gatewayNo &&
+                c.com_port === comPort &&
+                String(c.rs485_address) === String(newAddr)
+            );
+
+            if (conflict) {
+                showToast('该COM口下地址 ' + newAddr + ' 已被占用', 'error');
+                return;
+            }
+
+            const config = comConfigs.find(c => c.id === configId);
+            if (config) {
+                config.rs485_address = newAddr;
+                localStorage.setItem('comConfigs', JSON.stringify(comConfigs));
+                showToast('485地址已更新为 ' + newAddr, 'success');
+                renderGateways();
+            }
+        }
+
+        function openDeviceModal(gatewayNo, comPort) {
+            currentGateway = gatewayNo;
+            currentComPort = comPort;
+
+            document.getElementById('modalTitle').textContent = `${gatewayNo} - ${comPort} 添加从站设备`;
+
+            const deviceSelect = document.getElementById('deviceSelect');
+            const assignedDevices = comConfigs.map(c => c.device_no);
+            const availableDevices = commDevices.filter(d => !assignedDevices.includes(d.device_no));
+
+            deviceSelect.innerHTML = '<option value="">请选择通讯设备</option>';
+            availableDevices.forEach(device => {
+                const typeName = getDeviceTypeName(device);
+                const modelStr = [device.brand, device.model].filter(Boolean).join(' ');
+                const option = document.createElement('option');
+                option.value = device.device_no;
+                option.textContent = typeName + ' - ' + device.device_no + ' - ' + (modelStr || '-');
+                deviceSelect.appendChild(option);
+            });
+
+            const usedAddresses = comConfigs
+                .filter(c => c.gateway_no === gatewayNo && c.com_port === comPort)
+                .map(c => c.rs485_address);
+
+            document.getElementById('addressHelp').textContent = usedAddresses.length > 0
+                ? '该COM口已使用地址: ' + usedAddresses.join(', ')
+                : '每个设备的485地址必须唯一(1-247)';
+
+            document.getElementById('deviceForm').reset();
+            document.getElementById('deviceModal').classList.add('active');
+        }
+
+        function closeDeviceModal() {
+            document.getElementById('deviceModal').classList.remove('active');
+        }
+
+        function findGatewayByNo(gwNo) {
+            return gateways.find(g => g.gateway_no === gwNo);
+        }
+
+        function findDeviceByNo(devNo) {
+            return devices.find(d => d.device_no === devNo);
+        }
+
+        function comPortToIndex(comPort) {
+            var m = String(comPort).match(/\d+/);
+            return m ? parseInt(m[0]) : null;
+        }
+
+        async function syncDeviceCommToBackend(deviceNo, gatewayNo, comPort, rs485Addr) {
+            var dev = findDeviceByNo(deviceNo);
+            var gw = findGatewayByNo(gatewayNo);
+            if (!dev || !dev.id) return;
+            try {
+                await api.devices.updateDevice(dev.id, {
+                    gateway_id: gw ? gw.id : null,
+                    gateway_port: comPortToIndex(comPort),
+                    rs485_address: String(rs485Addr)
+                });
+            } catch (e) {
+                console.warn('同步通讯配置到后端失败:', e.message);
+            }
+        }
+
+        async function clearDeviceCommInBackend(deviceNo) {
+            var dev = findDeviceByNo(deviceNo);
+            if (!dev || !dev.id) return;
+            try {
+                await api.devices.updateDevice(dev.id, {
+                    gateway_id: null,
+                    gateway_port: null,
+                    rs485_address: null
+                });
+            } catch (e) {
+                console.warn('清除通讯配置失败:', e.message);
+            }
+        }
+
+        document.getElementById('deviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const deviceNo = formData.get('device');
+            const rs485Address = formData.get('rs485_address');
+
+            const addressUsed = comConfigs.some(c =>
+                c.gateway_no === currentGateway &&
+                c.com_port === currentComPort &&
+                String(c.rs485_address) === String(rs485Address)
+            );
+
+            if (addressUsed) {
+                showToast('该COM口下485地址 ' + rs485Address + ' 已被使用', 'error');
+                return;
+            }
+
+            comConfigs.push({
+                id: Date.now(),
+                gateway_no: currentGateway,
+                com_port: currentComPort,
+                device_no: deviceNo,
+                rs485_address: rs485Address,
+                created_at: new Date().toISOString()
+            });
+
+            localStorage.setItem('comConfigs', JSON.stringify(comConfigs));
+            syncDeviceCommToBackend(deviceNo, currentGateway, currentComPort, rs485Address);
+            closeDeviceModal();
+            renderGateways();
+            showToast('从站设备添加成功', 'success');
+        });
+
+        function deleteDevice(configId) {
+            if (confirm('确定要删除该从站设备吗？')) {
+                var config = comConfigs.find(c => c.id === configId);
+                comConfigs = comConfigs.filter(c => c.id !== configId);
+                localStorage.setItem('comConfigs', JSON.stringify(comConfigs));
+                if (config && config.device_no) {
+                    clearDeviceCommInBackend(config.device_no);
+                }
+                renderGateways();
+                showToast('设备已删除', 'success');
+            }
+        }
+
+        function updateStats() {
+            const totalComs = gateways.reduce((sum, g) => sum + (parseInt(g.rs485_ports) || 0), 0);
+            const assignedCount = comConfigs.length;
+            const progress = commDevices.length > 0
+                ? Math.round((assignedCount / commDevices.length) * 100) : 0;
+
+            document.getElementById('totalComCount').textContent = totalComs;
+            document.getElementById('assignedDevicesCount').textContent = assignedCount;
+            document.getElementById('totalCommDevicesCount').textContent = commDevices.length;
+            document.getElementById('configProgress').textContent = Math.min(progress, 100) + '%';
+        }
+
+        function completeProject() {
+            if (comConfigs.length === 0) {
+                if (!confirm('还没有配置任何从站设备，确定要继续吗？')) return;
+            }
+            localStorage.setItem('portConfigs', JSON.stringify(comConfigs));
+            window.location.href = 'shipping-register.html';
+        }
+
+        document.getElementById('deviceModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeviceModal();
+        });
+
+        async function syncExistingComConfigsToBackend() {
+            if (!comConfigs.length || !projectId) return;
+            for (var i = 0; i < comConfigs.length; i++) {
+                var c = comConfigs[i];
+                var dev = findDeviceByNo(c.device_no);
+                if (dev && dev.id && (!dev.gateway_id && !dev.rs485_address)) {
+                    await syncDeviceCommToBackend(c.device_no, c.gateway_no, c.com_port, c.rs485_address);
+                }
+            }
+        }
+
+        (async function init() {
+            await loadDataFromApi();
+            renderGateways();
+            syncExistingComConfigsToBackend();
+        })();
+    </script>
+</body>
+</html>

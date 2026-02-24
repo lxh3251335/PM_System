@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>演示流程指南 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .guide-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .guide-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .guide-header h1 {
+            font-size: 48px;
+            margin: 0 0 16px 0;
+            font-weight: 700;
+        }
+
+        .guide-header p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .guide-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .guide-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .guide-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+        }
+
+        .guide-card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .guide-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+
+        .guide-card p {
+            margin: 0 0 20px 0;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .guide-card-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .guide-card-steps li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .guide-card-steps li::before {
+            content: '✓';
+            color: #52c41a;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .btn-start {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 48px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-section {
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .action-section h2 {
+            margin: 0 0 24px 0;
+            font-size: 32px;
+            color: var(--text-primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .feature-item {
+            background: #f0f5ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .feature-item-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .feature-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .feature-item-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .workflow-section {
+            background: white;
+            border-radius: 12px;
+            padding: 48px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .workflow-section h2 {
+            margin: 0 0 32px 0;
+            font-size: 28px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        .workflow-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .workflow-step::after {
+            content: '→';
+            position: absolute;
+            right: -24px;
+            top: 32px;
+            font-size: 24px;
+            color: #d9d9d9;
+        }
+
+        .workflow-step:last-child::after {
+            display: none;
+        }
+
+        .workflow-step-number {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 auto 12px;
+        }
+
+        .workflow-step-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .workflow-step-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-container">
+        <!-- 标题 -->
+        <div class="guide-header">
+            <h1>🚀 冷库项目信息管理系统</h1>
+            <p>完整演示流程 - 从项目创建到完成的全流程体验</p>
+        </div>
+
+        <!-- 完整工作流程 -->
+        <div class="workflow-section">
+            <h2>📋 完整工作流程（7步）</h2>
+            <div class="workflow-steps" style="grid-template-columns: repeat(7, 1fr);">
+                <div class="workflow-step">
+                    <div class="workflow-step-number">1</div>
+                    <div class="workflow-step-title">创建项目</div>
+                    <div class="workflow-step-desc">填写项目基本信息</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">2</div>
+                    <div class="workflow-step-title">建立冷库</div>
+                    <div class="workflow-step-desc">添加冷库并自动计算容积</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">3</div>
+                    <div class="workflow-step-title">登记设备</div>
+                    <div class="workflow-step-desc">从标准库选择并快速复制</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">4</div>
+                    <div class="workflow-step-title">设备关系</div>
+                    <div class="workflow-step-desc">配置设备间关联</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">5</div>
+                    <div class="workflow-step-title">配置网关</div>
+                    <div class="workflow-step-desc">添加网关和物联网卡</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">6</div>
+                    <div class="workflow-step-title">通讯配置</div>
+                    <div class="workflow-step-desc">分配485地址</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-step-number">7</div>
+                    <div class="workflow-step-title">完成</div>
+                    <div class="workflow-step-desc">查看项目摘要</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 演示选项 -->
+        <div class="guide-cards">
+            <!-- 完整流程演示 -->
+            <div class="guide-card">
+                <div class="guide-card-icon">🎯</div>
+                <h3>完整流程演示</h3>
+                <p>体验从创建项目到完成的完整流程，包括所有核心功能。</p>
+                <ul class="guide-card-steps">
+                    <li>填写项目基本信息（客户、类型、地址等）</li>
+                    <li>创建冷库（自动计算容积）</li>
+                    <li>登记设备（从标准库选择，支持复制）</li>
+                    <li>配置设备关系（温控器、机组、电表等）</li>
+                    <li>配置网关和物联网卡信息</li>
+                    <li>通讯配置及485地址分配</li>
+                    <li>查看完整的项目摘要</li>
+                </ul>
+                <button class="btn-start" onclick="startFullDemo()">开始完整演示</button>
+            </div>
+
+            <!-- 项目管理演示 -->
+            <div class="guide-card">
+                <div class="guide-card-icon">📊</div>
+                <h3>项目管理演示</h3>
+                <p>查看已有项目列表，体验项目筛选、查看详情等功能。</p>
+                <ul class="guide-card-steps">
+                    <li>项目列表展示和统计</li>
+                    <li>多维度筛选（客户、类型、状态）</li>
+                    <li>项目详情查看</li>
+                    <li>设备清单和关系图</li>
+                    <li>流程进度跟踪</li>
+                </ul>
+                <button class="btn-start" onclick="viewProjects()">查看项目列表</button>
+            </div>
+        </div>
+
+        <!-- 核心功能亮点 -->
+        <div class="action-section">
+            <h2>✨ 核心功能亮点</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-item-icon">🎨</div>
+                    <div class="feature-item-title">标准设备库</div>
+                    <div class="feature-item-desc">用户自己维护品牌和型号，快速选择</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">⚡</div>
+                    <div class="feature-item-title">设备快速复制</div>
+                    <div class="feature-item-desc">一键复制设备，效率提升80%</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">🔢</div>
+                    <div class="feature-item-title">自动编号</div>
+                    <div class="feature-item-desc">项目、设备、网关编号自动生成</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">🧮</div>
+                    <div class="feature-item-title">智能计算</div>
+                    <div class="feature-item-desc">冷库容积自动计算</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">🔗</div>
+                    <div class="feature-item-title">设备关系</div>
+                    <div class="feature-item-desc">温控器、机组、电表关系管理</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-item-icon">📈</div>
+                    <div class="feature-item-title">流程跟踪</div>
+                    <div class="feature-item-desc">8个流程节点实时跟踪</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-start" onclick="startFullDemo()">🚀 开始完整演示</button>
+                <button class="btn-start" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);" onclick="viewProjects()">📊 查看项目列表</button>
+            </div>
+        </div>
+
+        <!-- 快速提示 -->
+        <div style="text-align: center; color: white; margin-top: 32px; opacity: 0.9;">
+            <p style="font-size: 14px; margin: 0;">
+                💡 提示：本演示基于localStorage存储数据，刷新页面数据不会丢失。<br>
+                如需重新开始，请清除浏览器缓存或使用无痕模式。
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 开始完整流程演示
+        function startFullDemo() {
+            // 清除之前的演示数据（可选）
+            if (confirm('是否清除之前的演示数据，开始全新的演示？\n\n点击"确定"将清除所有数据\n点击"取消"将在现有数据基础上继续')) {
+                localStorage.removeItem('currentProject');
+                localStorage.removeItem('coldRooms');
+                localStorage.removeItem('devices');
+                localStorage.removeItem('gateways');
+            }
+            
+            window.location.href = 'project-create.html';
+        }
+
+        // 查看项目列表
+        function viewProjects() {
+            window.location.href = 'project-list.html';
+        }
+    </script>
+</body>
+</html>

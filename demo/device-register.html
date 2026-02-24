@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备登记 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .project-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .project-info-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+
+        .page-header p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .device-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .device-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .device-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .device-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-group label .required {
+            color: #f5222d;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #096dd9;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #389e0d;
+        }
+
+        .device-list {
+            margin-top: 24px;
+        }
+
+        .device-item {
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .device-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .device-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .device-item-actions button {
+            padding: 6px 16px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .device-item-actions button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .device-item-actions button.delete:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+
+        .device-item-actions button.copy {
+            background: #52c41a;
+            color: white;
+            border: none;
+        }
+
+        .device-item-actions button.copy:hover {
+            background: #389e0d;
+        }
+
+        .device-item-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .device-item-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .device-item-detail-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .device-item-detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stats-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stats-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stats-card-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 24px;
+        }
+
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(82,196,26,0.4); }
+        .step.clickable .step-number, .step.clickable .step-title { transition: all 0.2s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 步骤指示器 -->
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(3);</script>
+
+        <!-- 项目信息 -->
+        <div class="project-info-card" id="projectInfoCard">
+            <h3>📦 当前项目</h3>
+            <div class="project-info-grid" id="projectInfo"></div>
+        </div>
+
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>设备登记</h1>
+            <p>从标准设备库中选择设备型号，快速完成设备登记。支持设备复制功能，提升录入效率。</p>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-cards" id="statsCardsContainer">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 视图模式切换 + 冷库筛选 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 14px; color: var(--text-secondary);">视图模式：</span>
+                <button class="btn btn-primary" id="viewModeType" onclick="setViewMode('type')" style="padding: 6px 16px; font-size: 13px;">按设备类型</button>
+                <button class="btn btn-secondary" id="viewModeRoom" onclick="setViewMode('room')" style="padding: 6px 16px; font-size: 13px;">按冷库分组</button>
+            </div>
+            <div id="coldRoomFilterBar" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- 设备类型选项卡 -->
+        <div class="device-tabs" id="deviceTabsContainer">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 设备登记表单 -->
+        <div class="form-card" id="deviceFormCard">
+            <form id="deviceForm">
+                <!-- 动态内容将根据设备类型填充 -->
+            </form>
+        </div>
+
+        <!-- 已登记设备列表（按类型视图） -->
+        <div class="form-card" id="typeViewCard">
+            <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">已登记设备</h3>
+            <div class="device-list" id="deviceList">
+                <p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">
+                    暂无设备，请添加第一个设备
+                </p>
+            </div>
+        </div>
+
+        <!-- 已登记设备列表（按冷库分组视图） -->
+        <div class="form-card" id="roomViewCard" style="display: none;">
+            <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">设备列表（按冷库分组）</h3>
+            <div id="roomGroupedList"></div>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <button class="btn btn-secondary" onclick="window.location.href='cold-room-create.html'">← 返回上一步</button>
+            <button class="btn btn-success" onclick="continueToGateway()">完成设备登记，继续配置设备关系 →</button>
+        </div>
+    </div>
+
+    <script>
+        requireAuth();
+        let project = {};
+        let projectId = null;
+        let coldRooms = [];
+        let devices = [];
+        let currentCategory = null;
+        let categories = [];
+        let viewMode = 'type';
+        let filterRoomId = null;
+        const equipmentLibrary = { brands: [], models: {} };
+
+        const DEVICE_TYPE_CN = {
+            'air_cooler': '冷风机', 'thermostat': '温控器', 'unit': '制冷机组',
+            'meter': '电表', 'freezer': '冷柜', 'defrost_controller': '融霜控制器',
+            'temp-controller': '温控器', 'refrigeration_unit': '制冷机组', 'electric_meter': '电表'
+        };
+
+        const CODE_TO_DEVICE_TYPE = {
+            'temp-controller': 'thermostat',
+            'air_cooler': 'air_cooler',
+            'refrigeration_unit': 'unit',
+            'electric_meter': 'meter',
+            'freezer': 'freezer',
+            'defrost_controller': 'defrost_controller',
+            'thermostat': 'thermostat',
+            'unit': 'unit',
+            'meter': 'meter'
+        };
+
+        function getDeviceStorageKey() {
+            return projectId ? `devices_${projectId}` : 'devices';
+        }
+
+        function saveDevicesToStorage() {
+            localStorage.setItem(getDeviceStorageKey(), JSON.stringify(devices));
+        }
+
+        function loadDevicesFromStorage() {
+            devices = JSON.parse(localStorage.getItem(getDeviceStorageKey()) || '[]');
+        }
+
+        async function initPage() {
+            projectId = localStorage.getItem('currentProjectId');
+            project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+            try {
+                if (projectId) {
+                    project = await api.projects.getProject(projectId);
+                    coldRooms = await api.projects.getColdRooms(projectId);
+                } else {
+                    coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+                }
+                
+                // Load categories dynamically
+                categories = await api.equipment.getCategories();
+                if (!categories || categories.length === 0) {
+                    // Fallback if empty (though should not happen if initialized)
+                    categories = [
+                        { id: 1, name: '冷风机', code: 'air_cooler' },
+                        { id: 2, name: '温控器', code: 'thermostat' }
+                    ];
+                }
+                
+                renderTabsAndStats();
+                
+                // Select first category by default
+                if (categories.length > 0) {
+                    switchDeviceTab(categories[0].id);
+                }
+
+            } catch (error) {
+                console.error('加载数据失败，使用本地数据:', error);
+                coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+                if (!categories || categories.length === 0) {
+                    categories = [
+                        { id: 1, name: '冷风机', code: 'air_cooler' },
+                        { id: 2, name: '温控器', code: 'thermostat' },
+                        { id: 3, name: '制冷机组', code: 'unit' },
+                        { id: 4, name: '电表', code: 'meter' },
+                        { id: 5, name: '冷柜', code: 'freezer' },
+                        { id: 6, name: '融霜控制器', code: 'defrost_controller' }
+                    ];
+                }
+                renderTabsAndStats();
+                if (categories.length > 0) {
+                    switchDeviceTab(categories[0].id);
+                }
+            }
+
+            localStorage.setItem('currentProject', JSON.stringify(project || {}));
+            loadDevicesFromStorage();
+            await mergeApiDevices();
+            renderProjectInfo();
+            updateStats();
+            if (currentCategory) renderDeviceList();
+        }
+
+        async function mergeApiDevices() {
+            if (!projectId) return;
+            try {
+                var apiDevices = await api.devices.getDevices({ project_id: projectId });
+                if (!Array.isArray(apiDevices) || apiDevices.length === 0) return;
+
+                var localIdSet = {};
+                devices.forEach(function(d) { localIdSet[d.id] = true; });
+
+                var catCodeMap = {};
+                categories.forEach(function(c) { catCodeMap[c.code] = c.id; });
+
+                var added = 0;
+                apiDevices.forEach(function(d) {
+                    if (localIdSet[d.id]) return;
+                    var catCode = d.device_type || '';
+                    var categoryId = catCodeMap[catCode] || null;
+                    devices.push({
+                        id: d.id,
+                        categoryId: categoryId,
+                        type: d.device_type,
+                        device_type: d.device_type,
+                        device_no: d.device_no,
+                        cold_room_id: d.cold_room_id ? String(d.cold_room_id) : '',
+                        cold_room_name: '',
+                        brand: d.brand || '-',
+                        model: d.model || '-',
+                        specifications: {},
+                        created_at: d.created_at || new Date().toISOString()
+                    });
+                    added++;
+                });
+
+                if (added > 0) {
+                    saveDevicesToStorage();
+                    console.log('[Merge] ' + added + ' API devices merged into local storage');
+                }
+            } catch (e) {
+                console.warn('API设备合并失败:', e.message);
+            }
+        }
+
+        function renderTabsAndStats() {
+            const tabsContainer = document.getElementById('deviceTabsContainer');
+            tabsContainer.innerHTML = categories.map((cat, index) => {
+                const label = DEVICE_TYPE_CN[cat.code] || cat.name;
+                return '<button class="device-tab ' + (index === 0 ? 'active' : '') + '" id="tab_' + cat.id + '" onclick="switchDeviceTab(' + cat.id + ')">' + label + '</button>';
+            }).join('');
+
+            const statsContainer = document.getElementById('statsCardsContainer');
+            statsContainer.innerHTML = categories.map(cat => {
+                const label = DEVICE_TYPE_CN[cat.code] || cat.name;
+                return '<div class="stats-card"><div class="stats-card-value" id="count_' + cat.id + '">0</div><div class="stats-card-label">' + label + '</div></div>';
+            }).join('');
+
+            renderColdRoomFilter();
+        }
+
+        function renderColdRoomFilter() {
+            const bar = document.getElementById('coldRoomFilterBar');
+            if (!bar) return;
+            if (coldRooms.length === 0) { bar.innerHTML = ''; return; }
+
+            let html = '<button onclick="setColdRoomFilter(null)" style="padding:5px 14px; border-radius:14px; border:1px solid var(--primary-color); background:var(--primary-color); color:white; cursor:pointer; font-size:13px;" id="roomFilterAll">全部</button>';
+            coldRooms.forEach(r => {
+                html += '<button onclick="setColdRoomFilter(' + r.id + ')" id="roomFilter_' + r.id + '" style="padding:5px 14px; border-radius:14px; border:1px solid #d9d9d9; background:white; cursor:pointer; font-size:13px;">' + (r.name || '冷库' + r.id) + '</button>';
+            });
+            bar.innerHTML = html;
+        }
+
+        function setColdRoomFilter(roomId) {
+            filterRoomId = roomId;
+            document.querySelectorAll('#coldRoomFilterBar button').forEach(b => {
+                b.style.background = 'white'; b.style.color = ''; b.style.borderColor = '#d9d9d9';
+            });
+            const activeBtn = roomId ? document.getElementById('roomFilter_' + roomId) : document.getElementById('roomFilterAll');
+            if (activeBtn) { activeBtn.style.background = 'var(--primary-color)'; activeBtn.style.color = 'white'; activeBtn.style.borderColor = 'var(--primary-color)'; }
+
+            if (viewMode === 'type') {
+                renderDeviceList();
+            } else {
+                renderRoomGroupedView();
+            }
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            document.getElementById('viewModeType').className = mode === 'type' ? 'btn btn-primary' : 'btn btn-secondary';
+            document.getElementById('viewModeRoom').className = mode === 'room' ? 'btn btn-primary' : 'btn btn-secondary';
+
+            document.getElementById('deviceTabsContainer').style.display = mode === 'type' ? '' : 'none';
+            document.getElementById('deviceFormCard').style.display = mode === 'type' ? '' : 'none';
+            document.getElementById('typeViewCard').style.display = mode === 'type' ? '' : 'none';
+            document.getElementById('roomViewCard').style.display = mode === 'room' ? '' : 'none';
+
+            if (mode === 'room') renderRoomGroupedView();
+            else renderDeviceList();
+        }
+
+        function renderRoomGroupedView() {
+            const container = document.getElementById('roomGroupedList');
+            const filtered = filterRoomId ? devices.filter(d => String(d.cold_room_id) === String(filterRoomId)) : devices;
+
+            if (filtered.length === 0 && coldRooms.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-secondary); padding:40px;">暂无数据</p>';
+                return;
+            }
+
+            let html = '';
+            const roomsToShow = filterRoomId ? coldRooms.filter(r => r.id == filterRoomId) : coldRooms;
+
+            roomsToShow.forEach(room => {
+                const roomDevices = filtered.filter(d => String(d.cold_room_id) === String(room.id));
+                html += '<div style="border:1px solid var(--border-color); border-radius:8px; margin-bottom:16px; overflow:hidden;">';
+                html += '<div style="background:#e6f7ff; padding:12px 16px; font-weight:600; display:flex; justify-content:space-between; align-items:center;">';
+                html += '<span>🏠 ' + (room.name || '-') + ' <span style="font-weight:normal; color:var(--text-secondary);">(' + getRoomTypeName(room.room_type) + ')</span></span>';
+                html += '<span class="badge badge-info">' + roomDevices.length + '台设备</span>';
+                html += '</div>';
+
+                if (roomDevices.length === 0) {
+                    html += '<div style="padding:20px; text-align:center; color:var(--text-secondary);">该冷库暂无设备</div>';
+                } else {
+                    const grouped = {};
+                    roomDevices.forEach(d => {
+                        const t = d.device_type || d.type || 'other';
+                        if (!grouped[t]) grouped[t] = [];
+                        grouped[t].push(d);
+                    });
+
+                    html += '<div style="padding:12px 16px;">';
+                    for (const [type, items] of Object.entries(grouped)) {
+                        const typeName = DEVICE_TYPE_CN[type] || type;
+                        html += '<div style="margin-bottom:8px;"><strong>' + typeName + '</strong> (' + items.length + '台)</div>';
+                        html += '<table class="data-table" style="margin-bottom:12px;"><thead><tr><th>编号</th><th>品牌</th><th>型号</th></tr></thead><tbody>';
+                        items.forEach(d => {
+                            html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td></tr>';
+                        });
+                        html += '</tbody></table>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+
+            const unassigned = filtered.filter(d => !d.cold_room_id);
+            if (unassigned.length > 0) {
+                html += '<div style="border:1px solid #faad14; border-radius:8px; margin-bottom:16px; overflow:hidden;">';
+                html += '<div style="background:#fffbe6; padding:12px 16px; font-weight:600;">未分配冷库的设备 <span class="badge badge-warning">' + unassigned.length + '台</span></div>';
+                html += '<div style="padding:12px 16px;"><table class="data-table"><thead><tr><th>编号</th><th>类型</th><th>品牌</th><th>型号</th></tr></thead><tbody>';
+                unassigned.forEach(d => {
+                    const typeName = DEVICE_TYPE_CN[d.device_type || d.type] || d.device_type || '-';
+                    html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + typeName + '</td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td></tr>';
+                });
+                html += '</tbody></table></div></div>';
+            }
+
+            container.innerHTML = html || '<p style="text-align:center; color:var(--text-secondary); padding:40px;">暂无数据</p>';
+        }
+
+        function getRoomTypeName(type) {
+            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库' };
+            return names[type] || type || '-';
+        }
+
+        function renderProjectInfo() {
+            document.getElementById('projectInfo').innerHTML = `
+                <div><strong>项目编号：</strong>${project?.project_no || '-'}</div>
+                <div><strong>项目名称：</strong>${project?.name || '-'}</div>
+                <div><strong>最终用户：</strong>${project?.end_customer || '-'}</div>
+                <div><strong>冷库数量：</strong>${coldRooms.length}个</div>
+            `;
+        }
+
+        async function switchDeviceTab(categoryId) {
+            currentCategory = categories.find(c => c.id === categoryId);
+            if (!currentCategory) return;
+
+            // Update UI
+            document.querySelectorAll('.device-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab_${categoryId}`)?.classList.add('active');
+
+            // Load Brands for this category
+            await loadBrandsForCategory(categoryId);
+            
+            // Render Form
+            renderDeviceForm();
+            
+            // Render List
+            renderDeviceList();
+        }
+
+        var DEMO_BRANDS = {
+            1: [{ id: 101, name: '冷王', category_id: 1, spec_template: [] }, { id: 102, name: '大金', category_id: 1, spec_template: [] }],
+            2: [{ id: 201, name: '精创', category_id: 2, spec_template: [] }, { id: 202, name: '中科美菱', category_id: 2, spec_template: [] }],
+            3: [{ id: 301, name: '比泽尔', category_id: 3, spec_template: [] }, { id: 302, name: '谷轮', category_id: 3, spec_template: [] }],
+            4: [{ id: 401, name: '安科瑞', category_id: 4, spec_template: [] }, { id: 402, name: '正泰', category_id: 4, spec_template: [] }],
+            5: [{ id: 501, name: '海尔', category_id: 5, spec_template: [] }],
+            6: [{ id: 601, name: '精创', category_id: 6, spec_template: [] }]
+        };
+        var DEMO_MODELS = {
+            101: [{ model_name: 'DD-4.0/20', specifications: {} }, { model_name: 'DD-6.0/30', specifications: {} }],
+            102: [{ model_name: 'FDE-80', specifications: {} }],
+            201: [{ model_name: 'STC-8080A', specifications: {} }, { model_name: 'STC-9200', specifications: {} }],
+            202: [{ model_name: 'ML-808', specifications: {} }],
+            301: [{ model_name: '4FES-3Y', specifications: {} }, { model_name: '4HE-18Y', specifications: {} }],
+            302: [{ model_name: 'ZB45KQE', specifications: {} }],
+            401: [{ model_name: 'DTSD1352', specifications: {} }],
+            402: [{ model_name: 'DDSD1352', specifications: {} }],
+            501: [{ model_name: 'SD-520', specifications: {} }],
+            601: [{ model_name: 'JCR-33A', specifications: {} }]
+        };
+
+        async function loadBrandsForCategory(catId) {
+            try {
+                var brands = await api.equipment.getBrands({ category_id: catId });
+                equipmentLibrary.brands = brands || [];
+                equipmentLibrary.models = {};
+            } catch (e) {
+                console.warn('API加载品牌失败，使用演示数据:', e.message);
+                equipmentLibrary.brands = DEMO_BRANDS[catId] || [];
+                equipmentLibrary.models = {};
+            }
+        }
+
+        function renderDeviceForm() {
+            if (!currentCategory) return;
+            
+            const formContainer = document.getElementById('deviceForm');
+            const catLabel = DEVICE_TYPE_CN[currentCategory.code] || currentCategory.name;
+            let html = `<h3 style="margin: 0 0 20px 0; color: var(--primary-color);">添加${catLabel}</h3>`;
+            
+            if (equipmentLibrary.brands.length === 0) {
+                html += `<div class="form-help" style="margin-bottom:12px;color:#d4380d;">当前类型暂无品牌配置，请联系管理员在“设备配置管理”中添加。</div>`;
+            }
+
+            html += `<div class="form-grid">`;
+            
+            // 1. Cold Room (Always present)
+            html += `
+                <div class="form-group">
+                    <label>所属冷库 <span class="required">*</span></label>
+                    <select name="cold_room_id" required>
+                        <option value="">请选择冷库</option>
+                        ${coldRooms.map(room => `<option value="${room.id}">${room.name}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+
+            // 2. Brand
+            html += `
+                <div class="form-group">
+                    <label>品牌 <span class="required">*</span></label>
+                    <select name="brand_id" id="brandSelect" required onchange="onBrandChange()">
+                        <option value="">请选择品牌</option>
+                        ${equipmentLibrary.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+
+            // 3. Model
+            html += `
+                <div class="form-group">
+                    <label>型号 <span class="required">*</span></label>
+                    <select name="model_name" id="modelSelect" required disabled onchange="onModelChange()">
+                        <option value="">请先选择品牌</option>
+                    </select>
+                </div>
+            `;
+
+            // 4. Dynamic Fields Container
+            html += `</div><div id="dynamicFieldsArea" class="form-grid" style="margin-top:20px;"></div>`;
+
+            // Buttons
+            html += `
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary">添加设备</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('deviceForm').reset()">重置</button>
+                </div>
+            `;
+
+            formContainer.innerHTML = html;
+            formContainer.onsubmit = (e) => { e.preventDefault(); addDevice(); };
+        }
+
+        async function onBrandChange() {
+            const brandId = document.getElementById('brandSelect').value;
+            const modelSelect = document.getElementById('modelSelect');
+            const dynamicArea = document.getElementById('dynamicFieldsArea');
+            
+            if (!brandId) {
+                modelSelect.innerHTML = '<option value="">请先选择品牌</option>';
+                modelSelect.disabled = true;
+                dynamicArea.innerHTML = '';
+                return;
+            }
+
+            try {
+                var models = await api.equipment.getModels({ brand_id: brandId });
+                equipmentLibrary.models[brandId] = models || [];
+            } catch(e) {
+                console.warn('API加载型号失败，使用演示数据:', e.message);
+                equipmentLibrary.models[brandId] = DEMO_MODELS[brandId] || [];
+            }
+            var models = equipmentLibrary.models[brandId] || [];
+            modelSelect.innerHTML = '<option value="">请选择型号</option>' + 
+                models.map(function(m) { return '<option value="' + m.model_name + '">' + m.model_name + '</option>'; }).join('');
+            modelSelect.disabled = false;
+
+            // Render Dynamic Fields based on Brand Template
+            const brand = equipmentLibrary.brands.find(b => b.id == brandId);
+            if (brand && brand.spec_template) {
+                renderDynamicFields(brand.spec_template);
+            } else {
+                dynamicArea.innerHTML = '';
+            }
+        }
+
+        function renderDynamicFields(template) {
+            const container = document.getElementById('dynamicFieldsArea');
+            if (!template || template.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = template.map(field => {
+                let inputHtml = '';
+                if (field.type === 'select') {
+                    const opts = (field.options || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                    inputHtml = `<select name="spec_${field.key}" class="dynamic-input"><option value="">请选择</option>${opts}</select>`;
+                } else {
+                    inputHtml = `<input type="text" name="spec_${field.key}" class="dynamic-input" placeholder="请输入${field.label}">`;
+                }
+                
+                return `
+                    <div class="form-group">
+                        <label>${field.label}</label>
+                        ${inputHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function onModelChange() {
+            // Auto-fill dynamic fields if model has specs
+            const brandId = document.getElementById('brandSelect').value;
+            const modelName = document.getElementById('modelSelect').value;
+            if (!brandId || !modelName) return;
+
+            const models = equipmentLibrary.models[brandId] || [];
+            const model = models.find(m => m.model_name === modelName);
+            
+            if (model && model.specifications) {
+                Object.entries(model.specifications).forEach(([key, value]) => {
+                    const input = document.querySelector(`[name="spec_${key}"]`);
+                    if (input) input.value = value;
+                });
+            }
+        }
+
+        async function addDevice() {
+            if (!currentCategory) return;
+            
+            const form = document.getElementById('deviceForm');
+            const coldRoomId = form.cold_room_id.value;
+            const brandId = form.brand_id.value;
+            const modelName = form.model_name.value;
+            
+            const specs = {};
+            form.querySelectorAll('.dynamic-input').forEach(input => {
+                const key = input.name.replace('spec_', '');
+                specs[key] = input.value;
+            });
+
+            const brand = equipmentLibrary.brands.find(b => b.id == brandId);
+            const coldRoom = coldRooms.find(r => r.id == coldRoomId);
+
+            const brandName = brand ? brand.name : '-';
+            const deviceType = CODE_TO_DEVICE_TYPE[currentCategory.code] || currentCategory.code;
+
+            const count = devices.filter(d => d.categoryId === currentCategory.id).length;
+            const prefixMap = { 'thermostat': 'TC', 'air_cooler': 'AC', 'unit': 'UN', 'meter': 'PM', 'freezer': 'FR', 'defrost_controller': 'DF' };
+            const prefix = prefixMap[deviceType] || (currentCategory.code ? currentCategory.code.substring(0, 2).toUpperCase() : 'DV');
+            const deviceNo = `${prefix}-001-${String(count + 1).padStart(3, '0')}`;
+
+            const apiPayload = {
+                device_type: deviceType,
+                brand: brandName,
+                model: modelName,
+                cold_room_id: coldRoomId ? parseInt(coldRoomId) : null,
+                specifications: Object.keys(specs).length > 0 ? JSON.stringify(specs) : null
+            };
+
+            let savedId = Date.now();
+            try {
+                const result = await api.devices.createDevice(projectId, apiPayload);
+                if (result && result.id) {
+                    savedId = result.id;
+                    console.log(`[API] Device saved: id=${result.id}, no=${result.device_no}`);
+                }
+            } catch (err) {
+                console.warn('API save failed, using local only:', err.message);
+            }
+
+            const device = {
+                id: savedId,
+                categoryId: currentCategory.id,
+                type: deviceType,
+                device_type: deviceType,
+                device_no: deviceNo,
+                cold_room_id: coldRoomId,
+                cold_room_name: coldRoom ? coldRoom.name : '-',
+                brand: brandName,
+                model: modelName,
+                specifications: specs,
+                created_at: new Date().toISOString()
+            };
+
+            devices.push(device);
+            saveDevicesToStorage();
+            
+            api.projects.showSuccess(`${currentCategory.name} 添加成功`);
+            form.reset();
+            document.getElementById('dynamicFieldsArea').innerHTML = '';
+            
+            updateStats();
+            renderDeviceList();
+        }
+
+        function renderDeviceList() {
+            if (!currentCategory) return;
+            let list = devices.filter(d => d.categoryId === currentCategory.id);
+            if (filterRoomId) {
+                list = list.filter(d => String(d.cold_room_id) === String(filterRoomId));
+            }
+            const container = document.getElementById('deviceList');
+            
+            if (list.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">暂无设备，请添加第一个设备</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(d => {
+                const specsHtml = Object.entries(d.specifications || {}).map(([k, v]) => 
+                    '<div class="device-item-detail"><div class="device-item-detail-label">' + k + '</div><div class="device-item-detail-value">' + v + '</div></div>'
+                ).join('');
+
+                return `
+                    <div class="device-item">
+                        <div class="device-item-header">
+                            <div class="device-item-title">${d.device_no} - ${d.brand} ${d.model}</div>
+                            <div class="device-item-actions">
+                                <button class="copy" onclick="copyDevice(${d.id})">复制</button>
+                                <button onclick="deleteDevice(${d.id})" class="delete">删除</button>
+                            </div>
+                        </div>
+                        <div class="device-item-details">
+                            <div class="device-item-detail"><div class="device-item-detail-label">所属冷库</div><div class="device-item-detail-value">${d.cold_room_name || '-'}</div></div>
+                            <div class="device-item-detail"><div class="device-item-detail-label">品牌</div><div class="device-item-detail-value">${d.brand}</div></div>
+                            <div class="device-item-detail"><div class="device-item-detail-label">型号</div><div class="device-item-detail-value">${d.model}</div></div>
+                            ${specsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            categories.forEach(cat => {
+                let list = devices.filter(d => d.categoryId === cat.id);
+                if (filterRoomId) list = list.filter(d => String(d.cold_room_id) === String(filterRoomId));
+                const el = document.getElementById('count_' + cat.id);
+                if (el) el.textContent = list.length;
+            });
+        }
+
+        async function copyDevice(id) {
+            const device = devices.find(d => d.id === id);
+            if (!device) return;
+            
+            const countStr = prompt('请输入复制数量 (1-10):', '1');
+            const count = parseInt(countStr);
+            if (!count || count < 1 || count > 10) return;
+
+            let apiCopied = false;
+            try {
+                const result = await api.devices.copyDevice(device.id, { count: count, copy_gateway_config: false });
+                if (Array.isArray(result) && result.length > 0) {
+                    result.forEach(d => {
+                        devices.push({
+                            id: d.id,
+                            categoryId: device.categoryId,
+                            type: d.device_type,
+                            device_type: d.device_type,
+                            device_no: d.device_no,
+                            cold_room_id: d.cold_room_id ? String(d.cold_room_id) : '',
+                            cold_room_name: device.cold_room_name || '-',
+                            brand: d.brand,
+                            model: d.model,
+                            specifications: device.specifications || {},
+                            created_at: d.created_at || new Date().toISOString()
+                        });
+                    });
+                    apiCopied = true;
+                }
+            } catch (err) {
+                console.warn('API复制失败，使用本地复制:', err.message);
+            }
+
+            if (!apiCopied) {
+                const currentCount = devices.filter(d => d.categoryId === device.categoryId).length;
+                const prefix = device.device_no.split('-')[0];
+                for (let i = 0; i < count; i++) {
+                    const newNo = `${prefix}-001-${String(currentCount + i + 1).padStart(3, '0')}`;
+                    devices.push({
+                        ...device,
+                        id: Date.now() + i,
+                        device_no: newNo,
+                        created_at: new Date().toISOString()
+                    });
+                }
+            }
+
+            saveDevicesToStorage();
+            updateStats();
+            renderDeviceList();
+            api.projects.showSuccess('成功复制 ' + count + ' 台设备');
+        }
+
+        async function deleteDevice(id) {
+            if (!confirm('确定删除?')) return;
+            try {
+                await api.devices.deleteDevice(id);
+            } catch (err) {
+                console.warn('API delete failed (maybe local-only device):', err.message);
+            }
+            devices = devices.filter(d => d.id !== id);
+            saveDevicesToStorage();
+            updateStats();
+            renderDeviceList();
+        }
+
+        function continueToGateway() {
+            if (devices.length === 0) return alert('请至少添加一个设备');
+            window.location.href = 'device-relations.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

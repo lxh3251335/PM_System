@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建冷库 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .create-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .create-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .create-header h1 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .create-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .project-info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .project-info-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-group label .required {
+            color: #f5222d;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+
+        .form-group input[readonly] {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .calculated-value {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .cold-room-list {
+            margin-top: 24px;
+        }
+
+        .cold-room-item {
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cold-room-item-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .cold-room-item-details {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .cold-room-item-actions button {
+            padding: 6px 16px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.3s;
+        }
+
+        .cold-room-item-actions button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .cold-room-item-actions button.delete:hover {
+            border-color: #ff4d4f;
+            color: #ff4d4f;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #096dd9;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #389e0d;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+        }
+
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(82,196,26,0.4); }
+        .step.clickable .step-number, .step.clickable .step-title { transition: all 0.2s; }
+        .step.completed::after { background: #52c41a; }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <!-- 步骤指示器 -->
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(2);</script>
+
+        <!-- 项目信息展示 -->
+        <div class="project-info-card" id="projectInfoCard">
+            <h3>📦 当前项目</h3>
+            <div class="project-info-grid" id="projectInfo">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+
+        <div class="create-header">
+            <h1>创建冷库</h1>
+            <p>为项目添加冷库，系统将自动计算容积和制冷剂用量</p>
+        </div>
+
+        <!-- 冷库表单 -->
+        <div class="form-card">
+            <form id="coldRoomForm">
+                <div class="form-section-title">冷库信息</div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>冷库名称 <span class="required">*</span></label>
+                        <input type="text" name="name" id="roomName" placeholder="例如：1号低温库" required>
+                    </div>
+                    <div class="form-group">
+                        <label>冷库类型 <span class="required">*</span></label>
+                        <select name="room_type" id="roomType" required>
+                            <option value="">请选择冷库类型</option>
+                            <option value="low_temp">低温库（-18℃~-15℃）</option>
+                            <option value="refrigerated">冷藏库（1℃~4℃）</option>
+                            <option value="medium_temp">中温库（8℃~10℃）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>设计温度下限（℃） <span class="required">*</span></label>
+                        <input type="number" name="design_temp_min" id="tempMin" step="1" required readonly>
+                        <div class="form-help">根据冷库类型自动设置</div>
+                    </div>
+                    <div class="form-group">
+                        <label>设计温度上限（℃） <span class="required">*</span></label>
+                        <input type="number" name="design_temp_max" id="tempMax" step="1" required readonly>
+                        <div class="form-help">根据冷库类型自动设置</div>
+                    </div>
+                    <div class="form-group">
+                        <label>面积（㎡） <span class="required">*</span></label>
+                        <input type="number" name="area" id="area" step="0.01" placeholder="请输入面积" required>
+                    </div>
+                    <div class="form-group">
+                        <label>高度（m） <span class="required">*</span></label>
+                        <input type="number" name="height" id="height" step="0.01" placeholder="请输入高度" required>
+                    </div>
+                    <div class="form-group">
+                        <label>容积（m³）</label>
+                        <div class="calculated-value" id="volume">面积 × 高度 = 自动计算</div>
+                        <div class="form-help">自动计算：面积 × 高度</div>
+                    </div>
+                    <div class="form-group">
+                        <label>制冷剂类型 <span class="required">*</span></label>
+                        <select name="refrigerant_type" required>
+                            <option value="">请选择制冷剂类型</option>
+                            <option value="R410A">R410A</option>
+                            <option value="R404A">R404A</option>
+                            <option value="R507">R507</option>
+                            <option value="R134a">R134a</option>
+                            <option value="R22">R22</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="addAnother()">保存并继续添加</button>
+                    <button type="submit" class="btn btn-primary">添加到列表</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 已创建的冷库列表 -->
+        <div class="form-card" style="margin-top: 24px;">
+            <div class="form-section-title">已创建的冷库 <span style="font-weight: normal; color: var(--text-secondary);" id="roomCount">(0个)</span></div>
+            <div class="cold-room-list" id="coldRoomList">
+                <p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">
+                    暂无冷库，请添加第一个冷库
+                </p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'">返回项目列表</button>
+                <button type="button" class="btn btn-success" onclick="continueToDevices()" id="btnContinue" disabled>完成冷库创建，继续登记设备 →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        requireAuth();
+        // 全局变量
+        let project = null;
+        let coldRooms = [];
+        let projectId = null;
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadProjectInfo();
+            await loadColdRooms();
+        });
+
+        // 加载项目信息
+        async function loadProjectInfo() {
+            try {
+                projectId = localStorage.getItem('currentProjectId');
+                if (!projectId) {
+                    alert('未找到项目信息，请先创建项目');
+                    window.location.href = 'project-create.html';
+                    return;
+                }
+
+                if (isProductionMode()) {
+                    // 生产模式：从API加载
+                    project = await api.projects.getProject(projectId);
+                } else {
+                    // 演示模式：从localStorage加载
+                    project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+                }
+
+                if (!project || !project.id) {
+                    alert('未找到项目信息，请先创建项目');
+                    window.location.href = 'project-create.html';
+                    return;
+                }
+
+                // 显示项目信息
+                document.getElementById('projectInfo').innerHTML = `
+                    <div><strong>项目编号：</strong>${project.project_no || 'N/A'}</div>
+                    <div><strong>项目名称：</strong>${project.name || 'N/A'}</div>
+                    <div><strong>最终用户：</strong>${project.end_customer || 'N/A'}</div>
+                `;
+            } catch (error) {
+                console.error('加载项目信息失败:', error);
+                // 降级到演示模式
+                project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+                if (!project.id) {
+                    alert('未找到项目信息，请先创建项目');
+                    window.location.href = 'project-create.html';
+                }
+            }
+        }
+
+        // 加载冷库列表
+        async function loadColdRooms() {
+            try {
+                if (isProductionMode() && projectId) {
+                    // 生产模式：从API加载
+                    coldRooms = await api.projects.getColdRooms(projectId);
+                } else {
+                    // 演示模式：从localStorage加载
+                    coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+                }
+                renderColdRooms();
+            } catch (error) {
+                console.error('加载冷库列表失败:', error);
+                coldRooms = [];
+                renderColdRooms();
+            }
+        }
+
+        // 冷库类型变化时自动设置温度
+        const roomTypeSelect = document.getElementById('roomType');
+        const tempMinInput = document.getElementById('tempMin');
+        const tempMaxInput = document.getElementById('tempMax');
+        const roomNameInput = document.getElementById('roomName');
+
+        roomTypeSelect.addEventListener('change', function() {
+            const roomType = this.value;
+            const roomCount = (JSON.parse(localStorage.getItem('coldRooms') || '[]')).length;
+            
+            switch(roomType) {
+                case 'low_temp':
+                    tempMinInput.value = -18;
+                    tempMaxInput.value = -15;
+                    if (!roomNameInput.value) {
+                        roomNameInput.value = (roomCount + 1) + '号低温库';
+                    }
+                    break;
+                case 'refrigerated':
+                    tempMinInput.value = 1;
+                    tempMaxInput.value = 4;
+                    if (!roomNameInput.value) {
+                        roomNameInput.value = (roomCount + 1) + '号冷藏库';
+                    }
+                    break;
+                case 'medium_temp':
+                    tempMinInput.value = 8;
+                    tempMaxInput.value = 10;
+                    if (!roomNameInput.value) {
+                        roomNameInput.value = (roomCount + 1) + '号中温库';
+                    }
+                    break;
+            }
+        });
+
+        // 计算容积
+        const areaInput = document.getElementById('area');
+        const heightInput = document.getElementById('height');
+        const volumeDiv = document.getElementById('volume');
+
+        function calculateVolume() {
+            const area = parseFloat(areaInput.value) || 0;
+            const height = parseFloat(heightInput.value) || 0;
+            const volume = area * height;
+            
+            if (area > 0 && height > 0) {
+                volumeDiv.textContent = `${volume.toFixed(2)} m³`;
+                volumeDiv.style.color = 'var(--primary-color)';
+            } else {
+                volumeDiv.textContent = '面积 × 高度 = 自动计算';
+                volumeDiv.style.color = '#999';
+            }
+        }
+
+        areaInput.addEventListener('input', calculateVolume);
+        heightInput.addEventListener('input', calculateVolume);
+
+        // 保存冷库
+        document.getElementById('coldRoomForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveColdRoom(false);
+        });
+
+        async function saveColdRoom(continueAdding) {
+            const formData = new FormData(document.getElementById('coldRoomForm'));
+            const area = parseFloat(formData.get('area'));
+            const height = parseFloat(formData.get('height'));
+            const volume = area * height;
+            
+            const coldRoomData = {
+                project_id: projectId,
+                name: formData.get('name'),
+                room_type: formData.get('room_type'),
+                design_temp_min: parseFloat(formData.get('design_temp_min')),
+                design_temp_max: parseFloat(formData.get('design_temp_max')),
+                area: area,
+                height: height,
+                volume: parseFloat(volume.toFixed(2)),
+                refrigerant_type: formData.get('refrigerant_type')
+            };
+            
+            try {
+                if (editingRoomId) {
+                    const idx = coldRooms.findIndex(r => r.id === editingRoomId);
+                    if (idx !== -1) {
+                        coldRoomData.id = editingRoomId;
+                        if (isProductionMode() && projectId) {
+                            try {
+                                const result = await api.projects.updateColdRoom(projectId, editingRoomId, coldRoomData);
+                                coldRooms[idx] = result;
+                            } catch (e) {
+                                coldRooms[idx] = { ...coldRooms[idx], ...coldRoomData };
+                            }
+                            api.projects.showSuccess('冷库修改成功！');
+                        } else {
+                            coldRooms[idx] = { ...coldRooms[idx], ...coldRoomData };
+                            localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+                        }
+                    }
+                    editingRoomId = null;
+                    const submitBtn = document.getElementById('coldRoomForm').querySelector('button[type="submit"]');
+                    submitBtn.textContent = '添加到列表';
+                    submitBtn.style.background = '';
+                } else {
+                    if (isProductionMode() && projectId) {
+                        const result = await api.projects.createColdRoom(projectId, coldRoomData);
+                        coldRooms.push(result);
+                        api.projects.showSuccess('冷库添加成功！');
+                    } else {
+                        coldRoomData.id = Date.now();
+                        coldRooms.push(coldRoomData);
+                        localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+                    }
+                }
+                
+                document.getElementById('coldRoomForm').reset();
+                document.getElementById('roomName').value = '';
+                document.getElementById('volume').textContent = '面积 x 高度 = 自动计算';
+                
+                renderColdRooms();
+                
+            } catch (error) {
+                console.error('保存冷库失败:', error);
+                api.projects.showError('保存冷库失败: ' + error.message);
+            }
+        }
+
+        let editingRoomId = null;
+
+        function editColdRoom(id) {
+            const room = coldRooms.find(r => r.id === id);
+            if (!room) return;
+
+            editingRoomId = id;
+            const form = document.getElementById('coldRoomForm');
+            document.getElementById('roomName').value = room.name;
+            document.getElementById('roomType').value = room.room_type;
+            document.getElementById('tempMin').value = room.design_temp_min;
+            document.getElementById('tempMax').value = room.design_temp_max;
+            document.getElementById('area').value = room.area;
+            document.getElementById('height').value = room.height;
+            form.refrigerant_type.value = room.refrigerant_type;
+            calculateVolume();
+
+            document.querySelector('.form-section-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = '保存修改';
+            submitBtn.style.background = '#faad14';
+        }
+
+        function addAnother() {
+            saveColdRoom(true);
+        }
+
+        // 渲染冷库列表
+        function renderColdRooms() {
+            const listDiv = document.getElementById('coldRoomList');
+            const countSpan = document.getElementById('roomCount');
+            const btnContinue = document.getElementById('btnContinue');
+            
+            countSpan.textContent = `(${coldRooms.length}个)`;
+            
+            if (coldRooms.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">暂无冷库，请添加第一个冷库</p>';
+                btnContinue.disabled = true;
+            } else {
+                listDiv.innerHTML = coldRooms.map(room => `
+                    <div class="cold-room-item">
+                        <div class="cold-room-item-info">
+                            <h4>${room.name}</h4>
+                            <div class="cold-room-item-details">
+                                类型：${getRoomTypeName(room.room_type)} | 
+                                温度：${room.design_temp_min}&#8451;~${room.design_temp_max}&#8451; | 
+                                面积：${room.area}&#13217; | 
+                                高度：${room.height}m | 
+                                容积：${room.volume}m&#179; | 
+                                制冷剂：${room.refrigerant_type}
+                            </div>
+                        </div>
+                        <div class="cold-room-item-actions">
+                            <button onclick="editColdRoom(${room.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">编辑</button>
+                            <button onclick="deleteColdRoom(${room.id})" class="delete">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+                btnContinue.disabled = false;
+            }
+        }
+
+        function getRoomTypeName(type) {
+            const names = {
+                'low_temp': '低温库',
+                'refrigerated': '冷藏库',
+                'medium_temp': '中温库'
+            };
+            return names[type] || type;
+        }
+
+        async function deleteColdRoom(id) {
+            if (!confirm('确定要删除这个冷库吗？')) {
+                return;
+            }
+            
+            try {
+                if (isProductionMode()) {
+                    // 生产模式：调用API删除
+                    // TODO: 后端需要添加删除冷库的API
+                    // await api.projects.deleteColdRoom(projectId, id);
+                    api.projects.showSuccess('冷库删除成功！');
+                } else {
+                    // 演示模式：从localStorage删除
+                    alert('冷库已删除');
+                }
+                
+                coldRooms = coldRooms.filter(room => room.id !== id);
+                localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+                renderColdRooms();
+                
+            } catch (error) {
+                console.error('删除冷库失败:', error);
+                api.projects.showError('删除冷库失败: ' + error.message);
+            }
+        }
+
+        function continueToDevices() {
+            if (coldRooms.length === 0) {
+                alert('请至少添加一个冷库');
+                return;
+            }
+            window.location.href = 'device-register.html';
+        }
+
+        // 初始化渲染
+        renderColdRooms();
+    </script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目提交 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e8e8e8;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8e8e8;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #52c41a;
+            color: white;
+        }
+
+        .step.completed::after {
+            background: #52c41a;
+        }
+
+        .step-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .step.active .step-title {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .step.completed .step-title {
+            color: #52c41a;
+            font-weight: 500;
+        }
+
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(24,144,255,0.4); }
+        .step.clickable .step-number, .step.clickable .step-title { transition: all 0.2s; }
+
+        .success-card {
+            background: white;
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 48px;
+            color: white;
+        }
+
+        .success-icon.submit-mode {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+        }
+
+        .success-icon.complete-mode {
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+        }
+
+        .success-card h1 {
+            margin: 0 0 16px 0;
+            font-size: 28px;
+            color: var(--text-primary);
+        }
+
+        .success-card p {
+            margin: 0;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .project-number {
+            display: inline-block;
+            background: #e6f7ff;
+            color: var(--primary-color);
+            padding: 8px 24px;
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .summary-card h2 {
+            margin: 0 0 24px 0;
+            font-size: 20px;
+            color: var(--text-primary);
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-item-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-item-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stats-item {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stats-item-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stats-item-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .device-summary {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .device-summary-item {
+            background: #f0f5ff;
+            padding: 16px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .device-summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .device-summary-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 14px 40px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #096dd9;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #389e0d;
+            box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid #d9d9d9;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .next-steps-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .next-step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .next-step-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .next-step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e6f7ff;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .next-step-content {
+            flex: 1;
+        }
+
+        .next-step-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .next-step-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .phase-badge.customer {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .phase-badge.admin {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+
+        <div class="success-card" id="headerCard">
+            <!-- 动态填充 -->
+        </div>
+
+        <div class="summary-card">
+            <h2>项目基本信息</h2>
+            <div class="summary-grid" id="projectSummary"></div>
+        </div>
+
+        <div class="summary-card">
+            <h2>配置摘要</h2>
+            <div class="stats-grid">
+                <div class="stats-item">
+                    <div class="stats-item-value" id="coldRoomCount">0</div>
+                    <div class="stats-item-label">冷库数量</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-item-value" id="deviceCount">0</div>
+                    <div class="stats-item-label">设备总数</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-item-value" id="gatewayCount">0</div>
+                    <div class="stats-item-label">网关数量</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-item-value" id="totalVolume">0</div>
+                    <div class="stats-item-label">总容积(m3)</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 24px 0 16px 0; font-size: 16px; color: var(--text-primary);">设备明细</h3>
+            <div class="device-summary">
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="airCoolerCount">0</div>
+                    <div class="device-summary-label">冷风机</div>
+                </div>
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="thermostatCount">0</div>
+                    <div class="device-summary-label">温控器</div>
+                </div>
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="unitCount">0</div>
+                    <div class="device-summary-label">机组</div>
+                </div>
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="meterCount">0</div>
+                    <div class="device-summary-label">电表</div>
+                </div>
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="freezerCount">0</div>
+                    <div class="device-summary-label">冷柜</div>
+                </div>
+                <div class="device-summary-item">
+                    <div class="device-summary-value" id="defrostCount">0</div>
+                    <div class="device-summary-label">融霜控制器</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="next-steps-card" id="nextStepsCard">
+            <!-- 动态填充 -->
+        </div>
+
+        <div class="action-buttons" id="actionButtons">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+
+    <script>
+        requireAuth();
+
+        var params = new URLSearchParams(window.location.search);
+        var pageMode = params.get('mode') || 'submit';
+
+        var project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+        var projectId = localStorage.getItem('currentProjectId');
+        var coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+        var devicesKey = projectId ? 'devices_' + projectId : 'devices';
+        var devices = JSON.parse(localStorage.getItem(devicesKey) || '[]');
+        var gateways = JSON.parse(localStorage.getItem('gateways') || '[]');
+        var _dataLoaded = false;
+
+        function getCurrentRole() {
+            var raw = (localStorage.getItem('userRole') || 'customer').toLowerCase();
+            if (raw === 'factory') return 'admin';
+            if (raw === 'user') return 'customer';
+            return raw;
+        }
+
+        function initPage() {
+            var role = getCurrentRole();
+
+            if (pageMode === 'submit') {
+                renderStepNav(5);
+                renderSubmitMode();
+            } else if (pageMode === 'complete') {
+                if (role !== 'admin') {
+                    document.body.innerHTML =
+                        '<div style="text-align:center;padding:120px 20px;font-family:sans-serif;">' +
+                        '<h2 style="color:#e74c3c;margin-bottom:16px;">无权访问</h2>' +
+                        '<p style="color:#666;font-size:16px;">项目完成确认由管理员操作。</p>' +
+                        '<button onclick="window.location.href=\'project-list.html\'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">返回项目列表</button>' +
+                        '</div>';
+                    return;
+                }
+                renderStepNav(9);
+                renderCompleteMode();
+            } else {
+                renderStepNav(5);
+                renderSubmitMode();
+            }
+
+            renderProjectSummary();
+            loadAndRenderStats();
+        }
+
+        function renderSubmitMode() {
+            document.title = '提交审核 - 冷库项目信息管理系统';
+            document.getElementById('headerCard').innerHTML =
+                '<div class="phase-badge customer">客户操作 - 步骤5</div>' +
+                '<div class="success-icon submit-mode">&#10003;</div>' +
+                '<h1>确认并提交项目</h1>' +
+                '<p>请检查以下项目信息是否正确，确认无误后点击"提交审核"按钮。<br>提交后，管理员将为您配置网关、通讯设置并安排发货。</p>' +
+                '<div class="project-number" id="projectNumber">' + (project.project_no || '-') + '</div>';
+
+            document.getElementById('nextStepsCard').innerHTML =
+                '<h2>提交后的流程</h2>' +
+                '<div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon">1</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">管理员配置网关</div>' +
+                            '<div class="next-step-desc">管理员将根据您的设备信息，为项目分配和配置网关设备</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon">2</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">通讯设置</div>' +
+                            '<div class="next-step-desc">配置RS485通讯参数，为每个设备分配通讯地址</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon">3</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">安排发货</div>' +
+                            '<div class="next-step-desc">管理员将网关设备发货至项目地址，您可以随时查看物流状态</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            document.getElementById('actionButtons').innerHTML =
+                '<button class="btn btn-secondary" onclick="window.location.href=\'device-relations.html\'">返回上一步</button>' +
+                '<button class="btn btn-primary" onclick="submitForReview()">提交审核</button>';
+        }
+
+        function renderCompleteMode() {
+            document.title = '项目完成 - 冷库项目信息管理系统';
+            document.getElementById('headerCard').innerHTML =
+                '<div class="phase-badge admin">管理员操作 - 最终确认</div>' +
+                '<div class="success-icon complete-mode">&#10003;</div>' +
+                '<h1>项目配置完成</h1>' +
+                '<p>网关配置、通讯设置、发货登记已全部完成。<br>请确认无误后点击"完成项目"，项目将标记为已完成状态。</p>' +
+                '<div class="project-number" id="projectNumber">' + (project.project_no || '-') + '</div>';
+
+            document.getElementById('nextStepsCard').innerHTML =
+                '<h2>完成确认</h2>' +
+                '<div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon" style="background:#f6ffed;color:#52c41a;">&#10003;</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">网关配置 - 已完成</div>' +
+                            '<div class="next-step-desc">网关设备已添加并配置完毕</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon" style="background:#f6ffed;color:#52c41a;">&#10003;</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">通讯设置 - 已完成</div>' +
+                            '<div class="next-step-desc">RS485通讯参数和设备地址已配置</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="next-step-item">' +
+                        '<div class="next-step-icon" style="background:#f6ffed;color:#52c41a;">&#10003;</div>' +
+                        '<div class="next-step-content">' +
+                            '<div class="next-step-title">发货登记 - 已完成</div>' +
+                            '<div class="next-step-desc">发货信息已登记，物流已安排</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            document.getElementById('actionButtons').innerHTML =
+                '<button class="btn btn-secondary" onclick="window.location.href=\'shipping-register.html\'">返回上一步</button>' +
+                '<button class="btn btn-success" onclick="completeProject()">完成项目</button>';
+        }
+
+        function renderProjectSummary() {
+            document.getElementById('projectSummary').innerHTML =
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">项目名称</div>' +
+                    '<div class="summary-item-value">' + (project.name || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">最终用户</div>' +
+                    '<div class="summary-item-value">' + (project.end_customer || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">业务类型</div>' +
+                    '<div class="summary-item-value">' + (project.business_type || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">城市</div>' +
+                    '<div class="summary-item-value">' + (project.city || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">项目地址</div>' +
+                    '<div class="summary-item-value">' + (project.address || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">期望到货时间</div>' +
+                    '<div class="summary-item-value">' + (project.expected_arrival_time || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">收件人</div>' +
+                    '<div class="summary-item-value">' + (project.recipient_name || '-') + ' / ' + (project.recipient_phone || '-') + '</div>' +
+                '</div>' +
+                '<div class="summary-item">' +
+                    '<div class="summary-item-label">创建时间</div>' +
+                    '<div class="summary-item-value">' + (project.created_at ? new Date(project.created_at).toLocaleString('zh-CN') : '-') + '</div>' +
+                '</div>';
+        }
+
+        async function loadAndRenderStats() {
+            if (projectId) {
+                try {
+                    var apiProject = await api.projects.getProject(projectId);
+                    if (apiProject && apiProject.name) {
+                        project = apiProject;
+                        renderProjectSummary();
+                    }
+                } catch(e) { console.warn('API加载项目失败:', e.message); }
+
+                try {
+                    var apiRooms = await api.projects.getColdRooms(projectId);
+                    if (Array.isArray(apiRooms) && apiRooms.length > 0) coldRooms = apiRooms;
+                } catch(e) { console.warn('API加载冷库失败:', e.message); }
+
+                try {
+                    var apiDevices = await api.devices.getDevices({ project_id: projectId });
+                    if (Array.isArray(apiDevices) && apiDevices.length > 0) {
+                        var localDevices = JSON.parse(localStorage.getItem(devicesKey) || '[]');
+                        if (apiDevices.length >= localDevices.length) {
+                            devices = apiDevices;
+                        } else {
+                            var idSet = {};
+                            apiDevices.forEach(function(d) { idSet[d.id] = true; });
+                            devices = apiDevices.slice();
+                            localDevices.forEach(function(d) {
+                                if (!idSet[d.id]) devices.push(d);
+                            });
+                        }
+                    }
+                } catch(e) { console.warn('API加载设备失败:', e.message); }
+
+                try {
+                    var apiGateways = await api.gateways.getGateways({ project_id: projectId });
+                    if (Array.isArray(apiGateways) && apiGateways.length > 0) {
+                        gateways = apiGateways;
+                    }
+                } catch(e) { console.warn('API加载网关失败:', e.message); }
+            }
+            renderStats();
+        }
+
+        function countByType(typeKeys) {
+            return devices.filter(function(d) {
+                var t = (d.device_type || d.type || '').toLowerCase();
+                return typeKeys.some(function(k) { return t === k || t.includes(k); });
+            }).length;
+        }
+
+        function renderStats() {
+            var totalVolume = coldRooms.reduce(function(sum, room) { return sum + parseFloat(room.volume || 0); }, 0);
+            document.getElementById('coldRoomCount').textContent = coldRooms.length;
+            document.getElementById('deviceCount').textContent = devices.length;
+            document.getElementById('gatewayCount').textContent = gateways.length;
+            document.getElementById('totalVolume').textContent = totalVolume.toFixed(2);
+
+            document.getElementById('airCoolerCount').textContent = countByType(['air_cooler']);
+            document.getElementById('thermostatCount').textContent = countByType(['thermostat', 'temp-controller', 'temp_controller']);
+            document.getElementById('unitCount').textContent = countByType(['unit', 'refrigeration_unit']);
+            document.getElementById('meterCount').textContent = countByType(['meter', 'electric_meter']);
+            document.getElementById('freezerCount').textContent = countByType(['freezer']);
+            document.getElementById('defrostCount').textContent = countByType(['defrost_controller', 'defrost']);
+        }
+
+        async function submitForReview() {
+            if (!confirm('确认提交审核？提交后管理员将开始处理您的项目配置。')) return;
+
+            try {
+                if (projectId && typeof isProductionMode === 'function' && isProductionMode()) {
+                    await api.projects.updateProject(projectId, { status: 'submitted' });
+                }
+                alert('项目已成功提交审核！管理员将尽快处理。');
+                window.location.href = 'project-list.html';
+            } catch(e) {
+                console.error('提交失败:', e);
+                alert('提交成功！（演示模式）');
+                window.location.href = 'project-list.html';
+            }
+        }
+
+        async function completeProject() {
+            if (!confirm('确认标记项目为已完成？完成后客户将看到项目状态变化。')) return;
+
+            try {
+                if (projectId && typeof isProductionMode === 'function' && isProductionMode()) {
+                    await api.projects.updateProject(projectId, { status: 'completed' });
+                }
+                alert('项目已标记为完成！');
+                window.location.href = 'project-list.html';
+            } catch(e) {
+                console.error('完成项目失败:', e);
+                alert('项目已完成！（演示模式）');
+                window.location.href = 'project-list.html';
+            }
+        }
+
+        function viewProjectDetail() {
+            var pid = projectId || (project && project.id);
+            window.location.href = pid ? 'project-detail.html?id=' + pid : 'project-list.html';
+        }
+
+        initPage();
+    </script>
+</body>
+</html>

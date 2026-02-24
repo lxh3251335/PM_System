@@ -1,0 +1,35 @@
+/* Swagger UI 自定义样式 */
+
+/* HTTP 方法标签样式增强 */
+.opblock-summary-method {
+    font-size: 16px !important;  /* 字体大小从 14px 增加到 16px */
+    font-weight: 700 !important;
+    min-width: 90px !important;  /* 宽度从 80px 增加到 90px */
+    padding: 8px 15px !important;  /* 增加内边距，让按钮更大 */
+    line-height: 1.4 !important;
+}
+
+/* 可选：整个摘要区域也稍微增大 */
+.opblock-summary {
+    padding: 8px !important;
+}
+
+/* 可选：让 GET 方法更醒目 */
+.opblock-get .opblock-summary-method {
+    font-size: 17px !important;
+}
+
+/* 可选：让 POST 方法更醒目 */
+.opblock-post .opblock-summary-method {
+    font-size: 17px !important;
+}
+
+/* 可选：让 PUT 方法更醒目 */
+.opblock-put .opblock-summary-method {
+    font-size: 17px !important;
+}
+
+/* 可选：让 DELETE 方法更醒目 */
+.opblock-delete .opblock-summary-method {
+    font-size: 17px !important;
+}

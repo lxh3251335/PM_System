@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>业务类型配置 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        .page-container { max-width: 1320px; margin: 24px auto; width: calc(100% - 32px); }
+        .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+        .form-group label { display: block; font-size: 14px; margin-bottom: 6px; color: #333; }
+        .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 4px; }
+        .hint { color: #666; font-size: 12px; margin-top: 6px; }
+        .empty { color: #888; text-align: center; padding: 24px; }
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        .table { width: 100%; min-width: 980px; border-collapse: collapse; }
+        .table th, .table td { text-align: left; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; font-size: 14px; }
+        .table th:first-child, .table td:first-child { width: 72px; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .role-tag { font-size: 13px; color: #666; }
+        .no-access { color: #d4380d; background: #fff2e8; border: 1px solid #ffd8bf; padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; }
+        .filter-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .filter-row select { padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 4px; }
+        .action-link { cursor: pointer; color: #1677ff; margin-right: 10px; }
+        .action-link.danger { color: #d4380d; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">📦</div>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="project-list.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="device-management.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span>设备管理</span>
+                </a>
+                <a href="gateway-config.html" class="nav-item">
+                    <span class="nav-icon">📡</span>
+                    <span>网关配置</span>
+                </a>
+                <a href="business-options.html" class="nav-item active" id="navBusinessOptions">
+                    <span class="nav-icon">⚙️</span>
+                    <span>业务类型配置</span>
+                </a>
+                <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
+                    <span class="nav-icon">🧩</span>
+                    <span>设备配置管理</span>
+                </a>
+                <a href="user-management.html" class="nav-item" id="navUserManagement">
+                    <span class="nav-icon">👥</span>
+                    <span>用户管理</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">←</span>
+                    <span>返回首页</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <header class="top-bar">
+                <h1>业务类型配置</h1>
+                <div class="user-menu">
+                    <span class="user-name" id="userDisplayName">👤 客户</span>
+                    <button class="btn-logout" onclick="window.location.href='index.html'">退出</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper page-container">
+                <div class="top">
+                    <div class="role-tag" id="roleHint">当前角色：客户</div>
+                </div>
+
+                <div id="noAccessTip" class="no-access" style="display: none;">
+                    当前账号不是管理员，仅可查看配置，不能新增。
+                </div>
+
+                <div class="card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>最终用户</label>
+                            <input type="text" id="endCustomerInput" placeholder="例如：盒马">
+                        </div>
+                        <div class="form-group">
+                            <label>业务类型</label>
+                            <input type="text" id="businessTypeInput" placeholder="例如：前置仓">
+                        </div>
+                        <button class="btn-primary" id="addBtn">新增配置</button>
+                    </div>
+                    <div class="hint">管理员新增后，客户在新建项目页将可选择对应关系。</div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 12px;">已配置列表</h3>
+                    <div class="filter-row">
+                        <select id="endCustomerFilter">
+                            <option value="">全部最终用户</option>
+                        </select>
+                        <button class="btn-primary" id="filterBtn">筛选</button>
+                        <button class="btn-cancel" id="resetFilterBtn">重置</button>
+                    </div>
+                    <div id="listContainer" class="table-wrapper"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const rawRole = (localStorage.getItem('userRole') || 'customer').toLowerCase();
+        const role = rawRole === 'factory' ? 'admin' : (rawRole === 'user' ? 'customer' : rawRole);
+        const username = localStorage.getItem('currentUsername') || '';
+        let currentList = [];
+
+        function initUserContext() {
+            const roleText = role === 'admin' ? '管理员' : '客户';
+            const userDisplay = document.getElementById('userDisplayName');
+            if (userDisplay) {
+                userDisplay.textContent = `${roleText}${username ? ' - ' + username : ''}`;
+            }
+            document.getElementById('roleHint').textContent = `当前角色：${roleText}`;
+
+            if (role !== 'admin') {
+                document.getElementById('noAccessTip').style.display = '';
+                document.getElementById('addBtn').disabled = true;
+                document.getElementById('endCustomerInput').disabled = true;
+                document.getElementById('businessTypeInput').disabled = true;
+            }
+            const navUserManagement = document.getElementById('navUserManagement');
+            if (navUserManagement) {
+                navUserManagement.style.display = role === 'admin' ? '' : 'none';
+            }
+        }
+
+        function renderFilterOptions(list) {
+            const filter = document.getElementById('endCustomerFilter');
+            const selected = filter.value;
+            const customers = Array.from(new Set((list || []).map(item => item.end_customer))).sort();
+            filter.innerHTML = '<option value="">全部最终用户</option>';
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer;
+                option.textContent = customer;
+                filter.appendChild(option);
+            });
+            if (selected && customers.includes(selected)) {
+                filter.value = selected;
+            }
+        }
+
+        function renderTable(list) {
+            const container = document.getElementById('listContainer');
+            if (!list || list.length === 0) {
+                container.innerHTML = '<div class="empty">暂无配置，请管理员先新增</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>最终用户</th>
+                            <th>业务类型</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${list.map((item, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.end_customer || '-'}</td>
+                                <td>${item.business_type || '-'}</td>
+                                <td>${item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}</td>
+                                <td>
+                                    ${role === 'admin' ? `
+                                        <span class="action-link" onclick="editOption(${item.id})">修改</span>
+                                        <span class="action-link danger" onclick="deleteOption(${item.id})">删除</span>
+                                    ` : '-'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function loadOptions() {
+            const endCustomer = document.getElementById('endCustomerFilter').value;
+            const container = document.getElementById('listContainer');
+            try {
+                const list = await api.projects.getBusinessOptions(
+                    endCustomer ? { end_customer: endCustomer } : {}
+                );
+                currentList = list || [];
+                renderFilterOptions(currentList);
+                renderTable(currentList);
+            } catch (error) {
+                container.innerHTML = `<div class="empty">加载失败：${error.message}</div>`;
+            }
+        }
+
+        async function addOption() {
+            if (role !== 'admin') return;
+            const endCustomer = document.getElementById('endCustomerInput').value.trim();
+            const businessType = document.getElementById('businessTypeInput').value.trim();
+
+            if (!endCustomer || !businessType) {
+                api.projects.showError('请输入最终用户和业务类型');
+                return;
+            }
+
+            try {
+                await api.projects.createBusinessOption({
+                    end_customer: endCustomer,
+                    business_type: businessType
+                }, role);
+                api.projects.showSuccess('新增成功');
+                document.getElementById('endCustomerInput').value = '';
+                document.getElementById('businessTypeInput').value = '';
+                await loadOptions();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        async function editOption(id) {
+            if (role !== 'admin') return;
+            const item = currentList.find(row => row.id === id);
+            if (!item) return;
+
+            const endCustomer = prompt('请输入最终用户：', item.end_customer || '');
+            if (endCustomer === null) return;
+            const businessType = prompt('请输入业务类型：', item.business_type || '');
+            if (businessType === null) return;
+
+            const endCustomerValue = endCustomer.trim();
+            const businessTypeValue = businessType.trim();
+            if (!endCustomerValue || !businessTypeValue) {
+                api.projects.showError('最终用户和业务类型不能为空');
+                return;
+            }
+
+            try {
+                await api.projects.updateBusinessOption(id, {
+                    end_customer: endCustomerValue,
+                    business_type: businessTypeValue
+                }, role);
+                api.projects.showSuccess('修改成功');
+                await loadOptions();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        async function deleteOption(id) {
+            if (role !== 'admin') return;
+            const confirmed = confirm('确定删除这条配置吗？');
+            if (!confirmed) return;
+
+            try {
+                await api.projects.deleteBusinessOption(id, role);
+                api.projects.showSuccess('删除成功');
+                await loadOptions();
+            } catch (error) {
+                api.projects.showError(error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            initUserContext();
+            document.getElementById('addBtn').addEventListener('click', addOption);
+            document.getElementById('filterBtn').addEventListener('click', loadOptions);
+            document.getElementById('resetFilterBtn').addEventListener('click', async function() {
+                document.getElementById('endCustomerFilter').value = '';
+                await loadOptions();
+            });
+            await loadOptions();
+        });
+    </script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>

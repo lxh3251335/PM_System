@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>初始化设备登记数据</title>
+    <script src="assets/js/config.js?v=20260223"></script>
+</head>
+<body>
+    <h1>正在初始化设备登记数据...</h1>
+    <script>
+        // 设置项目ID和相关数据
+        const projectId = 'PR202602022293';
+        const timestamp = Date.now();
+        
+        // 设置当前项目ID
+        localStorage.setItem('currentProjectId', timestamp);
+        
+        // 设置项目信息
+        const project = {
+            id: timestamp,
+            project_no: projectId,
+            name: '测试冷库项目001',
+            end_user: '盒马',
+            business_type: 'qianzhi',
+            city: '上海',
+            address: '上海市浦东新区测试路100号',
+            expected_delivery: '2026-03-15',
+            recipient: '张三',
+            phone: '13800138000',
+            shipping_address: '上海市浦东新区测试路100号',
+            status: 'equipment_registration',
+            created_at: new Date().toISOString()
+        };
+        localStorage.setItem('currentProject', JSON.stringify(project));
+        
+        // 设置冷库数据（使用项目特定的key）
+        const coldRooms = [
+            {
+                id: 1,
+                name: '1号冷库',
+                type: 'low_temp',
+                temp_min: -18,
+                temp_max: -15,
+                area: 50,
+                height: 4,
+                volume: 200,
+                refrigerant_type: 'R404A',
+                project_id: timestamp
+            },
+            {
+                id: 2,
+                name: '2号冷库',
+                type: 'refrigerated',
+                temp_min: 1,
+                temp_max: 4,
+                area: 40,
+                height: 3.5,
+                volume: 140,
+                refrigerant_type: 'R410A',
+                project_id: timestamp
+            }
+        ];
+        localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+        localStorage.setItem(`coldRooms_${timestamp}`, JSON.stringify(coldRooms));
+        
+        // 初始化空的设备列表
+        localStorage.setItem(`devices_${timestamp}`, JSON.stringify([]));
+        
+        console.log('数据已初始化');
+        console.log('项目ID:', timestamp);
+        console.log('冷库数量:', coldRooms.length);
+        
+        // 跳转到设备登记页面
+        window.location.href = `device-register.html?projectId=${projectId}`;
+    </script>
+</body>
+</html>

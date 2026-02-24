@@ -1,0 +1,54 @@
+{
+  "test_time": "2026-01-28T00:10:03.937678",
+  "test_results": [
+    {
+      "name": "Backend Health Check",
+      "success": true,
+      "details": "",
+      "time": "2026-01-28T00:09:32.547921"
+    },
+    {
+      "name": "Frontend Server",
+      "success": true,
+      "details": "",
+      "time": "2026-01-28T00:09:33.167345"
+    },
+    {
+      "name": "Create Project",
+      "success": false,
+      "details": "HTTP 500",
+      "time": "2026-01-28T00:09:35.739152"
+    },
+    {
+      "name": "Database Performance Check",
+      "success": true,
+      "details": "",
+      "time": "2026-01-28T00:09:38.245388"
+    },
+    {
+      "name": "Performance Test",
+      "success": false,
+      "details": "Avg: 2117.46ms",
+      "time": "2026-01-28T00:09:59.920356"
+    }
+  ],
+  "fixes_applied": [],
+  "upgrades_applied": [
+    {
+      "feature": "Project Statistics",
+      "description": "Generated comprehensive project statistics",
+      "time": "2026-01-28T00:10:02.435757"
+    },
+    {
+      "feature": "Validation Rules",
+      "description": "Enhanced data validation rules defined",
+      "time": "2026-01-28T00:10:03.436974"
+    }
+  ],
+  "summary": {
+    "total_tests": 5,
+    "passed": 3,
+    "failed": 2,
+    "pass_rate": 60.0
+  }
+}

@@ -1,0 +1,440 @@
+/* ========== 应用样式 ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #1890ff;
+    --success-color: #52c41a;
+    --warning-color: #faad14;
+    --danger-color: #f5222d;
+    --info-color: #13c2c2;
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --border-color: #d9d9d9;
+    --text-primary: #262626;
+    --text-secondary: #8c8c8c;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ========== 侧边栏 ========== */
+.sidebar {
+    width: 240px;
+    background: #001529;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 24px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    font-size: 32px;
+}
+
+.brand-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 16px 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-item.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.nav-icon {
+    font-size: 18px;
+}
+
+.nav-group-label {
+    padding: 16px 20px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav-group-label:first-child {
+    padding-top: 8px;
+}
+
+/* ========== 主内容区 ========== */
+.main-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    background: white;
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.top-bar h1 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-name {
+    color: var(--text-secondary);
+}
+
+.btn-logout {
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.content-wrapper {
+    flex: 1;
+    padding: 24px 32px;
+    overflow-y: auto;
+}
+
+/* ========== 卡片 ========== */
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+}
+
+/* ========== 搜索区域 ========== */
+.search-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.search-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 140px;
+}
+
+/* ========== 按钮 ========== */
+.btn-primary, .btn-success, .btn-edit, .btn-danger {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0050b3;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #389e0d;
+}
+
+.btn-edit {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-edit:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-danger:hover {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-sm {
+    padding: 4px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 12px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 4px;
+}
+
+.btn-sm:hover {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-sm.btn-primary {
+    color: white;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-sm.btn-primary:hover {
+    background: #0050b3;
+    border-color: #0050b3;
+    color: white;
+}
+
+.btn-sm.btn-success:hover {
+    color: white;
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-sm.btn-danger:hover {
+    color: white;
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* ========== 表格 ========== */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table thead {
+    background: var(--bg-color);
+}
+
+.data-table th, .data-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.data-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+code {
+    padding: 2px 8px;
+    background: var(--bg-color);
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+/* ========== 徽章 ========== */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge-primary {
+    background: #e6f7ff;
+    color: var(--primary-color);
+}
+
+.badge-success {
+    background: #f6ffed;
+    color: var(--success-color);
+}
+
+.badge-warning {
+    background: #fffbe6;
+    color: var(--warning-color);
+}
+
+.badge-danger {
+    background: #fff1f0;
+    color: var(--danger-color);
+}
+
+.badge-info {
+    background: #e6fffb;
+    color: var(--info-color);
+}
+
+/* ========== 到货时间样式 ========== */
+.delivery-date {
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.delivery-normal {
+    color: var(--text-primary);
+}
+
+.delivery-warning {
+    color: var(--warning-color);
+    background: #fffbe6;
+}
+
+.delivery-danger {
+    color: var(--danger-color);
+    background: #fff1f0;
+    font-weight: 700;
+}
+
+/* ========== 分页 ========== */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    justify-content: flex-end;
+}
+
+.btn-pagination {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn-pagination:hover:not(:disabled) {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-pagination.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-pagination:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pagination-info {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-left: 16px;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+    
+    .sidebar-header .brand-name,
+    .nav-item span:not(.nav-icon) {
+        display: none;
+    }
+    
+    .content-wrapper {
+        padding: 16px;
+    }
+    
+    .search-row {
+        flex-direction: column;
+    }
+    
+    .search-input, .filter-select {
+        width: 100%;
+    }
+}

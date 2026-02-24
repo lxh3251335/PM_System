@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">📦</div>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="project-list.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="device-management.html" class="nav-item active">
+                    <span class="nav-icon">🔧</span>
+                    <span>设备管理</span>
+                </a>
+                <a href="gateway-inventory.html" class="nav-item">
+                    <span class="nav-icon">🗄️</span>
+                    <span>网关库存</span>
+                </a>
+                <a href="business-options.html" class="nav-item" id="navBusinessOptions">
+                    <span class="nav-icon">⚙️</span>
+                    <span>业务类型配置</span>
+                </a>
+                <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
+                    <span class="nav-icon">🧩</span>
+                    <span>设备配置管理</span>
+                </a>
+                <a href="user-management.html" class="nav-item" id="navUserManagement">
+                    <span class="nav-icon">👥</span>
+                    <span>用户管理</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">←</span>
+                    <span>返回首页</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>设备管理</h1>
+                <div class="user-menu">
+                    <span class="user-name">👤 用户方</span>
+                    <button class="btn-logout" onclick="window.location.href='index.html'">退出</button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="card">
+                    <h2 style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                        🔧 设备类型管理
+                        <span style="font-size: 14px; color: var(--text-secondary); font-weight: normal;">5种设备类型，支持自动编号</span>
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 40px;">
+                        <div style="padding: 24px; background: var(--bg-color); border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                            <div style="font-size: 32px; margin-bottom: 12px;">❄️</div>
+                            <h3>冷风机</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 8px 0;">编号前缀: AC</p>
+                            <button class="btn-sm btn-primary">添加设备</button>
+                        </div>
+                        <div style="padding: 24px; background: var(--bg-color); border-radius: 8px; border-left: 4px solid var(--success-color);">
+                            <div style="font-size: 32px; margin-bottom: 12px;">🌡️</div>
+                            <h3>温控器</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 8px 0;">编号前缀: TC</p>
+                            <button class="btn-sm btn-primary">添加设备</button>
+                        </div>
+                        <div style="padding: 24px; background: var(--bg-color); border-radius: 8px; border-left: 4px solid var(--warning-color);">
+                            <div style="font-size: 32px; margin-bottom: 12px;">⚡</div>
+                            <h3>电表</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 8px 0;">编号前缀: PM</p>
+                            <button class="btn-sm btn-primary">添加设备</button>
+                        </div>
+                        <div style="padding: 24px; background: var(--bg-color); border-radius: 8px; border-left: 4px solid var(--danger-color);">
+                            <div style="font-size: 32px; margin-bottom: 12px;">🔌</div>
+                            <h3>机组</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 8px 0;">编号前缀: UN</p>
+                            <button class="btn-sm btn-primary">添加设备</button>
+                        </div>
+                        <div style="padding: 24px; background: var(--bg-color); border-radius: 8px; border-left: 4px solid var(--info-color);">
+                            <div style="font-size: 32px; margin-bottom: 12px;">🧊</div>
+                            <h3>冷柜</h3>
+                            <p style="color: var(--text-secondary); font-size: 14px; margin: 8px 0;">编号前缀: FR</p>
+                            <button class="btn-sm btn-primary">添加设备</button>
+                        </div>
+                    </div>
+
+                    <h2 style="margin-bottom: 16px;">设备列表示例</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                        以下是设备管理的主要功能演示：自动编号、品牌型号管理、设备复制等
+                    </p>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>设备编号</th>
+                                <th>设备类型</th>
+                                <th>品牌</th>
+                                <th>型号</th>
+                                <th>数量</th>
+                                <th>出厂编号</th>
+                                <th>通讯协议</th>
+                                <th>所属项目</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AC-001-001</code></td>
+                                <td><span class="badge badge-primary">冷风机</span></td>
+                                <td>格力</td>
+                                <td>GL-CF-200</td>
+                                <td>4</td>
+                                <td>2024010101</td>
+                                <td>Modbus RTU</td>
+                                <td>北京朝阳冷库</td>
+                                <td>
+                                    <button class="btn-sm">查看</button>
+                                    <button class="btn-sm btn-edit">编辑</button>
+                                    <button class="btn-sm btn-success" onclick="alert('复制设备功能：快速创建相同配置的设备')">复制</button>
+                                    <button class="btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>TC-001-001</code></td>
+                                <td><span class="badge badge-success">温控器</span></td>
+                                <td>西门子</td>
+                                <td>S7-1200</td>
+                                <td>2</td>
+                                <td>2024010201</td>
+                                <td>Modbus RTU</td>
+                                <td>北京朝阳冷库</td>
+                                <td>
+                                    <button class="btn-sm">查看</button>
+                                    <button class="btn-sm btn-edit">编辑</button>
+                                    <button class="btn-sm btn-success">复制</button>
+                                    <button class="btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>PM-001-001</code></td>
+                                <td><span class="badge badge-warning">电表</span></td>
+                                <td>施耐德</td>
+                                <td>PM5300</td>
+                                <td>3</td>
+                                <td>2024010301</td>
+                                <td>Modbus TCP</td>
+                                <td>北京朝阳冷库</td>
+                                <td>
+                                    <button class="btn-sm">查看</button>
+                                    <button class="btn-sm btn-edit">编辑</button>
+                                    <button class="btn-sm btn-success">复制</button>
+                                    <button class="btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>UN-001-001</code></td>
+                                <td><span class="badge badge-danger">机组</span></td>
+                                <td>比泽尔</td>
+                                <td>BZ-400</td>
+                                <td>1</td>
+                                <td>2024010401</td>
+                                <td>RS485</td>
+                                <td>北京朝阳冷库</td>
+                                <td>
+                                    <button class="btn-sm">查看</button>
+                                    <button class="btn-sm btn-edit">编辑</button>
+                                    <button class="btn-sm btn-success">复制</button>
+                                    <button class="btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>FR-002-001</code></td>
+                                <td><span class="badge badge-info">冷柜</span></td>
+                                <td>海尔</td>
+                                <td>HL-CF-300</td>
+                                <td>2</td>
+                                <td>2024010501</td>
+                                <td>Modbus RTU</td>
+                                <td>上海浦东物流</td>
+                                <td>
+                                    <button class="btn-sm">查看</button>
+                                    <button class="btn-sm btn-edit">编辑</button>
+                                    <button class="btn-sm btn-success">复制</button>
+                                    <button class="btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 40px; padding: 24px; background: #e6f7ff; border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                        <h3 style="color: var(--primary-color); margin-bottom: 12px;">💡 功能说明</h3>
+                        <ul style="color: var(--text-primary); line-height: 2;">
+                            <li><strong>自动编号</strong>：设备创建时自动生成唯一编号（类型前缀-项目ID-序号）</li>
+                            <li><strong>设备复制</strong>：一键复制设备信息，快速添加相同配置的设备</li>
+                            <li><strong>品牌型号</strong>：支持手动输入品牌和型号（MVP版本，二期可升级为标准库选择）</li>
+                            <li><strong>通讯参数</strong>：记录设备通讯端口类型和协议，便于网关配置</li>
+                            <li><strong>关联项目</strong>：设备可关联到具体项目和冷库</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

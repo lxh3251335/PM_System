@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备配置管理 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <style>
+        /* 复用 app.css 的变量，但做局部覆盖以适配本页面的特殊布局 */
+        :root {
+            /* 保持一致的色彩变量 */
+            --primary-color: #1890ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --danger-color: #f5222d;
+            --bg-color: #f0f2f5;
+            --border-color: #d9d9d9;
+            --text-primary: #262626;
+            --text-secondary: #8c8c8c;
+        }
+
+        
+        /* 布局容器 - 保持与 app.css 一致 */
+        /* .app-container { display: flex; min-height: 100vh; } */
+        
+        /* 侧边栏 - 完全复用 app.css 的样式逻辑 */
+        /* .sidebar { width: 240px; background: #001529; color: white; display: flex; flex-direction: column; position: fixed; height: 100%; left: 0; top: 0; z-index: 100; } */
+        /* .sidebar-header { height: 64px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); } */
+        /* .logo { font-size: 24px; margin-right: 12px; } */
+        /* .brand-name { font-weight: 600; font-size: 16px; color: white; } */
+        /* .sidebar-nav { padding: 16px 0; flex: 1; } */
+        /* .nav-item { display: flex; align-items: center; padding: 12px 24px; color: rgba(255, 255, 255, 0.65); text-decoration: none; transition: all 0.3s; } */
+        /* .nav-item:hover { color: white; background: rgba(255, 255, 255, 0.1); } */
+        /* .nav-item.active { background: var(--primary-color); color: white; } */
+        /* .nav-icon { margin-right: 12px; font-size: 18px; } */
+
+        /* 主内容区 - 修正 margin-left 以匹配 sidebar 宽度 */
+        /* .main-content { flex: 1; margin-left: 240px; display: flex; flex-direction: column; background: var(--bg-color); min-height: 100vh; } */
+        
+/* 顶部导航栏 - 保持一致 */
+        /* .top-bar { 
+            height: 64px; 
+            background: #fff; 
+            box-shadow: 0 1px 4px rgba(0,21,41,.08); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        } */
+        /* .top-bar h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0; } */
+        
+/* 页面容器 */
+        .page-container { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        
+        /* 卡片样式 */
+        .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 2px -2px rgba(0,0,0,.16), 0 3px 6px 0 rgba(0,0,0,.12), 0 5px 12px 4px rgba(0,0,0,.09); margin-bottom: 24px; }
+
+        /* Tabs - 特定于本页面的样式 */
+        .tabs-nav { display: flex; border-bottom: 1px solid var(--border-color); padding: 0 24px; background: #fff; border-radius: 4px 4px 0 0; }
+        .tab-btn {
+            background: none; border: none; padding: 16px 0; margin-right: 32px; font-size: 14px; color: var(--text-primary);
+            cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s;
+        }
+        .tab-btn:hover { color: var(--primary-color); }
+        .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 500; }
+        .tab-pane { display: none; padding: 24px; }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 表单与输入框 */
+        .form-grid { display: grid; gap: 24px; margin-bottom: 24px; }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .cols-auto { grid-template-columns: auto 1fr auto; align-items: end; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 14px; color: var(--text-primary); }
+        .form-control {
+            height: 32px; padding: 4px 11px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; transition: all 0.3s;
+        }
+        .form-control:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
+        .form-control:disabled { background-color: #f5f5f5; cursor: not-allowed; color: rgba(0,0,0,.25); }
+
+        /* 按钮 - 复用 app.css 风格 */
+        .btn { display: inline-block; font-weight: 400; text-align: center; cursor: pointer; background-image: none; border: 1px solid transparent; white-space: nowrap; padding: 4px 15px; font-size: 14px; border-radius: 4px; height: 32px; user-select: none; transition: all 0.3s; color: var(--text-primary); background-color: #fff; border-color: var(--border-color); }
+        .btn-primary { color: #fff; background-color: var(--primary-color); border-color: var(--primary-color); text-shadow: 0 -1px 0 rgba(0,0,0,.12); box-shadow: 0 2px 0 rgba(0,0,0,.045); }
+        .btn-primary:hover { color: #fff; background-color: #40a9ff; border-color: #40a9ff; }
+        .btn-secondary:hover { color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-icon { padding: 0 8px; border: none; background: transparent; color: var(--primary-color); cursor: pointer; }
+        .btn-icon:hover { color: #40a9ff; }
+        .btn-sm { padding: 0 7px; height: 24px; font-size: 12px; }
+
+        /* 表格 - 样式统一为业务配置页风格 */
+        .table-container { width: 100%; overflow-x: auto; border: none; box-shadow: none; border-radius: 0; }
+        .data-table { width: 100%; min-width: 900px; border-collapse: collapse; }
+        .data-table th, .data-table td { text-align: left; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; font-size: 14px; background: #fff; }
+        .data-table th { font-weight: 600; color: #333; }
+        .data-table tr:hover > td { background: transparent; }
+
+        /* 工具栏 */
+        .toolbar { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; }
+        .toolbar-spacer { flex: 1; }
+
+        /* 模态框 */
+        .modal-overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000; height: 100%; background-color: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-content { position: relative; background-color: #fff; background-clip: padding-box; border: 0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.15); pointer-events: auto; width: 600px; max-width: calc(100vw - 32px); display: flex; flex-direction: column; max-height: 90vh; }
+        .modal-header { padding: 16px 24px; color: rgba(0,0,0,.85); background: #fff; border-bottom: 1px solid #f0f0f0; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 16px; line-height: 22px; font-weight: 500; color: rgba(0,0,0,.85); }
+        .modal-body { padding: 24px; font-size: 14px; line-height: 1.5; word-wrap: break-word; overflow-y: auto; }
+        .modal-footer { padding: 10px 16px; text-align: right; background: transparent; border-top: 1px solid #f0f0f0; border-radius: 0 0 4px 4px; }
+
+        /* 其他组件 */
+        .badge { display: inline-block; height: auto; padding: 0 7px; font-size: 12px; line-height: 20px; white-space: nowrap; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 2px; cursor: default; opacity: 1; transition: all .3s cubic-bezier(.78,.14,.15,.86); color: rgba(0,0,0,.65); }
+        .field-builder { background: #fafafa; border: 1px solid #d9d9d9; padding: 16px; border-radius: 4px; margin-top: 8px; }
+        .field-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .field-row-header { display: flex; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--text-secondary); }
+        .field-row-header > * { flex: 1; }
+        .field-row-header > *:first-child { flex: 2; }
+        .field-row-header > *:nth-child(3) { flex: 2; }
+        .field-row-header > *:last-child { flex: 0 0 32px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">📦</div>
+                <span class="brand-name">冷库项目信息管理系统</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="project-list.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="device-management.html" class="nav-item">
+                    <span class="nav-icon">🔧</span>
+                    <span>设备管理</span>
+                </a>
+                <a href="gateway-config.html" class="nav-item">
+                    <span class="nav-icon">📡</span>
+                    <span>网关配置</span>
+                </a>
+                <a href="business-options.html" class="nav-item" id="navBusinessOptions">
+                    <span class="nav-icon">⚙️</span>
+                    <span>业务类型配置</span>
+                </a>
+                <a href="equipment-config.html" class="nav-item active" id="navEquipmentConfig">
+                    <span class="nav-icon">🧩</span>
+                    <span>设备配置管理</span>
+                </a>
+                <a href="user-management.html" class="nav-item" id="navUserManagement">
+                    <span class="nav-icon">👥</span>
+                    <span>用户管理</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">←</span>
+                    <span>返回首页</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>设备配置管理</h1>
+                <div class="user-menu">
+                    <span class="user-name" id="userDisplayName">👤 用户名</span>
+                    <button class="btn-logout" onclick="location.href='index.html'">退出</button>
+                </div>
+            </header>
+
+            <div class="page-container">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="tabs-nav" style="padding: 0 24px; margin: 0; background: #fff; border-bottom: 1px solid var(--line);">
+                        <button class="tab-btn active" onclick="switchTab('category')">1. 设备类型 (Admin)</button>
+                        <button class="tab-btn" onclick="switchTab('brand')">2. 品牌与模板</button>
+                        <button class="tab-btn" onclick="switchTab('model')">3. 型号数据</button>
+                        <button class="tab-btn" onclick="switchTab('gateway')">4. 网关型号管理</button>
+                    </div>
+
+                    <div style="padding: 24px;">
+                        <!-- Tab 1: Category Management -->
+                        <div id="categoryTab" class="tab-pane active">
+                            <div class="form-grid cols-auto" style="margin-bottom: 24px; align-items: end;">
+                                <div class="form-group" style="width: 240px;">
+                                    <label>类型名称</label>
+                                    <input id="catName" class="form-control" placeholder="如：温湿度传感器">
+                                </div>
+                                <div class="form-group" style="width: 240px;">
+                                    <label>类型编码 (英文)</label>
+                                    <input id="catCode" class="form-control" placeholder="如：temp_sensor">
+                                </div>
+                                <button class="btn btn-primary" onclick="addCategory()">+ 新增类型</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead><tr><th>ID</th><th>名称</th><th>编码</th><th style="text-align:right">操作</th></tr></thead>
+                                    <tbody id="catTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Brand & Template Management -->
+                        <div id="brandTab" class="tab-pane">
+                            <div class="toolbar">
+                                <div class="form-group" style="width: 200px;">
+                                    <label>筛选设备类型</label>
+                                    <select id="brandFilterCat" class="form-control" onchange="loadBrands()"></select>
+                                </div>
+                                <div class="toolbar-spacer"></div>
+                                <button class="btn btn-primary" onclick="openBrandModal()">+ 新增品牌/定制模板</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead><tr><th>品牌名称</th><th>所属类型</th><th>模板字段数</th><th style="text-align:right">操作</th></tr></thead>
+                                    <tbody id="brandTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Model Management -->
+                        <div id="modelTab" class="tab-pane">
+                            <div class="toolbar">
+                                <div class="form-group" style="width: 200px;">
+                                    <label>选择品牌</label>
+                                    <select id="modelFilterBrand" class="form-control" onchange="onModelBrandChange()"></select>
+                                </div>
+                                <div class="form-group" style="width: 240px;">
+                                    <label>搜索型号</label>
+                                    <input id="modelSearch" class="form-control" placeholder="输入型号名称..." oninput="filterModels()">
+                                </div>
+                                <div class="toolbar-spacer"></div>
+                                <button class="btn btn-primary" onclick="openModelModal()">+ 录入新型号</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead><tr><th>型号名称</th><th>所属品牌</th><th>规格参数预览</th><th style="text-align:right">操作</th></tr></thead>
+                                    <tbody id="modelTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tab 4: Gateway Model Management -->
+                        <div id="gatewayTab" class="tab-pane">
+                            <div class="toolbar">
+                                <div class="form-group" style="width: 200px;">
+                                    <label>筛选品牌</label>
+                                    <input id="gwBrandFilter" class="form-control" placeholder="输入品牌名..." oninput="loadGatewayModels()">
+                                </div>
+                                <div class="toolbar-spacer"></div>
+                                <a href="gateway-inventory.html" class="btn btn-secondary" style="text-decoration:none;">库存管理 →</a>
+                                <button class="btn btn-primary" onclick="openGwModelModal()">+ 新增网关型号</button>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead><tr>
+                                        <th>品牌</th><th>型号</th><th>串口数</th><th>网口数</th>
+                                        <th>支持协议</th><th>库存/在库</th><th style="text-align:right">操作</th>
+                                    </tr></thead>
+                                    <tbody id="gwModelTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Brand Modal -->
+    <div class="modal-overlay" id="brandModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="brandModalTitle">品牌 & 模板配置</h3>
+                <button class="btn-icon" onclick="closeModal('brandModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid cols-2">
+                    <div class="form-group">
+                        <label>所属类型</label>
+                        <select id="modalBrandCat" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>品牌名称</label>
+                        <input id="modalBrandName" class="form-control" placeholder="如：小米">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <label style="font-weight:600; color:var(--text-main);">参数模板定义 (JSON)</label>
+                        <button class="btn btn-secondary btn-sm" onclick="addFieldRow()">+ 添加字段</button>
+                    </div>
+                    <div class="field-row-header">
+                        <span>字段名 (Label)</span>
+                        <span>类型 (Type)</span>
+                        <span>选项 (Options)</span>
+                        <span></span>
+                    </div>
+                    <div id="templateBuilder" class="field-builder">
+                        <!-- Dynamic Rows -->
+                    </div>
+                    <p style="font-size:12px; color:var(--text-sub); margin-top:12px; background:#f1f5f9; padding:12px; border-radius:4px; line-height: 1.5;">
+                        <strong>💡 配置小贴士：</strong><br>
+                        1. 系统已默认包含 <strong>“设备型号”</strong> 字段（作为唯一标识），<span style="color:var(--danger)">请勿在下方重复添加“型号”字段</span>。<br>
+                        2. 在此仅需定义该设备的额外属性，如：通讯接口、通讯协议、制冷量、功率、尺寸等。
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('brandModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveBrand()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Modal -->
+    <div class="modal-overlay" id="modelModal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="modal-header">
+                <h3 id="modelModalTitle">录入型号</h3>
+                <button class="btn-icon" onclick="closeModal('modelModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>所属品牌</label>
+                    <select id="modalModelBrand" class="form-control" disabled style="background:#f1f5f9;"></select>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>设备型号 <span style="color:var(--text-sub); font-weight:400; font-size:12px;">(必填，如 XMS-2000)</span></label>
+                    <input id="modalModelName" class="form-control" placeholder="请输入唯一型号标识">
+                </div>
+                <hr style="border:0; border-top:1px solid var(--line); margin: 20px 0;">
+                <div style="background:#f8fafc; padding:16px; border-radius:8px;">
+                    <label style="font-weight:600; margin-bottom:12px; display:block; color:var(--text-main);">详细规格参数</label>
+                    <p style="font-size:12px; color:var(--text-sub); margin-bottom:16px;">以下字段由您在“品牌与模板”中定义：</p>
+                    <div id="dynamicFormArea" class="form-grid cols-2">
+                        <!-- Dynamic Inputs -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modelModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveModel()">保存数据</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gateway Model Modal -->
+    <div class="modal-overlay" id="gwModelModal">
+        <div class="modal-content" style="width: 640px;">
+            <div class="modal-header">
+                <h3 id="gwModelModalTitle">新增网关型号</h3>
+                <button class="btn-icon" onclick="closeModal('gwModelModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>品牌 <span style="color:red">*</span></label>
+                        <input id="gwmBrand" class="form-control" placeholder="如：研华、有人">
+                    </div>
+                    <div class="form-group">
+                        <label>型号名称 <span style="color:red">*</span></label>
+                        <input id="gwmModelName" class="form-control" placeholder="如：EKI-1528">
+                    </div>
+                    <div class="form-group">
+                        <label>串口(RS485/COM)数量 <span style="color:red">*</span></label>
+                        <input id="gwmSerialPorts" class="form-control" type="number" min="0" value="4">
+                    </div>
+                    <div class="form-group">
+                        <label>网口数量</label>
+                        <input id="gwmEthernetPorts" class="form-control" type="number" min="0" value="1">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>支持的通讯协议（逗号分隔）</label>
+                        <input id="gwmProtocols" class="form-control" placeholder="如：Modbus-RTU,Modbus-TCP">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>其他规格说明</label>
+                        <textarea id="gwmDescription" class="form-control" style="height:60px; resize:vertical;" placeholder="供电方式、工作温度范围等"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('gwModelModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveGwModel()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = { categories: [], brands: [], models: [], gwModels: [] };
+        let currentBrandId = null; // For model tab context
+        let editingBrandId = null; // For brand editing
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            const role = localStorage.getItem('userRole');
+            const roleText = role === 'factory' ? '管理员' : '用户';
+            const username = localStorage.getItem('currentUsername') || '';
+            const displayEl = document.getElementById('userDisplayName');
+            if (displayEl) displayEl.innerText = `${roleText} ${username}`;
+            
+            // Initial Load
+            await loadCategories();
+            await loadBrands();
+            switchTab('category');
+        });
+
+        // --- 1. Category Logic ---
+        async function loadCategories() {
+            try {
+                state.categories = await api.equipment.getCategories();
+                renderCategoryTable();
+                updateSelects();
+            } catch(e) { 
+                console.error('加载设备类型失败:', e);
+                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:24px;">加载失败: ' + e.message + '</td></tr>';
+            }
+        }
+
+        async function addCategory() {
+            const name = document.getElementById('catName').value.trim();
+            const code = document.getElementById('catCode').value.trim();
+            if(!name || !code) return alert('请填写类型名称和编码');
+            
+            try {
+                await api.equipment.post('/equipment-library/categories', { name, code });
+                document.getElementById('catName').value = '';
+                document.getElementById('catCode').value = '';
+                await loadCategories();
+            } catch(e) {
+                alert('添加失败: ' + e.message);
+            }
+        }
+
+        async function deleteCategory(id) {
+            if(!confirm('确定删除？将级联删除该类型下的所有品牌和型号！')) return;
+            try {
+                await api.equipment.delete('/equipment-library/categories/' + id);
+                await loadCategories();
+            } catch(e) { alert('删除失败: ' + e.message); }
+        }
+
+        function renderCategoryTable() {
+            const tbody = document.getElementById('catTableBody');
+            tbody.innerHTML = state.categories.map(c => `
+                <tr>
+                    <td>${c.id}</td>
+                    <td style="font-weight:600">${c.name}</td>
+                    <td><span class="badge">${c.code}</span></td>
+                    <td style="text-align:right"><button class="btn-icon" style="color:var(--danger)" onclick="deleteCategory(${c.id})">🗑</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 2. Brand & Template Logic ---
+        async function loadBrands() {
+            try {
+                const catId = document.getElementById('brandFilterCat').value;
+                const params = catId ? { category_id: catId } : {};
+                state.brands = await api.equipment.getBrands(params);
+                renderBrandTable();
+                updateModelBrandSelect();
+            } catch(e) {
+                console.error('加载品牌失败:', e);
+            }
+        }
+
+        function renderBrandTable() {
+            const tbody = document.getElementById('brandTableBody');
+            tbody.innerHTML = state.brands.map(b => {
+                const cat = state.categories.find(c => c.id === b.category_id);
+                const fieldCount = b.spec_template ? b.spec_template.length : 0;
+                return `
+                <tr>
+                    <td style="font-weight:600">${b.name}</td>
+                    <td>${cat ? cat.name : '-'}</td>
+                    <td><span class="badge">${fieldCount} 个字段</span></td>
+                    <td style="text-align:right">
+                        <button class="btn-icon" style="color:var(--primary)" onclick="editBrand(${b.id})">✎ 编辑</button>
+                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBrand(${b.id})">🗑</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function openBrandModal(brand = null) {
+            editingBrandId = brand ? brand.id : null;
+            document.getElementById('brandModalTitle').innerText = brand ? '编辑品牌 & 模板' : '新增品牌 & 模板';
+            
+            // Populate fields
+            document.getElementById('modalBrandCat').value = brand ? brand.category_id : '';
+            document.getElementById('modalBrandName').value = brand ? brand.name : '';
+            document.getElementById('templateBuilder').innerHTML = '';
+
+            // Populate template or default row
+            const template = brand ? brand.spec_template : [];
+            if (template && template.length > 0) {
+                template.forEach(field => addFieldRow(field));
+            } else {
+                addFieldRow(); // Default one empty row
+            }
+            
+            document.getElementById('brandModal').classList.add('open');
+        }
+
+        function editBrand(id) {
+            const brand = state.brands.find(b => b.id === id);
+            if (brand) {
+                openBrandModal(brand);
+            }
+        }
+
+        function addFieldRow(data = {}) {
+            const container = document.getElementById('templateBuilder');
+            const div = document.createElement('div');
+            div.className = 'field-row';
+            div.innerHTML = `
+                <input class="form-control f-label" placeholder="字段名 (如: 通讯口)" value="${data.label || ''}">
+                <select class="form-control f-type">
+                    <option value="text" ${data.type==='text'?'selected':''}>文本</option>
+                    <option value="select" ${data.type==='select'?'selected':''}>下拉</option>
+                </select>
+                <input class="form-control f-opts" placeholder="选项 (逗号分隔)" value="${(data.options||[]).join(',')}">
+                <button class="btn-icon" style="color:#94a3b8" onclick="this.parentElement.remove()">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        async function saveBrand() {
+            const catId = document.getElementById('modalBrandCat').value;
+            const name = document.getElementById('modalBrandName').value;
+            
+            const rows = document.querySelectorAll('.field-row');
+            const template = [];
+            rows.forEach(row => {
+                const label = row.querySelector('.f-label').value;
+                const type = row.querySelector('.f-type').value;
+                const optsStr = row.querySelector('.f-opts').value;
+                if(label) {
+                    template.push({
+                        key: label, 
+                        label: label,
+                        type: type,
+                        options: optsStr ? optsStr.split(',').map(s=>s.trim()) : []
+                    });
+                }
+            });
+
+            if(!name || !catId) return alert('请填写名称并选择类型');
+
+            const payload = { category_id: parseInt(catId), name, spec_template: template };
+
+            try {
+                if (editingBrandId) {
+                    await api.equipment.updateBrand(editingBrandId, payload);
+                } else {
+                    await api.equipment.createBrand(payload);
+                }
+                closeModal('brandModal');
+                loadBrands();
+            } catch(e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+        
+        async function deleteBrand(id) {
+            if(!confirm('删除品牌将清空其下所有型号数据，确定？')) return;
+            try {
+                await api.equipment.deleteBrand(id);
+                loadBrands();
+            } catch(e) { alert('删除失败: ' + e.message); }
+        }
+
+        // --- 3. Model Logic ---
+        function onModelBrandChange() {
+            currentBrandId = document.getElementById('modelFilterBrand').value;
+            loadModels();
+        }
+
+        async function loadModels() {
+            try {
+                const params = currentBrandId ? { brand_id: currentBrandId } : {};
+                state.models = await api.equipment.getModels(params);
+                renderModelTable();
+            } catch(e) {
+                console.error('加载型号失败:', e);
+            }
+        }
+
+        function renderModelTable() {
+            const tbody = document.getElementById('modelTableBody');
+            const search = document.getElementById('modelSearch').value.toLowerCase();
+            
+            const filtered = state.models.filter(m => m.model_name.toLowerCase().includes(search));
+            
+            tbody.innerHTML = filtered.map(m => {
+                const brand = state.brands.find(b => b.id === m.brand_id);
+                // Preview specs
+                const specs = m.specifications || {};
+                const specStr = Object.entries(specs).map(([k,v]) => `<span style="display:inline-block; background:#f1f5f9; padding:2px 6px; border-radius:4px; margin-right:4px;">${k}:${v}</span>`).join('');
+                
+                return `
+                <tr>
+                    <td style="font-weight:600">${m.model_name}</td>
+                    <td>${brand ? brand.name : '-'}</td>
+                    <td style="color:var(--text-sub); font-size:12px;">${specStr || '-'}</td>
+                    <td style="text-align:right">
+                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteModel(${m.id})">🗑</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function openModelModal() {
+            const brandId = document.getElementById('modelFilterBrand').value;
+            if(!brandId) return alert('请先在左上角选择一个品牌，以便加载对应模板');
+            
+            const brand = state.brands.find(b => b.id == brandId);
+            document.getElementById('modalModelBrand').innerHTML = `<option value="${brand.id}">${brand.name}</option>`;
+            document.getElementById('modalModelName').value = '';
+            
+            // Render Dynamic Form
+            const container = document.getElementById('dynamicFormArea');
+            container.innerHTML = '';
+            
+            if(brand.spec_template && brand.spec_template.length > 0) {
+                brand.spec_template.forEach(field => {
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+                    let inputHtml = '';
+                    if(field.type === 'select') {
+                        const opts = field.options.map(o => `<option value="${o}">${o}</option>`).join('');
+                        inputHtml = `<select class="form-control d-input" data-key="${field.key}">${opts}</select>`;
+                    } else {
+                        inputHtml = `<input class="form-control d-input" data-key="${field.key}" placeholder="请输入">`;
+                    }
+                    div.innerHTML = `<label>${field.label}</label>${inputHtml}`;
+                    container.appendChild(div);
+                });
+            } else {
+                container.innerHTML = '<div style="color:#94a3b8; grid-column:span 2; padding: 20px; text-align:center; background:#f8fafc; border-radius:8px;">该品牌未定义参数模板，仅需填写标准型号名称即可。</div>';
+            }
+            
+            document.getElementById('modelModal').classList.add('open');
+        }
+
+        async function saveModel() {
+            const brandId = document.getElementById('modalModelBrand').value;
+            const name = document.getElementById('modalModelName').value;
+            if(!name) return alert('请输入型号名称');
+            
+            const specs = {};
+            document.querySelectorAll('.d-input').forEach(input => {
+                specs[input.dataset.key] = input.value;
+            });
+
+            try {
+                await api.equipment.createModel({
+                    brand_id: parseInt(brandId),
+                    model_name: name,
+                    specifications: specs
+                });
+                closeModal('modelModal');
+                loadModels();
+            } catch(e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+        
+        async function deleteModel(id) {
+            if(!confirm('确定删除？')) return;
+            try {
+                await api.equipment.deleteModel(id);
+                loadModels();
+            } catch(e) { alert('删除失败: ' + e.message); }
+        }
+
+        // --- Shared ---
+        function updateSelects() {
+            const opts = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            // 筛选下拉框保留“全部”
+            document.getElementById('brandFilterCat').innerHTML = '<option value="">全部</option>' + opts;
+            // 弹窗下拉框不需要“全部”
+            document.getElementById('modalBrandCat').innerHTML = opts;
+        }
+        
+        function updateModelBrandSelect() {
+            const opts = '<option value="">请选择品牌...</option>' + state.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            document.getElementById('modelFilterBrand').innerHTML = opts;
+            if(currentBrandId) document.getElementById('modelFilterBrand').value = currentBrandId;
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            
+            const tabs = ['category', 'brand', 'model', 'gateway'];
+            const index = tabs.indexOf(id);
+            if(index >= 0) {
+                document.querySelectorAll('.tab-btn')[index].classList.add('active');
+            }
+            
+            document.getElementById(id + 'Tab').classList.add('active');
+            
+            if (id === 'gateway') {
+                loadGatewayModels();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+        // --- 4. Gateway Model Logic ---
+        let editingGwModelId = null;
+
+        async function loadGatewayModels() {
+            try {
+                const brandFilter = (document.getElementById('gwBrandFilter').value || '').trim();
+                const params = brandFilter ? { brand: brandFilter } : {};
+                state.gwModels = await api.gatewayLibrary.getModels(params);
+                renderGwModelTable();
+            } catch(e) { console.error('加载网关型号失败:', e); }
+        }
+
+        function renderGwModelTable() {
+            const tbody = document.getElementById('gwModelTableBody');
+            if (!state.gwModels || state.gwModels.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:40px;">暂无网关型号数据</td></tr>';
+                return;
+            }
+            tbody.innerHTML = state.gwModels.map(m => {
+                const protocols = (m.supported_protocols || []).join(', ') || '-';
+                return `
+                <tr>
+                    <td style="font-weight:600">${m.brand}</td>
+                    <td>${m.model_name}</td>
+                    <td style="text-align:center">${m.serial_port_count}</td>
+                    <td style="text-align:center">${m.ethernet_port_count}</td>
+                    <td style="font-size:12px">${protocols}</td>
+                    <td>
+                        <span style="color:var(--primary-color);font-weight:600">${m.total_count || 0}</span>
+                        / <span style="color:var(--success-color)">${m.in_stock_count || 0}</span>
+                    </td>
+                    <td style="text-align:right">
+                        <button class="btn-icon" style="color:var(--primary-color)" onclick="editGwModel(${m.id})">✎</button>
+                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteGwModel(${m.id})">🗑</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openGwModelModal(data = null) {
+            editingGwModelId = data ? data.id : null;
+            document.getElementById('gwModelModalTitle').innerText = data ? '编辑网关型号' : '新增网关型号';
+            document.getElementById('gwmBrand').value = data ? data.brand : '';
+            document.getElementById('gwmModelName').value = data ? data.model_name : '';
+            document.getElementById('gwmSerialPorts').value = data ? data.serial_port_count : 4;
+            document.getElementById('gwmEthernetPorts').value = data ? data.ethernet_port_count : 1;
+            document.getElementById('gwmProtocols').value = data ? (data.supported_protocols || []).join(',') : 'Modbus-RTU';
+            document.getElementById('gwmDescription').value = data ? (data.description || '') : '';
+            document.getElementById('gwModelModal').classList.add('open');
+        }
+
+        function editGwModel(id) {
+            const m = state.gwModels.find(x => x.id === id);
+            if (m) openGwModelModal(m);
+        }
+
+        async function saveGwModel() {
+            const brand = document.getElementById('gwmBrand').value.trim();
+            const modelName = document.getElementById('gwmModelName').value.trim();
+            const serialPorts = parseInt(document.getElementById('gwmSerialPorts').value) || 0;
+            const ethernetPorts = parseInt(document.getElementById('gwmEthernetPorts').value) || 0;
+            const protocolsStr = document.getElementById('gwmProtocols').value.trim();
+            const description = document.getElementById('gwmDescription').value.trim();
+
+            if (!brand || !modelName) return alert('请填写品牌和型号名称');
+
+            const payload = {
+                brand,
+                model_name: modelName,
+                serial_port_count: serialPorts,
+                ethernet_port_count: ethernetPorts,
+                supported_protocols: protocolsStr ? protocolsStr.split(',').map(s => s.trim()) : [],
+                description: description || null
+            };
+
+            try {
+                if (editingGwModelId) {
+                    await api.gatewayLibrary.updateModel(editingGwModelId, payload);
+                } else {
+                    await api.gatewayLibrary.createModel(payload);
+                }
+                closeModal('gwModelModal');
+                loadGatewayModels();
+            } catch(e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+
+        async function deleteGwModel(id) {
+            if (!confirm('删除该型号将同时删除所有在库库存，确定？')) return;
+            try {
+                await api.gatewayLibrary.deleteModel(id);
+                loadGatewayModels();
+            } catch(e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+    </script>
+    <script src="assets/js/nav.js"></script>
+</body>
+</html>
