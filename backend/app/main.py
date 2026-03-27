@@ -23,6 +23,8 @@ def _migrate_add_columns() -> None:
         insp = inspect(engine)
         migrations = [
             ("gateways", "serial_no", "VARCHAR(100)"),
+            ("projects", "config_attachment_original_name", "VARCHAR(255)"),
+            ("projects", "config_attachment_updated_at", "DATETIME"),
         ]
         for table, col, col_type in migrations:
             if table in insp.get_table_names():
@@ -97,14 +99,15 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-PM-Export-Version", "Content-Disposition"],
 )
 
 
-@app.get("/")
-async def root():
-    """根路径"""
+@app.get("/api")
+async def api_root():
+    """API根路径"""
     return {
-        "message": "欢迎使用冷库项目登记管理系统API",
+        "message": "冷库项目信息管理系统API",
         "version": settings.APP_VERSION,
         "docs": "/docs"
     }

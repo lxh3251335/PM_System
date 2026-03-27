@@ -46,6 +46,10 @@ class Project(Base):
     
     # 备注
     remarks = Column(Text, comment="备注")
+
+    # 用户上传的项目配置 Excel 附件（仅存文件元数据，文件在磁盘）
+    config_attachment_original_name = Column(String(255), comment="上传的配置 Excel 原始文件名")
+    config_attachment_updated_at = Column(DateTime(timezone=True), comment="配置附件最后上传时间")
     
     # 审计字段
     created_by = Column(Integer, ForeignKey("users.id"), comment="创建人ID")

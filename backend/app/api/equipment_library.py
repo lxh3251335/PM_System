@@ -83,6 +83,80 @@ async def delete_category(
     return {"message": "删除成功"}
 
 
+@router.post("/categories/batch", response_model=List[schemas.EquipmentCategory], status_code=201)
+async def batch_create_categories(
+    items: List[schemas.EquipmentCategoryCreate],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """批量创建设备类型（跳过已存在的）"""
+    require_admin(current_user)
+    created = []
+    for item in items:
+        exists = db.query(EquipmentCategory).filter(
+            (EquipmentCategory.code == item.code) | (EquipmentCategory.name == item.name)
+        ).first()
+        if exists:
+            continue
+        db_cat = EquipmentCategory(**item.model_dump())
+        db.add(db_cat)
+        db.flush()
+        created.append(db_cat)
+    db.commit()
+    for c in created:
+        db.refresh(c)
+    return created
+
+
+@router.post("/brands/batch", response_model=List[schemas.EquipmentBrand], status_code=201)
+async def batch_create_brands(
+    items: List[schemas.EquipmentBrandCreate],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """批量创建品牌（跳过已存在的）"""
+    created = []
+    for item in items:
+        if not db.query(EquipmentCategory).filter(EquipmentCategory.id == item.category_id).first():
+            continue
+        db_brand = EquipmentBrand(**item.model_dump())
+        db.add(db_brand)
+        db.flush()
+        created.append(db_brand)
+    db.commit()
+    for b in created:
+        db.refresh(b)
+    return created
+
+
+@router.post("/models/batch", response_model=List[schemas.EquipmentModel], status_code=201)
+async def batch_create_models(
+    items: List[schemas.EquipmentModelCreate],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """批量创建型号（跳过已存在的）"""
+    created = []
+    for item in items:
+        brand = db.query(EquipmentBrand).filter(EquipmentBrand.id == item.brand_id).first()
+        if not brand:
+            continue
+        exists = db.query(EquipmentModel).filter(
+            EquipmentModel.brand_id == item.brand_id,
+            EquipmentModel.model_name == item.model_name
+        ).first()
+        if exists:
+            continue
+        db_model = EquipmentModel(**item.model_dump())
+        db.add(db_model)
+        db.flush()
+        created.append(db_model)
+    db.commit()
+    for m in created:
+        db.refresh(m)
+    return created
+
+
 # ========== 2. 设备品牌 (Brand) API ==========
 
 @router.get("/brands", response_model=List[schemas.EquipmentBrand])

@@ -1,7 +1,7 @@
 """
 项目管理 - Pydantic模型
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List
 from datetime import datetime, date
 from ..models.project import ProjectStatus, ColdRoomType
@@ -93,6 +93,8 @@ class Project(ProjectBase):
     creator_company: Optional[str] = Field(None, description="创建者企业名称")
     created_at: datetime
     updated_at: Optional[datetime] = None
+    config_attachment_original_name: Optional[str] = Field(None, description="已上传配置 Excel 原始文件名")
+    config_attachment_updated_at: Optional[datetime] = Field(None, description="配置附件上传时间")
     
     class Config:
         from_attributes = True
@@ -104,10 +106,29 @@ class ProjectWithColdRooms(Project):
 
 
 class ProjectCopy(BaseModel):
-    """复制项目请求"""
+    """复制项目请求（new_project_name 必填；其余字段若传入则覆盖源项目对应字段）"""
     new_project_name: str = Field(..., description="新项目名称")
     copy_cold_rooms: bool = Field(True, description="是否复制冷库")
     copy_devices: bool = Field(False, description="是否复制设备")
+
+    @model_validator(mode="before")
+    @classmethod
+    def legacy_name_field(cls, data):
+        """兼容旧前端只传 name 的请求体"""
+        if isinstance(data, dict) and "new_project_name" not in data and data.get("name"):
+            out = dict(data)
+            out["new_project_name"] = out.pop("name", "")
+            return out
+        return data
+    end_customer: Optional[str] = Field(None, description="最终用户（覆盖）")
+    business_type: Optional[str] = Field(None, description="业务类型（覆盖）")
+    city: Optional[str] = Field(None, description="城市（覆盖）")
+    address: Optional[str] = Field(None, description="项目地址（覆盖）")
+    mailing_address: Optional[str] = Field(None, description="邮寄地址（覆盖）")
+    recipient_name: Optional[str] = Field(None, description="收件人（覆盖）")
+    recipient_phone: Optional[str] = Field(None, description="收件电话（覆盖）")
+    expected_arrival_time: Optional[date] = Field(None, description="期望到货时间（覆盖）")
+    remarks: Optional[str] = Field(None, description="备注（覆盖）")
 
 
 # ========== 收件信息 ==========

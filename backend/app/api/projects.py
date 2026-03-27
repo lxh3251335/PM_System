@@ -1,17 +1,27 @@
 """
 项目管理 API
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi.responses import StreamingResponse
+from urllib.parse import quote
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from typing import List, Optional
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from ..database import get_db
 from ..models.project import Project, ColdRoom, ProjectStatus, CustomerBusinessType
-from ..models.device import Device
 from ..models.user import User
 from ..schemas import project as schemas
 from ..auth_utils import get_current_user, require_admin, normalize_role, check_project_permission
+from ..services.project_config_excel import (
+    EXPORT_VERSION,
+    apply_import,
+    build_workbook_bytes,
+    extract_workbook_preview,
+)
+from ..project_attachment_storage import attachment_path, remove_attachment_file
+
+MAX_CONFIG_ATTACHMENT_BYTES = 15 * 1024 * 1024
 
 router = APIRouter()
 
@@ -229,6 +239,36 @@ async def delete_business_option(
     return {"message": "配置删除成功"}
 
 
+@router.post("/business-options/batch", response_model=List[schemas.CustomerBusinessType], status_code=201)
+async def batch_create_business_options(
+    items: List[schemas.CustomerBusinessTypeCreate],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """批量创建最终用户-业务类型配置（跳过已存在的）"""
+    require_admin(current_user)
+    created = []
+    for item in items:
+        end_customer = item.end_customer.strip()
+        business_type = item.business_type.strip()
+        if not end_customer or not business_type:
+            continue
+        exists = db.query(CustomerBusinessType).filter(
+            CustomerBusinessType.end_customer == end_customer,
+            CustomerBusinessType.business_type == business_type
+        ).first()
+        if exists:
+            continue
+        db_item = CustomerBusinessType(end_customer=end_customer, business_type=business_type)
+        db.add(db_item)
+        db.flush()
+        created.append(db_item)
+    db.commit()
+    for c in created:
+        db.refresh(c)
+    return created
+
+
 @router.get("/contacts", response_model=List[schemas.ContactProfile])
 async def get_contact_profiles(
     end_customer: Optional[str] = Query(None, description="按最终用户筛选"),
@@ -351,7 +391,8 @@ async def delete_project(
     """删除项目（级联删除关联数据）"""
     role = normalize_role(current_user.role)
     project = query_project_with_permission(db, project_id, role, current_user)
-    
+
+    remove_attachment_file(project_id)
     db.delete(project)
     db.commit()
     return {"message": "项目删除成功"}
@@ -370,28 +411,51 @@ async def copy_project(
     """
     role = normalize_role(current_user.role)
     original = query_project_with_permission(db, project_id, role, current_user)
-    
+
+    req_data = copy_request.model_dump(exclude_unset=True)
+    new_name = req_data.pop("new_project_name")
+    copy_cold_rooms = req_data.pop("copy_cold_rooms", True)
+    copy_devices = req_data.pop("copy_devices", False)
+
+    merge_keys = (
+        "end_customer",
+        "business_type",
+        "city",
+        "address",
+        "mailing_address",
+        "recipient_name",
+        "recipient_phone",
+        "expected_arrival_time",
+        "remarks",
+    )
+    merge_values = {
+        "end_customer": original.end_customer,
+        "business_type": original.business_type,
+        "city": original.city,
+        "address": original.address,
+        "mailing_address": original.mailing_address,
+        "recipient_name": original.recipient_name,
+        "recipient_phone": original.recipient_phone,
+        "expected_arrival_time": original.expected_arrival_time,
+        "remarks": f"复制自项目：{original.project_no}",
+    }
+    for key in merge_keys:
+        if key in req_data:
+            merge_values[key] = req_data[key]
+
     new_project = Project(
         project_no=generate_project_no(db),
-        name=copy_request.new_project_name,
-        end_customer=original.end_customer,
-        business_type=original.business_type,
-        city=original.city,
-        address=original.address,
-        mailing_address=original.mailing_address,
-        recipient_name=original.recipient_name,
-        recipient_phone=original.recipient_phone,
-        expected_arrival_time=original.expected_arrival_time,
+        name=new_name,
         status=ProjectStatus.NEW,
         created_by=current_user.id,
-        remarks=f"复制自项目：{original.project_no}"
+        **merge_values,
     )
     
     db.add(new_project)
     db.flush()  # 获取new_project.id
     
     # 复制冷库
-    if copy_request.copy_cold_rooms:
+    if copy_cold_rooms:
         original_cold_rooms = db.query(ColdRoom).filter(ColdRoom.project_id == project_id).all()
         for old_room in original_cold_rooms:
             new_room = ColdRoom(
@@ -408,7 +472,7 @@ async def copy_project(
             db.add(new_room)
     
     # 复制设备（如果需要）
-    if copy_request.copy_devices:
+    if copy_devices:
         # TODO: 实现设备复制逻辑
         pass
     
@@ -416,6 +480,152 @@ async def copy_project(
     db.refresh(new_project)
     return new_project
 
+
+@router.get("/{project_id}/export-config-xlsx")
+async def export_project_config_xlsx(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """导出项目全量配置（Excel 多工作表）"""
+    role = normalize_role(current_user.role)
+    query_project_with_permission(db, project_id, role, current_user)
+    try:
+        data, safe_name = build_workbook_bytes(db, project_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    fname = f"{safe_name}_config_v{EXPORT_VERSION}.xlsx"
+    headers = {
+        "Content-Disposition": f"attachment; filename*=UTF-8''{quote(fname)}",
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "X-PM-Export-Version": str(EXPORT_VERSION),
+    }
+    return StreamingResponse(
+        iter([data]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
+
+
+@router.post("/{project_id}/config-attachment")
+async def upload_project_config_attachment(
+    project_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """上传项目配置 Excel 附件（仅存文件，不自动写入业务表；可再下载）"""
+    role = normalize_role(current_user.role)
+    project = query_project_with_permission(db, project_id, role, current_user)
+    fn = (file.filename or "").lower()
+    if not fn.endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="请上传 .xlsx 文件")
+    raw = await file.read()
+    if len(raw) > MAX_CONFIG_ATTACHMENT_BYTES:
+        raise HTTPException(status_code=400, detail="文件过大（上限 15MB）")
+    dest = attachment_path(project_id)
+    dest.write_bytes(raw)
+    project.config_attachment_original_name = file.filename or "config.xlsx"
+    project.config_attachment_updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(project)
+    return {
+        "message": "配置 Excel 已保存，可随时下载",
+        "config_attachment_original_name": project.config_attachment_original_name,
+        "config_attachment_updated_at": project.config_attachment_updated_at.isoformat()
+        if project.config_attachment_updated_at
+        else None,
+    }
+
+
+@router.get("/{project_id}/config-attachment/preview")
+async def preview_project_config_attachment(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """解析已上传的配置 Excel，返回项目/冷库/设备/关系的结构化 JSON（不写库）"""
+    role = normalize_role(current_user.role)
+    query_project_with_permission(db, project_id, role, current_user)
+    path = attachment_path(project_id)
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="尚未上传配置附件")
+    raw = path.read_bytes()
+    try:
+        return extract_workbook_preview(raw)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{project_id}/config-attachment")
+async def download_project_config_attachment(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """下载已上传的项目配置 Excel 附件"""
+    role = normalize_role(current_user.role)
+    project = query_project_with_permission(db, project_id, role, current_user)
+    path = attachment_path(project_id)
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="尚未上传配置附件")
+    data = path.read_bytes()
+    oname = project.config_attachment_original_name or f"{project.project_no}_config.xlsx"
+    headers = {"Content-Disposition": f"attachment; filename*=UTF-8''{quote(oname)}"}
+    return StreamingResponse(
+        iter([data]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers,
+    )
+
+
+@router.delete("/{project_id}/config-attachment")
+async def delete_project_config_attachment(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """删除已上传的配置附件"""
+    role = normalize_role(current_user.role)
+    project = query_project_with_permission(db, project_id, role, current_user)
+    remove_attachment_file(project_id)
+    project.config_attachment_original_name = None
+    project.config_attachment_updated_at = None
+    db.commit()
+    return {"message": "配置附件已删除"}
+
+
+@router.post("/{project_id}/import-config-xlsx")
+async def import_project_config_xlsx(
+    project_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """从 Excel 导入/合并项目配置（须与导出模板一致，「项目」表中 project_id 须匹配）"""
+    role = normalize_role(current_user.role)
+    query_project_with_permission(db, project_id, role, current_user)
+    fn = (file.filename or "").lower()
+    if not fn.endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="请上传 .xlsx 格式（与导出模板一致）")
+    raw = await file.read()
+    if len(raw) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件过大（上限 15MB）")
+    try:
+        stats = apply_import(db, project_id, raw)
+    except ValueError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        db.rollback()
+        raise
+    db.commit()
+    msg = (
+        f"导入完成：冷库 {stats['cold_rooms']} 条，设备 {stats['devices']} 条，"
+        f"关系 {stats['relations']} 条"
+    )
+    return {"message": msg, **stats}
 
 
 # ========== 冷库 API ==========
