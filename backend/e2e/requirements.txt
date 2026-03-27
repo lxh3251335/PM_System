@@ -1,0 +1,2 @@
+# 浏览器 E2E（Playwright），与主应用依赖分离
+playwright>=1.40.0,<2
