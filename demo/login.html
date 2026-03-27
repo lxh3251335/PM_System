@@ -209,7 +209,7 @@
 
             <div class="form-group">
                 <label for="password">密码</label>
-                <input type="password" id="password" name="password" placeholder="请输入密码" required value="password123">
+                <input type="password" id="password" name="password" placeholder="请输入密码" required value="customer@2024!">
             </div>
 
             <button type="submit" class="btn-login">立即登录</button>
@@ -219,11 +219,11 @@
             <h3>演示账号</h3>
             <div class="demo-account">
                 <span>客户：</span>
-                <code>customer001 / password123</code>
+                <code>customer001 / customer@2024!</code>
             </div>
             <div class="demo-account">
                 <span>管理员：</span>
-                <code>admin001 / password123</code>
+                <code>admin001 / admin@2024!</code>
             </div>
         </div>
 
@@ -243,11 +243,14 @@
                 userTypeBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
-                // 根据类型自动填充用户名
+                // 根据类型自动填充用户名和密码
+                const passwordInput = document.getElementById('password');
                 if (btn.dataset.type === 'customer') {
                     usernameInput.value = 'customer001';
+                    passwordInput.value = 'customer@2024!';
                 } else {
                     usernameInput.value = 'admin001';
+                    passwordInput.value = 'admin@2024!';
                 }
             });
         });

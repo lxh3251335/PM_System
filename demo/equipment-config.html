@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
     <script src="assets/js/api.js?v=20260223"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         /* 复用 app.css 的变量，但做局部覆盖以适配本页面的特殊布局 */
         :root {
@@ -189,17 +190,32 @@
                             <div class="form-grid cols-auto" style="margin-bottom: 24px; align-items: end;">
                                 <div class="form-group" style="width: 240px;">
                                     <label>类型名称</label>
-                                    <input id="catName" class="form-control" placeholder="如：温湿度传感器">
+                                    <input id="catName" class="form-control" placeholder="如：温湿度传感器" oninput="onCatNameInput()">
                                 </div>
-                                <div class="form-group" style="width: 240px;">
-                                    <label>类型编码 (英文)</label>
-                                    <input id="catCode" class="form-control" placeholder="如：temp_sensor">
+                                <div class="form-group" style="width: 320px;">
+                                    <label style="display:flex; align-items:center; justify-content:space-between;">
+                                        <span>类型编码 (英文)</span>
+                                        <label style="font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; cursor:pointer; font-weight:normal;">
+                                            <input type="checkbox" id="catCodeAutoMode" checked onchange="toggleCatCodeMode()" style="width:14px;height:14px;">
+                                            自动生成
+                                        </label>
+                                    </label>
+                                    <div style="position:relative;">
+                                        <input id="catCode" class="form-control" placeholder="自动生成中..." readonly style="background:#f5f5f5;">
+                                        <span id="catCodeHint" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--text-secondary);">自动</span>
+                                    </div>
                                 </div>
                                 <button class="btn btn-primary" onclick="addCategory()">+ 新增类型</button>
                             </div>
+                            <div style="display:flex; gap:8px; margin-bottom:16px; justify-content:flex-end;">
+                                <button class="btn btn-secondary btn-sm" onclick="exportCategories()">📥 导出Excel</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('catImportFile').click()">📤 从Excel导入</button>
+                                <input type="file" id="catImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importCategories(event)">
+                                <button class="btn btn-secondary btn-sm" onclick="downloadCategoryTemplate()">📋 下载模板</button>
+                            </div>
                             <div class="table-container">
                                 <table class="data-table">
-                                    <thead><tr><th>ID</th><th>名称</th><th>编码</th><th style="text-align:right">操作</th></tr></thead>
+                                    <thead><tr><th>ID</th><th>名称</th><th>编码</th><th>说明</th><th style="text-align:right">操作</th></tr></thead>
                                     <tbody id="catTableBody"></tbody>
                                 </table>
                             </div>
@@ -213,6 +229,9 @@
                                     <select id="brandFilterCat" class="form-control" onchange="loadBrands()"></select>
                                 </div>
                                 <div class="toolbar-spacer"></div>
+                                <button class="btn btn-secondary btn-sm" onclick="exportBrands()">📥 导出</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('brandImportFile').click()">📤 导入</button>
+                                <input type="file" id="brandImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importBrands(event)">
                                 <button class="btn btn-primary" onclick="openBrandModal()">+ 新增品牌/定制模板</button>
                             </div>
                             <div class="table-container">
@@ -235,6 +254,9 @@
                                     <input id="modelSearch" class="form-control" placeholder="输入型号名称..." oninput="filterModels()">
                                 </div>
                                 <div class="toolbar-spacer"></div>
+                                <button class="btn btn-secondary btn-sm" onclick="exportModels()">📥 导出</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modelImportFile').click()">📤 导入</button>
+                                <input type="file" id="modelImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importModels(event)">
                                 <button class="btn btn-primary" onclick="openModelModal()">+ 录入新型号</button>
                             </div>
                             <div class="table-container">
@@ -270,6 +292,35 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Category Edit Modal -->
+    <div class="modal-overlay" id="catEditModal">
+        <div class="modal-content" style="width: 480px;">
+            <div class="modal-header">
+                <h3>编辑设备类型</h3>
+                <button class="btn-icon" onclick="closeModal('catEditModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editCatId">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>类型名称</label>
+                    <input id="editCatName" class="form-control" placeholder="类型名称">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>类型编码 (英文)</label>
+                    <input id="editCatCode" class="form-control" placeholder="类型编码">
+                </div>
+                <div class="form-group">
+                    <label>说明 (可选)</label>
+                    <input id="editCatDesc" class="form-control" placeholder="类型说明">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('catEditModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveEditCategory()">保存</button>
+            </div>
+        </div>
     </div>
 
     <!-- Brand Modal -->
@@ -421,7 +472,38 @@
                 updateSelects();
             } catch(e) { 
                 console.error('加载设备类型失败:', e);
-                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:24px;">加载失败: ' + e.message + '</td></tr>';
+                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">加载失败: ' + e.message + '</td></tr>';
+            }
+        }
+
+        function chineseToPinyin(str) {
+            const map = {'冷风机':'air_cooler','温控器':'thermostat','制冷机组':'unit','电表':'meter','冷柜':'freezer','融霜控制器':'defrost_controller','温湿度传感器':'temp_sensor','压缩机':'compressor','蒸发器':'evaporator','冷凝器':'condenser','膨胀阀':'expansion_valve','水泵':'water_pump','风机':'fan','阀门':'valve','传感器':'sensor','控制器':'controller','变频器':'inverter','加湿器':'humidifier','除湿机':'dehumidifier'};
+            if (map[str]) return map[str];
+            return str.replace(/[\u4e00-\u9fa5]/g, '').replace(/\s+/g, '_').toLowerCase() || 'type_' + Date.now().toString(36);
+        }
+
+        function onCatNameInput() {
+            const autoMode = document.getElementById('catCodeAutoMode').checked;
+            if (!autoMode) return;
+            const name = document.getElementById('catName').value.trim();
+            document.getElementById('catCode').value = name ? chineseToPinyin(name) : '';
+        }
+
+        function toggleCatCodeMode() {
+            const auto = document.getElementById('catCodeAutoMode').checked;
+            const codeInput = document.getElementById('catCode');
+            const hint = document.getElementById('catCodeHint');
+            if (auto) {
+                codeInput.readOnly = true;
+                codeInput.style.background = '#f5f5f5';
+                codeInput.placeholder = '自动生成中...';
+                hint.textContent = '自动';
+                onCatNameInput();
+            } else {
+                codeInput.readOnly = false;
+                codeInput.style.background = '#fff';
+                codeInput.placeholder = '如：temp_sensor';
+                hint.textContent = '手动';
             }
         }
 
@@ -448,6 +530,32 @@
             } catch(e) { alert('删除失败: ' + e.message); }
         }
 
+        function openEditCategory(id) {
+            const cat = state.categories.find(c => c.id === id);
+            if (!cat) return;
+            document.getElementById('editCatId').value = cat.id;
+            document.getElementById('editCatName').value = cat.name;
+            document.getElementById('editCatCode').value = cat.code;
+            document.getElementById('editCatDesc').value = cat.description || '';
+            document.getElementById('catEditModal').classList.add('open');
+        }
+
+        async function saveEditCategory() {
+            const id = document.getElementById('editCatId').value;
+            const name = document.getElementById('editCatName').value.trim();
+            const code = document.getElementById('editCatCode').value.trim();
+            const description = document.getElementById('editCatDesc').value.trim();
+            if (!name || !code) return alert('名称和编码不能为空');
+
+            try {
+                await api.equipment.put('/equipment-library/categories/' + id, { name, code, description: description || null });
+                closeModal('catEditModal');
+                await loadCategories();
+            } catch(e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+
         function renderCategoryTable() {
             const tbody = document.getElementById('catTableBody');
             tbody.innerHTML = state.categories.map(c => `
@@ -455,7 +563,11 @@
                     <td>${c.id}</td>
                     <td style="font-weight:600">${c.name}</td>
                     <td><span class="badge">${c.code}</span></td>
-                    <td style="text-align:right"><button class="btn-icon" style="color:var(--danger)" onclick="deleteCategory(${c.id})">🗑</button></td>
+                    <td style="color:var(--text-secondary); font-size:13px;">${c.description || '-'}</td>
+                    <td style="text-align:right">
+                        <button class="btn-icon" style="color:var(--primary-color)" onclick="openEditCategory(${c.id})">✎ 编辑</button>
+                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteCategory(${c.id})">🗑</button>
+                    </td>
                 </tr>
             `).join('');
         }
@@ -814,6 +926,158 @@
                 loadGatewayModels();
             } catch(e) {
                 alert('删除失败: ' + e.message);
+            }
+        }
+
+        // ==================== Excel 导入导出工具 ====================
+
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const wb = XLSX.read(e.target.result, { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                        resolve(data);
+                    } catch(err) { reject(err); }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function downloadExcel(data, headers, filename) {
+            const ws = XLSX.utils.json_to_sheet(data, { header: headers });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, filename);
+        }
+
+        // --- Category 导入导出 ---
+        function exportCategories() {
+            if (state.categories.length === 0) return alert('暂无数据可导出');
+            const data = state.categories.map(c => ({
+                '类型名称': c.name,
+                '类型编码': c.code,
+                '说明': c.description || ''
+            }));
+            downloadExcel(data, ['类型名称','类型编码','说明'], '设备类型.xlsx');
+        }
+
+        function downloadCategoryTemplate() {
+            const data = [{ '类型名称': '示例：温湿度传感器', '类型编码': 'temp_sensor', '说明': '可选' }];
+            downloadExcel(data, ['类型名称','类型编码','说明'], '设备类型_导入模板.xlsx');
+        }
+
+        async function importCategories(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+            try {
+                const rows = await readExcelFile(file);
+                if (rows.length === 0) return alert('Excel 文件为空');
+                const items = rows.filter(r => r['类型名称'] && r['类型编码']).map(r => ({
+                    name: String(r['类型名称']).trim(),
+                    code: String(r['类型编码']).trim(),
+                    description: r['说明'] ? String(r['说明']).trim() : null
+                }));
+                if (items.length === 0) return alert('未找到有效数据，请确保Excel包含"类型名称"和"类型编码"列');
+                const result = await api.equipment.batchCreateCategories(items);
+                const created = Array.isArray(result) ? result.length : 0;
+                alert('导入完成: 成功新增 ' + created + ' 条，跳过已存在 ' + (items.length - created) + ' 条');
+                await loadCategories();
+            } catch(e) {
+                alert('导入失败: ' + e.message);
+            }
+        }
+
+        // --- Brand 导入导出 ---
+        function exportBrands() {
+            if (state.brands.length === 0) return alert('暂无数据可导出');
+            const data = state.brands.map(b => {
+                const cat = state.categories.find(c => c.id === b.category_id);
+                return {
+                    '品牌名称': b.name,
+                    '所属类型': cat ? cat.name : '',
+                    '所属类型编码': cat ? cat.code : '',
+                    '模板字段(JSON)': b.spec_template ? JSON.stringify(b.spec_template) : ''
+                };
+            });
+            downloadExcel(data, ['品牌名称','所属类型','所属类型编码','模板字段(JSON)'], '设备品牌.xlsx');
+        }
+
+        async function importBrands(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+            try {
+                const rows = await readExcelFile(file);
+                if (rows.length === 0) return alert('Excel 文件为空');
+                const catMap = {};
+                state.categories.forEach(c => { catMap[c.name] = c.id; catMap[c.code] = c.id; });
+                const items = [];
+                rows.forEach(r => {
+                    const name = String(r['品牌名称'] || '').trim();
+                    const catKey = String(r['所属类型编码'] || r['所属类型'] || '').trim();
+                    const catId = catMap[catKey];
+                    if (!name || !catId) return;
+                    let tpl = null;
+                    const tplStr = r['模板字段(JSON)'] || '';
+                    if (tplStr) { try { tpl = JSON.parse(tplStr); } catch(e) {} }
+                    items.push({ name, category_id: catId, spec_template: tpl });
+                });
+                if (items.length === 0) return alert('未找到有效数据，请确保包含"品牌名称"和"所属类型/所属类型编码"列');
+                const result = await api.equipment.batchCreateBrands(items);
+                const created = Array.isArray(result) ? result.length : 0;
+                alert('导入完成: 成功新增 ' + created + ' 条');
+                await loadBrands();
+            } catch(e) {
+                alert('导入失败: ' + e.message);
+            }
+        }
+
+        // --- Model 导入导出 ---
+        function exportModels() {
+            if (state.models.length === 0) return alert('暂无数据可导出');
+            const data = state.models.map(m => {
+                const brand = state.brands.find(b => b.id === m.brand_id);
+                return {
+                    '型号名称': m.model_name,
+                    '所属品牌': brand ? brand.name : '',
+                    '规格参数(JSON)': m.specifications ? JSON.stringify(m.specifications) : ''
+                };
+            });
+            downloadExcel(data, ['型号名称','所属品牌','规格参数(JSON)'], '设备型号.xlsx');
+        }
+
+        async function importModels(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+            try {
+                const rows = await readExcelFile(file);
+                if (rows.length === 0) return alert('Excel 文件为空');
+                const brandMap = {};
+                state.brands.forEach(b => { brandMap[b.name] = b.id; });
+                const items = [];
+                rows.forEach(r => {
+                    const modelName = String(r['型号名称'] || '').trim();
+                    const brandName = String(r['所属品牌'] || '').trim();
+                    const brandId = brandMap[brandName];
+                    if (!modelName || !brandId) return;
+                    let specs = null;
+                    const specStr = r['规格参数(JSON)'] || '';
+                    if (specStr) { try { specs = JSON.parse(specStr); } catch(e) {} }
+                    items.push({ model_name: modelName, brand_id: brandId, specifications: specs });
+                });
+                if (items.length === 0) return alert('未找到有效数据，请确保包含"型号名称"和"所属品牌"列');
+                const result = await api.equipment.batchCreateModels(items);
+                const created = Array.isArray(result) ? result.length : 0;
+                alert('导入完成: 成功新增 ' + created + ' 条');
+                await loadModels();
+            } catch(e) {
+                alert('导入失败: ' + e.message);
             }
         }
     </script>

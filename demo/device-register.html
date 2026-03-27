@@ -392,11 +392,12 @@
         </div>
 
         <!-- 视图模式切换 + 冷库筛选 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
             <div style="display: flex; gap: 8px; align-items: center;">
                 <span style="font-size: 14px; color: var(--text-secondary);">视图模式：</span>
                 <button class="btn btn-primary" id="viewModeType" onclick="setViewMode('type')" style="padding: 6px 16px; font-size: 13px;">按设备类型</button>
-                <button class="btn btn-secondary" id="viewModeRoom" onclick="setViewMode('room')" style="padding: 6px 16px; font-size: 13px;">按冷库分组</button>
+                <button class="btn" id="viewModeRoom" onclick="setViewMode('room')" style="padding: 6px 16px; font-size: 13px; border:1px solid #d9d9d9;">按冷库分组</button>
+                <button class="btn" id="viewModeRelation" onclick="setViewMode('relation')" style="padding: 6px 16px; font-size: 13px; border:1px solid #d9d9d9;">设备关系拓扑</button>
             </div>
             <div id="coldRoomFilterBar" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
         </div>
@@ -429,6 +430,27 @@
             <div id="roomGroupedList"></div>
         </div>
 
+        <!-- 设备关系拓扑视图 -->
+        <div class="form-card" id="relationViewCard" style="display: none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; color: var(--text-primary);">设备关系拓扑</h3>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <span style="font-size:12px; color:var(--text-secondary);">图例：</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:12px;"><span style="width:12px;height:12px;border-radius:2px;background:#1890ff;display:inline-block;"></span>温控器</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:12px;"><span style="width:12px;height:12px;border-radius:2px;background:#52c41a;display:inline-block;"></span>冷风机</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:12px;"><span style="width:12px;height:12px;border-radius:2px;background:#722ed1;display:inline-block;"></span>制冷机组</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:12px;"><span style="width:12px;height:12px;border-radius:2px;background:#fa8c16;display:inline-block;"></span>电表</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; font-size:12px;"><span style="width:12px;height:12px;border-radius:2px;background:#13c2c2;display:inline-block;"></span>其他</span>
+                </div>
+            </div>
+            <div id="relationTopoContent"></div>
+            <div id="relationTopoEmpty" style="display:none; text-align:center; padding:40px; color:var(--text-secondary);">
+                <div style="font-size:48px; margin-bottom:16px;">🔗</div>
+                <p>暂无设备关系数据，请先在「设备关系配置」页面建立设备间的关联关系。</p>
+                <a href="device-bindline.html" class="btn btn-primary" style="display:inline-block; margin-top:12px; text-decoration:none;">前往配置设备关系</a>
+            </div>
+        </div>
+
         <!-- 操作栏 -->
         <div class="action-bar">
             <button class="btn btn-secondary" onclick="window.location.href='cold-room-create.html'">← 返回上一步</button>
@@ -451,8 +473,65 @@
         const DEVICE_TYPE_CN = {
             'air_cooler': '冷风机', 'thermostat': '温控器', 'unit': '制冷机组',
             'meter': '电表', 'freezer': '冷柜', 'defrost_controller': '融霜控制器',
-            'temp-controller': '温控器', 'refrigeration_unit': '制冷机组', 'electric_meter': '电表'
+            'temp-controller': '温控器', 'refrigeration_unit': '制冷机组', 'electric_meter': '电表',
+            'cooling_tower': '冷却塔', 'cabinet': '电控柜'
         };
+
+        const METER_AREAS = [
+            { value: 'total', label: '全站总电表' },
+            { value: 'cold_chain', label: '冷链电表' },
+            { value: 'ac', label: '空调电表' },
+            { value: 'fish_tank', label: '鱼缸电表' },
+            { value: 'lighting', label: '照明电表' },
+            { value: 'hot_kitchen', label: '热厨电表' }
+        ];
+
+        function isMeterCategory(cat) {
+            return resolveCategoryType(cat) === 'meter';
+        }
+
+        function resolveDeviceType(codeOrType) {
+            if (!codeOrType) return '';
+            return CODE_TO_DEVICE_TYPE[codeOrType] || codeOrType;
+        }
+
+        function resolveCategoryType(cat) {
+            if (!cat) return '';
+            const code = cat.code || '';
+            const dt = resolveDeviceType(code);
+            if (dt !== code) return dt;
+            const name = (cat.name || '').trim();
+            if (/电控柜/.test(name)) return 'cabinet';
+            if (/冷却塔/.test(name)) return 'cooling_tower';
+            if (/温控器/.test(name)) return 'thermostat';
+            if (/电表/.test(name)) return 'meter';
+            if (/冷风机/.test(name)) return 'air_cooler';
+            if (/机组|制冷/.test(name)) return 'unit';
+            if (/冷柜/.test(name)) return 'freezer';
+            return dt;
+        }
+
+        function isCabinetCategory(cat) {
+            return resolveCategoryType(cat) === 'cabinet';
+        }
+
+        function isCoolingTowerCategory(cat) {
+            return resolveCategoryType(cat) === 'cooling_tower';
+        }
+
+        function needsCabinetSelect(cat) {
+            const dt = resolveCategoryType(cat);
+            return dt === 'thermostat' || dt === 'meter';
+        }
+
+        function getCabinetDevices() {
+            return devices.filter(d => {
+                const dt = resolveDeviceType(d.device_type) || resolveDeviceType(d.type);
+                if (dt === 'cabinet') return true;
+                const cat = categories.find(c => c.id === d.categoryId);
+                return cat ? resolveCategoryType(cat) === 'cabinet' : false;
+            });
+        }
 
         const CODE_TO_DEVICE_TYPE = {
             'temp-controller': 'thermostat',
@@ -463,7 +542,9 @@
             'defrost_controller': 'defrost_controller',
             'thermostat': 'thermostat',
             'unit': 'unit',
-            'meter': 'meter'
+            'meter': 'meter',
+            'cooling_tower': 'cooling_tower',
+            'cabinet': 'cabinet'
         };
 
         function getDeviceStorageKey() {
@@ -575,7 +656,21 @@
             }
         }
 
+        function sortCategories() {
+            const order = ['cabinet', 'thermostat', 'meter', 'air_cooler', 'unit', 'cooling_tower', 'freezer', 'defrost_controller'];
+            categories.sort((a, b) => {
+                const da = resolveCategoryType(a);
+                const db = resolveCategoryType(b);
+                const ia = order.indexOf(da);
+                const ib = order.indexOf(db);
+                const pa = ia >= 0 ? ia : 999;
+                const pb = ib >= 0 ? ib : 999;
+                return pa - pb;
+            });
+        }
+
         function renderTabsAndStats() {
+            sortCategories();
             const tabsContainer = document.getElementById('deviceTabsContainer');
             tabsContainer.innerHTML = categories.map((cat, index) => {
                 const label = DEVICE_TYPE_CN[cat.code] || cat.name;
@@ -598,7 +693,7 @@
 
             let html = '<button onclick="setColdRoomFilter(null)" style="padding:5px 14px; border-radius:14px; border:1px solid var(--primary-color); background:var(--primary-color); color:white; cursor:pointer; font-size:13px;" id="roomFilterAll">全部</button>';
             coldRooms.forEach(r => {
-                html += '<button onclick="setColdRoomFilter(' + r.id + ')" id="roomFilter_' + r.id + '" style="padding:5px 14px; border-radius:14px; border:1px solid #d9d9d9; background:white; cursor:pointer; font-size:13px;">' + (r.name || '冷库' + r.id) + '</button>';
+                html += '<button onclick="setColdRoomFilter(' + r.id + ')" id="roomFilter_' + r.id + '" style="padding:5px 14px; border-radius:14px; border:1px solid #d9d9d9; background:white; color:#333; cursor:pointer; font-size:13px;">' + (r.name || '冷库' + r.id) + '</button>';
             });
             bar.innerHTML = html;
         }
@@ -606,7 +701,7 @@
         function setColdRoomFilter(roomId) {
             filterRoomId = roomId;
             document.querySelectorAll('#coldRoomFilterBar button').forEach(b => {
-                b.style.background = 'white'; b.style.color = ''; b.style.borderColor = '#d9d9d9';
+                b.style.background = 'white'; b.style.color = '#333'; b.style.borderColor = '#d9d9d9';
             });
             const activeBtn = roomId ? document.getElementById('roomFilter_' + roomId) : document.getElementById('roomFilterAll');
             if (activeBtn) { activeBtn.style.background = 'var(--primary-color)'; activeBtn.style.color = 'white'; activeBtn.style.borderColor = 'var(--primary-color)'; }
@@ -620,15 +715,28 @@
 
         function setViewMode(mode) {
             viewMode = mode;
-            document.getElementById('viewModeType').className = mode === 'type' ? 'btn btn-primary' : 'btn btn-secondary';
-            document.getElementById('viewModeRoom').className = mode === 'room' ? 'btn btn-primary' : 'btn btn-secondary';
+            const modes = ['type', 'room', 'relation'];
+            modes.forEach(m => {
+                const btn = document.getElementById('viewMode' + m.charAt(0).toUpperCase() + m.slice(1));
+                if (btn) {
+                    if (m === mode) {
+                        btn.className = 'btn btn-primary';
+                        btn.style.border = 'none';
+                    } else {
+                        btn.className = 'btn';
+                        btn.style.border = '1px solid #d9d9d9';
+                    }
+                }
+            });
 
             document.getElementById('deviceTabsContainer').style.display = mode === 'type' ? '' : 'none';
             document.getElementById('deviceFormCard').style.display = mode === 'type' ? '' : 'none';
             document.getElementById('typeViewCard').style.display = mode === 'type' ? '' : 'none';
             document.getElementById('roomViewCard').style.display = mode === 'room' ? '' : 'none';
+            document.getElementById('relationViewCard').style.display = mode === 'relation' ? '' : 'none';
 
             if (mode === 'room') renderRoomGroupedView();
+            else if (mode === 'relation') renderRelationTopoView();
             else renderDeviceList();
         }
 
@@ -666,9 +774,10 @@
                     for (const [type, items] of Object.entries(grouped)) {
                         const typeName = DEVICE_TYPE_CN[type] || type;
                         html += '<div style="margin-bottom:8px;"><strong>' + typeName + '</strong> (' + items.length + '台)</div>';
-                        html += '<table class="data-table" style="margin-bottom:12px;"><thead><tr><th>编号</th><th>品牌</th><th>型号</th></tr></thead><tbody>';
+                        html += '<table class="data-table" style="margin-bottom:12px;"><thead><tr><th>编号</th><th>品牌</th><th>型号</th><th style="width:60px;">操作</th></tr></thead><tbody>';
                         items.forEach(d => {
-                            html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td></tr>';
+                            html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td>';
+                            html += '<td><button onclick="deleteDevice(' + (typeof d.id === 'string' ? "'" + d.id + "'" : d.id) + ')" class="delete" style="padding:2px 8px;font-size:12px;">删除</button></td></tr>';
                         });
                         html += '</tbody></table>';
                     }
@@ -681,10 +790,11 @@
             if (unassigned.length > 0) {
                 html += '<div style="border:1px solid #faad14; border-radius:8px; margin-bottom:16px; overflow:hidden;">';
                 html += '<div style="background:#fffbe6; padding:12px 16px; font-weight:600;">未分配冷库的设备 <span class="badge badge-warning">' + unassigned.length + '台</span></div>';
-                html += '<div style="padding:12px 16px;"><table class="data-table"><thead><tr><th>编号</th><th>类型</th><th>品牌</th><th>型号</th></tr></thead><tbody>';
+                html += '<div style="padding:12px 16px;"><table class="data-table"><thead><tr><th>编号</th><th>类型</th><th>品牌</th><th>型号</th><th style="width:60px;">操作</th></tr></thead><tbody>';
                 unassigned.forEach(d => {
                     const typeName = DEVICE_TYPE_CN[d.device_type || d.type] || d.device_type || '-';
-                    html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + typeName + '</td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td></tr>';
+                    html += '<tr><td><code>' + (d.device_no || '-') + '</code></td><td>' + typeName + '</td><td>' + (d.brand || '-') + '</td><td>' + (d.model || '-') + '</td>';
+                    html += '<td><button onclick="deleteDevice(' + (typeof d.id === 'string' ? "'" + d.id + "'" : d.id) + ')" class="delete" style="padding:2px 8px;font-size:12px;">删除</button></td></tr>';
                 });
                 html += '</tbody></table></div></div>';
             }
@@ -759,9 +869,15 @@
 
         function renderDeviceForm() {
             if (!currentCategory) return;
-            
             const formContainer = document.getElementById('deviceForm');
+            if (isCabinetCategory(currentCategory)) { renderCabinetManageUI(formContainer); return; }
+            renderNormalDeviceForm(formContainer);
+        }
+
+        function renderNormalDeviceForm(formContainer) {
             const catLabel = DEVICE_TYPE_CN[currentCategory.code] || currentCategory.name;
+            const isMeter = isMeterCategory(currentCategory);
+            const isTower = isCoolingTowerCategory(currentCategory);
             let html = `<h3 style="margin: 0 0 20px 0; color: var(--primary-color);">添加${catLabel}</h3>`;
             
             if (equipmentLibrary.brands.length === 0) {
@@ -770,18 +886,35 @@
 
             html += `<div class="form-grid">`;
             
-            // 1. Cold Room (Always present)
-            html += `
-                <div class="form-group">
-                    <label>所属冷库 <span class="required">*</span></label>
-                    <select name="cold_room_id" required>
-                        <option value="">请选择冷库</option>
-                        ${coldRooms.map(room => `<option value="${room.id}">${room.name}</option>`).join('')}
-                    </select>
-                </div>
-            `;
+            if (isMeter) {
+                html += `
+                    <div class="form-group">
+                        <label>所属区域 <span class="required">*</span></label>
+                        <select name="meter_area" id="meterAreaSelect" required onchange="onMeterAreaChange()">
+                            ${METER_AREAS.map(a => `<option value="${a.value}"${a.value === 'total' ? ' selected' : ''}>${a.label}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            } else if (isTower) {
+                html += `
+                    <div class="form-group">
+                        <label>安装位置</label>
+                        <input type="text" name="install_location" class="form-control" placeholder="如：楼顶、室外机房" value="楼顶">
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="form-group">
+                        <label>所属冷库 <span class="required">*</span></label>
+                        <select name="cold_room_id" required>
+                            <option value="">请选择冷库</option>
+                            ${coldRooms.map(room => `<option value="${room.id}">${room.name}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+            }
 
-            // 2. Brand
+            // Brand
             html += `
                 <div class="form-group">
                     <label>品牌 <span class="required">*</span></label>
@@ -802,19 +935,272 @@
                 </div>
             `;
 
-            // 4. Dynamic Fields Container
-            html += `</div><div id="dynamicFieldsArea" class="form-grid" style="margin-top:20px;"></div>`;
+            // 4. Quantity
+            html += `
+                <div class="form-group">
+                    <label>数量</label>
+                    <select name="device_qty" id="deviceQtySelect">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}">${n}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+
+            html += `</div>`;
+
+            if (isMeter) {
+                html += `
+                    <div id="meterColdRoomArea" style="display:none; margin-top:16px; padding:16px; background:#f0f7ff; border:1px solid #bae0ff; border-radius:6px;">
+                        <label style="font-size:14px; font-weight:500; color:var(--text-primary); display:block; margin-bottom:10px;">
+                            关联冷库 <span style="font-size:12px; font-weight:normal; color:var(--text-secondary);">(勾选该电表计量覆盖的冷库)</span>
+                        </label>
+                        <div id="meterColdRoomCheckboxes" style="display:flex; flex-wrap:wrap; gap:12px;">
+                            ${coldRooms.map(room => `
+                                <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; padding:6px 12px; background:white; border:1px solid #d9d9d9; border-radius:4px;">
+                                    <input type="checkbox" name="meter_cold_rooms" value="${room.id}" checked style="width:16px;height:16px;">
+                                    ${room.name}
+                                </label>
+                            `).join('')}
+                        </div>
+                        ${coldRooms.length === 0 ? '<div style="color:var(--text-secondary); font-size:13px;">当前项目暂无冷库</div>' : ''}
+                    </div>
+                `;
+            }
+
+            // Dynamic Fields Container
+            html += `<div id="dynamicFieldsArea" class="form-grid" style="margin-top:20px;"></div>`;
 
             // Buttons
             html += `
-                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
                     <button type="submit" class="btn btn-primary">添加设备</button>
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('deviceForm').reset()">重置</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetDeviceForm()">重置</button>
+                    <span id="qtyHint" style="font-size:12px; color:var(--text-secondary);"></span>
                 </div>
             `;
 
             formContainer.innerHTML = html;
             formContainer.onsubmit = (e) => { e.preventDefault(); addDevice(); };
+
+            if (isMeter) onMeterAreaChange();
+        }
+
+        function renderCabinetManageUI(formContainer) {
+            const cabinets = getCabinetDevices();
+            let html = '<h3 style="margin:0 0 20px 0; color:var(--primary-color);">电控柜管理</h3>';
+            html += '<div style="background:#f6ffed; border:1px solid #b7eb8f; border-radius:6px; padding:16px; margin-bottom:20px;">';
+            html += '<h4 style="margin:0 0 12px 0; font-size:15px; color:#52c41a;">新建电控柜</h4>';
+            html += '<div class="form-grid" style="align-items:end;">';
+            html += '<div class="form-group"><label>关联冷库 <span class="required">*</span> <span style="font-size:11px;color:#999;font-weight:normal;">(可多选)</span></label>';
+            html += '<div id="cabinetRoomCheckboxes" style="display:flex; flex-wrap:wrap; gap:8px;">';
+            coldRooms.forEach(function(room) {
+                html += '<label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;padding:4px 10px;background:white;border:1px solid #d9d9d9;border-radius:4px;"><input type="checkbox" name="cab_rooms" value="' + room.id + '" style="width:14px;height:14px;"> ' + room.name + '</label>';
+            });
+            html += '<label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px;padding:4px 10px;background:white;border:1px solid #d9d9d9;border-radius:4px;"><input type="checkbox" name="cab_rooms" value="public" style="width:14px;height:14px;"> 公共区域</label>';
+            html += '</div></div>';
+            html += '<div class="form-group"><label>品牌</label><select id="cabBrandSelect" onchange="onCabBrandChange()"><option value="">请选择品牌</option>';
+            equipmentLibrary.brands.forEach(function(b) { html += '<option value="' + b.id + '">' + b.name + '</option>'; });
+            html += '</select></div>';
+            html += '<div class="form-group"><label>型号</label><select id="cabModelSelect" disabled><option value="">请先选择品牌</option></select></div>';
+            html += '<div class="form-group" style="align-self:end;"><button type="button" class="btn btn-primary" onclick="addCabinetDevice()">+ 新建电控柜</button></div>';
+            html += '</div></div>';
+
+            if (cabinets.length === 0) {
+                html += '<div style="text-align:center;padding:40px;color:#999;">暂无电控柜，请先新建</div>';
+            } else {
+                cabinets.forEach(function(cab) {
+                    var childDevices = devices.filter(function(d) { return String(d.cabinet_id) === String(cab.id); });
+                    var childTCs = childDevices.filter(function(d) { var rt = resolveCategoryType({code:d.device_type,name:''}); return rt === 'thermostat'; });
+                    var childMeters = childDevices.filter(function(d) { var rt = resolveCategoryType({code:d.device_type,name:''}); return rt === 'meter'; });
+                    var roomNames = (cab.cabinet_rooms || []).map(function(rid) {
+                        if (rid === 'public') return '公共区域';
+                        var r = coldRooms.find(function(rm) { return String(rm.id) === String(rid); });
+                        return r ? r.name : rid;
+                    });
+                    var displayRooms = roomNames.length > 0 ? roomNames.join(', ') : (cab.cold_room_name || '-');
+
+                    html += '<div style="border:1px solid #d9d9d9;border-radius:8px;margin-bottom:16px;overflow:hidden;">';
+                    html += '<div style="background:#fafafa;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e8;">';
+                    html += '<div><strong style="font-size:15px;color:#333;">' + cab.device_no + '</strong>';
+                    html += '<span style="font-size:13px;color:#666;margin-left:8px;">' + cab.brand + ' ' + cab.model + '</span>';
+                    html += '<span style="font-size:12px;color:#1890ff;margin-left:8px;">' + displayRooms + '</span></div>';
+                    html += '<div style="display:flex;gap:6px;align-items:center;">';
+                    html += '<span style="font-size:12px;color:#999;">温控器:' + childTCs.length + ' | 电表:' + childMeters.length + '</span>';
+                    html += '<button style="background:#ff4d4f;color:white;padding:2px 10px;font-size:12px;border:none;border-radius:4px;cursor:pointer;" onclick="deleteDevice(' + cab.id + ')">删除</button>';
+                    html += '</div></div>';
+                    html += '<div style="padding:16px;">';
+                    html += '<div style="display:flex;gap:8px;margin-bottom:12px;">';
+                    html += '<button class="btn btn-sm" style="padding:4px 12px;font-size:12px;background:#1890ff;color:white;border:none;border-radius:4px;cursor:pointer;" onclick="showAddSubDevice(' + cab.id + ',\'thermostat\')">+ 添加温控器</button>';
+                    html += '<button class="btn btn-sm" style="padding:4px 12px;font-size:12px;background:#faad14;color:white;border:none;border-radius:4px;cursor:pointer;" onclick="showAddSubDevice(' + cab.id + ',\'meter\')">+ 添加电表</button>';
+                    html += '</div>';
+                    html += '<div id="subDeviceForm_' + cab.id + '" style="display:none;"></div>';
+
+                    if (childDevices.length > 0) {
+                        html += '<div style="margin-top:8px;">';
+                        childDevices.forEach(function(cd) {
+                            var cdType = DEVICE_TYPE_CN[cd.device_type] || cd.device_type;
+                            var color = (cd.device_type === 'thermostat' || /thermostat/.test(cd.device_type)) ? '#1890ff' : '#faad14';
+                            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:#fafafa;border-radius:4px;margin-bottom:4px;font-size:13px;">';
+                            html += '<span><span style="color:' + color + ';font-weight:500;">' + cdType + '</span> ' + cd.device_no + ' - ' + cd.brand + ' ' + cd.model + '</span>';
+                            html += '<div style="display:flex;gap:8px;">';
+                            html += '<button style="border:none;background:none;color:#1890ff;cursor:pointer;font-size:12px;" onclick="editSubDevice(' + cd.id + ')">编辑</button>';
+                            html += '<button style="border:none;background:none;color:#ff4d4f;cursor:pointer;font-size:12px;" onclick="deleteDevice(' + cd.id + ')">删除</button>';
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div style="color:#ccc;font-size:12px;">暂无子设备，请点击上方按钮添加温控器或电表</div>';
+                    }
+                    html += '</div></div>';
+                });
+            }
+            formContainer.innerHTML = html;
+            formContainer.onsubmit = function(e) { e.preventDefault(); };
+        }
+
+        async function onCabBrandChange() {
+            var brandId = document.getElementById('cabBrandSelect').value;
+            var modelSelect = document.getElementById('cabModelSelect');
+            if (!brandId) { modelSelect.innerHTML = '<option value="">请先选择品牌</option>'; modelSelect.disabled = true; return; }
+            try { var models = await api.equipment.getModels({ brand_id: brandId }); equipmentLibrary.models[brandId] = models || []; }
+            catch(e) { equipmentLibrary.models[brandId] = DEMO_MODELS[brandId] || []; }
+            var ms = equipmentLibrary.models[brandId] || [];
+            modelSelect.innerHTML = '<option value="">请选择型号</option>' + ms.map(function(m) { return '<option value="' + m.model_name + '">' + m.model_name + '</option>'; }).join('');
+            modelSelect.disabled = false;
+        }
+
+        function addCabinetDevice() {
+            var roomCbs = document.querySelectorAll('input[name="cab_rooms"]:checked');
+            var roomIds = Array.from(roomCbs).map(function(cb) { return cb.value; });
+            if (roomIds.length === 0) { alert('请至少选择一个关联冷库'); return; }
+            var brandEl = document.getElementById('cabBrandSelect');
+            var modelEl = document.getElementById('cabModelSelect');
+            var brandName = brandEl.value && brandEl.selectedIndex > 0 ? brandEl.options[brandEl.selectedIndex].text : '-';
+            var modelName = modelEl.value || '-';
+            var roomNames = roomIds.map(function(rid) {
+                if (rid === 'public') return '公共区域';
+                var r = coldRooms.find(function(rm) { return String(rm.id) === String(rid); });
+                return r ? r.name : rid;
+            });
+            var existingCount = getCabinetDevices().length;
+            var deviceNo = 'CB-001-' + String(existingCount + 1).padStart(3, '0');
+            devices.push({
+                id: Date.now(), categoryId: currentCategory.id, type: 'cabinet', device_type: 'cabinet',
+                device_no: deviceNo, cold_room_id: roomIds[0], cold_room_name: roomNames.join(', '),
+                cabinet_rooms: roomIds, brand: brandName, model: modelName, specifications: {}, created_at: new Date().toISOString()
+            });
+            saveDevicesToStorage();
+            api.projects.showSuccess('电控柜创建成功: ' + deviceNo);
+            renderCabinetManageUI(document.getElementById('deviceForm'));
+            updateStats();
+        }
+
+        var _subDeviceBrands = {};
+
+        async function showAddSubDevice(cabinetId, subType) {
+            var container = document.getElementById('subDeviceForm_' + cabinetId);
+            if (!container) return;
+            if (container.style.display === 'block' && container.getAttribute('data-type') === subType) { container.style.display = 'none'; return; }
+            container.setAttribute('data-type', subType);
+            container.style.display = 'block';
+            var typeName = subType === 'thermostat' ? '温控器' : '电表';
+            var color = subType === 'thermostat' ? '#1890ff' : '#faad14';
+            var subCat = categories.find(function(c) { return resolveCategoryType(c) === subType; });
+            var brands = [];
+            if (subCat) { try { brands = await api.equipment.getBrands({ category_id: subCat.id }); } catch(e) { brands = []; } }
+            _subDeviceBrands[cabinetId] = { brands: brands || [], models: {}, subCat: subCat };
+            var meterAreaHtml = '';
+            if (subType === 'meter') {
+                meterAreaHtml = '<div class="form-group"><label>所属区域</label><select id="subMeterArea_' + cabinetId + '">';
+                METER_AREAS.forEach(function(a) { meterAreaHtml += '<option value="' + a.value + '"' + (a.value === 'cold_chain' ? ' selected' : '') + '>' + a.label + '</option>'; });
+                meterAreaHtml += '</select></div>';
+            }
+            var brandsHtml = '';
+            (brands || []).forEach(function(b) { brandsHtml += '<option value="' + b.id + '">' + b.name + '</option>'; });
+            container.innerHTML = '<div style="background:' + color + '08;border:1px solid ' + color + '40;border-radius:6px;padding:12px;margin-top:8px;">'
+                + '<div style="font-size:13px;font-weight:500;color:' + color + ';margin-bottom:8px;">添加' + typeName + '到此电控柜</div>'
+                + '<div class="form-grid" style="align-items:end;">' + meterAreaHtml
+                + '<div class="form-group"><label>品牌</label><select id="subBrand_' + cabinetId + '" onchange="onSubBrandChange(' + cabinetId + ')"><option value="">请选择品牌</option>' + brandsHtml + '</select></div>'
+                + '<div class="form-group"><label>型号</label><select id="subModel_' + cabinetId + '" disabled><option value="">请先选择品牌</option></select></div>'
+                + '<div class="form-group"><label>数量</label><select id="subQty_' + cabinetId + '">' + [1,2,3,4,5].map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('') + '</select></div>'
+                + '<div class="form-group" style="align-self:end;"><button type="button" class="btn btn-primary" style="background:' + color + ';border-color:' + color + ';padding:6px 14px;font-size:13px;" onclick="addSubDevice(' + cabinetId + ',\'' + subType + '\')">添加</button></div>'
+                + '</div></div>';
+        }
+
+        async function onSubBrandChange(cabinetId) {
+            var brandId = document.getElementById('subBrand_' + cabinetId).value;
+            var modelSel = document.getElementById('subModel_' + cabinetId);
+            if (!brandId) { modelSel.innerHTML = '<option value="">请先选择品牌</option>'; modelSel.disabled = true; return; }
+            try { var models = await api.equipment.getModels({ brand_id: brandId }); _subDeviceBrands[cabinetId].models[brandId] = models || []; }
+            catch(e) { _subDeviceBrands[cabinetId].models[brandId] = []; }
+            var ms = _subDeviceBrands[cabinetId].models[brandId] || [];
+            modelSel.innerHTML = '<option value="">请选择型号</option>' + ms.map(function(m) { return '<option value="' + m.model_name + '">' + m.model_name + '</option>'; }).join('');
+            modelSel.disabled = false;
+        }
+
+        function addSubDevice(cabinetId, subType) {
+            var brandSel = document.getElementById('subBrand_' + cabinetId);
+            var modelSel = document.getElementById('subModel_' + cabinetId);
+            var qtySel = document.getElementById('subQty_' + cabinetId);
+            var brandName = brandSel.value && brandSel.selectedIndex > 0 ? brandSel.options[brandSel.selectedIndex].text : '-';
+            var modelName = modelSel.value || '-';
+            var qty = parseInt(qtySel.value) || 1;
+            var cab = devices.find(function(d) { return String(d.id) === String(cabinetId); });
+            if (!cab) { alert('电控柜不存在'); return; }
+            var subCat = _subDeviceBrands[cabinetId] ? _subDeviceBrands[cabinetId].subCat : null;
+            var prefix = subType === 'thermostat' ? 'TC' : 'PM';
+            var meterArea = null;
+            if (subType === 'meter') { var maEl = document.getElementById('subMeterArea_' + cabinetId); meterArea = maEl ? maEl.value : 'cold_chain'; }
+            for (var i = 0; i < qty; i++) {
+                var existingCount = devices.filter(function(d) { return String(d.cabinet_id) === String(cabinetId) && resolveCategoryType({code:d.device_type,name:''}) === subType; }).length;
+                var deviceNo = prefix + '-' + cab.device_no.replace('CB-','') + '-' + String(existingCount + 1).padStart(3, '0');
+                devices.push({
+                    id: Date.now() + i, categoryId: subCat ? subCat.id : null, type: subType, device_type: subType,
+                    device_no: deviceNo, cold_room_id: cab.cold_room_id, cold_room_name: cab.cold_room_name,
+                    cabinet_id: cabinetId, cabinet_no: cab.device_no, brand: brandName, model: modelName,
+                    meter_area: meterArea, specifications: {}, created_at: new Date().toISOString()
+                });
+            }
+            saveDevicesToStorage();
+            api.projects.showSuccess('成功添加 ' + qty + ' 台' + (subType === 'thermostat' ? '温控器' : '电表') + '到 ' + cab.device_no);
+            renderCabinetManageUI(document.getElementById('deviceForm'));
+            updateStats();
+        }
+
+        function editSubDevice(deviceId) {
+            var idStr = String(deviceId);
+            var dev = devices.find(function(d) { return String(d.id) === idStr; });
+            if (!dev) { alert('设备不存在'); return; }
+            var cdType = dev.device_type === 'thermostat' ? '温控器' : '电表';
+            var newBrand = prompt('品牌 (当前: ' + dev.brand + ')', dev.brand);
+            if (newBrand === null) return;
+            var newModel = prompt('型号 (当前: ' + dev.model + ')', dev.model);
+            if (newModel === null) return;
+            var newNo = prompt('设备编号 (当前: ' + dev.device_no + ')', dev.device_no);
+            if (newNo === null) return;
+            dev.brand = newBrand || dev.brand;
+            dev.model = newModel || dev.model;
+            dev.device_no = newNo || dev.device_no;
+            saveDevicesToStorage();
+            api.projects.showSuccess(cdType + '已更新');
+            renderCabinetManageUI(document.getElementById('deviceForm'));
+        }
+
+        function onMeterAreaChange() {
+            const area = document.getElementById('meterAreaSelect');
+            const coldRoomArea = document.getElementById('meterColdRoomArea');
+            if (!area || !coldRoomArea) return;
+            if (area.value === 'cold_chain') {
+                coldRoomArea.style.display = 'block';
+                document.querySelectorAll('input[name="meter_cold_rooms"]').forEach(cb => { cb.checked = true; });
+            } else {
+                coldRoomArea.style.display = 'none';
+            }
+        }
+
+        function resetDeviceForm() {
+            document.getElementById('deviceForm').reset();
+            if (document.getElementById('meterAreaSelect')) onMeterAreaChange();
         }
 
         async function onBrandChange() {
@@ -896,10 +1282,45 @@
             if (!currentCategory) return;
             
             const form = document.getElementById('deviceForm');
-            const coldRoomId = form.cold_room_id.value;
+            const isMeter = isMeterCategory(currentCategory);
+            const isTower = isCoolingTowerCategory(currentCategory);
             const brandId = form.brand_id.value;
             const modelName = form.model_name.value;
-            
+            const qty = parseInt(document.getElementById('deviceQtySelect').value) || 1;
+
+            let coldRoomId = '';
+            let coldRoomName = '-';
+            let meterArea = '';
+            let meterColdRoomIds = [];
+            let cabinetId = '';
+
+            if (isMeter) {
+                meterArea = document.getElementById('meterAreaSelect').value;
+                const areaObj = METER_AREAS.find(a => a.value === meterArea);
+                coldRoomName = areaObj ? areaObj.label : meterArea;
+                if (meterArea === 'cold_chain') {
+                    document.querySelectorAll('input[name="meter_cold_rooms"]:checked').forEach(cb => {
+                        meterColdRoomIds.push(cb.value);
+                    });
+                    if (meterColdRoomIds.length === 0) {
+                        api.projects.showError('请至少勾选一个冷库');
+                        return;
+                    }
+                    const roomNames = meterColdRoomIds.map(id => {
+                        const r = coldRooms.find(rm => String(rm.id) === String(id));
+                        return r ? r.name : id;
+                    });
+                    coldRoomName = '冷链电表 (' + roomNames.join(', ') + ')';
+                }
+            } else if (isTower) {
+                const loc = form.install_location ? form.install_location.value : '楼顶';
+                coldRoomName = loc || '楼顶';
+            } else {
+                coldRoomId = form.cold_room_id.value;
+                const coldRoom = coldRooms.find(r => r.id == coldRoomId);
+                coldRoomName = coldRoom ? coldRoom.name : (coldRoomId === 'public' ? '公共区域' : '-');
+            }
+
             const specs = {};
             form.querySelectorAll('.dynamic-input').forEach(input => {
                 const key = input.name.replace('spec_', '');
@@ -907,15 +1328,10 @@
             });
 
             const brand = equipmentLibrary.brands.find(b => b.id == brandId);
-            const coldRoom = coldRooms.find(r => r.id == coldRoomId);
-
             const brandName = brand ? brand.name : '-';
-            const deviceType = CODE_TO_DEVICE_TYPE[currentCategory.code] || currentCategory.code;
-
-            const count = devices.filter(d => d.categoryId === currentCategory.id).length;
-            const prefixMap = { 'thermostat': 'TC', 'air_cooler': 'AC', 'unit': 'UN', 'meter': 'PM', 'freezer': 'FR', 'defrost_controller': 'DF' };
+            const deviceType = resolveCategoryType(currentCategory) || currentCategory.code;
+            const prefixMap = { 'thermostat': 'TC', 'air_cooler': 'AC', 'unit': 'UN', 'meter': 'PM', 'freezer': 'FR', 'defrost_controller': 'DF', 'cooling_tower': 'CT', 'cabinet': 'CB' };
             const prefix = prefixMap[deviceType] || (currentCategory.code ? currentCategory.code.substring(0, 2).toUpperCase() : 'DV');
-            const deviceNo = `${prefix}-001-${String(count + 1).padStart(3, '0')}`;
 
             const apiPayload = {
                 device_type: deviceType,
@@ -924,38 +1340,50 @@
                 cold_room_id: coldRoomId ? parseInt(coldRoomId) : null,
                 specifications: Object.keys(specs).length > 0 ? JSON.stringify(specs) : null
             };
-
-            let savedId = Date.now();
-            try {
-                const result = await api.devices.createDevice(projectId, apiPayload);
-                if (result && result.id) {
-                    savedId = result.id;
-                    console.log(`[API] Device saved: id=${result.id}, no=${result.device_no}`);
-                }
-            } catch (err) {
-                console.warn('API save failed, using local only:', err.message);
+            if (isMeter) {
+                apiPayload.meter_area = meterArea;
+                apiPayload.meter_cold_room_ids = meterColdRoomIds.map(Number);
             }
 
-            const device = {
-                id: savedId,
-                categoryId: currentCategory.id,
-                type: deviceType,
-                device_type: deviceType,
-                device_no: deviceNo,
-                cold_room_id: coldRoomId,
-                cold_room_name: coldRoom ? coldRoom.name : '-',
-                brand: brandName,
-                model: modelName,
-                specifications: specs,
-                created_at: new Date().toISOString()
-            };
+            let addedCount = 0;
+            for (let i = 0; i < qty; i++) {
+                const existingCount = devices.filter(d => d.categoryId === currentCategory.id).length;
+                const deviceNo = `${prefix}-001-${String(existingCount + 1).padStart(3, '0')}`;
 
-            devices.push(device);
+                let savedId = Date.now() + i;
+                try {
+                    const result = await api.devices.createDevice(projectId, apiPayload);
+                    if (result && result.id) {
+                        savedId = result.id;
+                    }
+                } catch (err) {
+                    console.warn('API save failed, using local only:', err.message);
+                }
+
+                devices.push({
+                    id: savedId,
+                    categoryId: currentCategory.id,
+                    type: deviceType,
+                    device_type: deviceType,
+                    device_no: deviceNo,
+                    cold_room_id: coldRoomId || (isMeter ? meterArea : (isTower ? 'tower' : '')),
+                    cold_room_name: coldRoomName,
+                    brand: brandName,
+                    model: modelName,
+                    meter_area: isMeter ? meterArea : null,
+                    meter_cold_room_ids: isMeter ? meterColdRoomIds : [],
+                    cabinet_id: cabinetId || null,
+                    specifications: { ...specs },
+                    created_at: new Date().toISOString()
+                });
+                addedCount++;
+            }
+
             saveDevicesToStorage();
-            
-            api.projects.showSuccess(`${currentCategory.name} 添加成功`);
+            api.projects.showSuccess(`成功添加 ${addedCount} 台${currentCategory.name}`);
             form.reset();
             document.getElementById('dynamicFieldsArea').innerHTML = '';
+            if (isMeter) onMeterAreaChange();
             
             updateStats();
             renderDeviceList();
@@ -963,7 +1391,19 @@
 
         function renderDeviceList() {
             if (!currentCategory) return;
-            let list = devices.filter(d => d.categoryId === currentCategory.id);
+            if (isCabinetCategory(currentCategory)) {
+                document.getElementById('deviceList').innerHTML = '';
+                return;
+            }
+            var stdType = resolveCategoryType(currentCategory);
+            let list = devices.filter(function(d) {
+                if (d.categoryId === currentCategory.id) return true;
+                if (stdType && !d.categoryId) {
+                    var dt = d.device_type || d.type || '';
+                    return dt === stdType || (CODE_TO_DEVICE_TYPE[dt] || '') === stdType;
+                }
+                return false;
+            });
             if (filterRoomId) {
                 list = list.filter(d => String(d.cold_room_id) === String(filterRoomId));
             }
@@ -989,7 +1429,7 @@
                             </div>
                         </div>
                         <div class="device-item-details">
-                            <div class="device-item-detail"><div class="device-item-detail-label">所属冷库</div><div class="device-item-detail-value">${d.cold_room_name || '-'}</div></div>
+                            <div class="device-item-detail"><div class="device-item-detail-label">${d.meter_area ? '所属区域' : '所属冷库'}</div><div class="device-item-detail-value">${d.cold_room_name || '-'}</div></div>
                             <div class="device-item-detail"><div class="device-item-detail-label">品牌</div><div class="device-item-detail-value">${d.brand}</div></div>
                             <div class="device-item-detail"><div class="device-item-detail-label">型号</div><div class="device-item-detail-value">${d.model}</div></div>
                             ${specsHtml}
@@ -1001,7 +1441,15 @@
 
         function updateStats() {
             categories.forEach(cat => {
-                let list = devices.filter(d => d.categoryId === cat.id);
+                var st = resolveCategoryType(cat);
+                let list = devices.filter(function(d) {
+                    if (d.categoryId === cat.id) return true;
+                    if (st && !d.categoryId) {
+                        var dt = d.device_type || d.type || '';
+                        return dt === st || (CODE_TO_DEVICE_TYPE[dt] || '') === st;
+                    }
+                    return false;
+                });
                 if (filterRoomId) list = list.filter(d => String(d.cold_room_id) === String(filterRoomId));
                 const el = document.getElementById('count_' + cat.id);
                 if (el) el.textContent = list.length;
@@ -1063,20 +1511,185 @@
 
         async function deleteDevice(id) {
             if (!confirm('确定删除?')) return;
-            try {
-                await api.devices.deleteDevice(id);
-            } catch (err) {
-                console.warn('API delete failed (maybe local-only device):', err.message);
+            var idStr = String(id);
+            var target = devices.find(d => String(d.id) === idStr);
+            if (!target) { alert('设备不存在，可能已被删除'); return; }
+            try { await api.devices.deleteDevice(id); } catch (err) { /* local-only device */ }
+            var childIds = devices.filter(d => String(d.cabinet_id) === idStr).map(d => d.id);
+            devices = devices.filter(d => String(d.id) !== idStr && String(d.cabinet_id) !== idStr);
+            if (childIds.length > 0) {
+                childIds.forEach(cid => { try { api.devices.deleteDevice(cid); } catch(e){} });
             }
-            devices = devices.filter(d => d.id !== id);
             saveDevicesToStorage();
             updateStats();
-            renderDeviceList();
+            if (viewMode === 'room') { renderRoomGroupedView(); }
+            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else if (isCabinetCategory(currentCategory)) { renderCabinetManageUI(document.getElementById('deviceForm')); }
+            else { renderDeviceList(); }
+        }
+
+        const RELATION_COLORS = {
+            'thermostat': { bg: '#e6f7ff', border: '#1890ff', text: '#1890ff', icon: '🌡' },
+            'air_cooler': { bg: '#f6ffed', border: '#52c41a', text: '#52c41a', icon: '❄' },
+            'unit': { bg: '#f9f0ff', border: '#722ed1', text: '#722ed1', icon: '⚙' },
+            'meter': { bg: '#fff7e6', border: '#fa8c16', text: '#fa8c16', icon: '⚡' },
+            'freezer': { bg: '#e6fffb', border: '#13c2c2', text: '#13c2c2', icon: '🧊' },
+            'defrost_controller': { bg: '#fff0f6', border: '#eb2f96', text: '#eb2f96', icon: '🔥' }
+        };
+        const DEFAULT_COLOR = { bg: '#f0f0f0', border: '#999', text: '#666', icon: '📦' };
+
+        function getDeviceColor(deviceType) {
+            return RELATION_COLORS[deviceType] || DEFAULT_COLOR;
+        }
+
+        function renderRelationTopoView() {
+            const relations = JSON.parse(localStorage.getItem('deviceRelations') || '[]');
+            const container = document.getElementById('relationTopoContent');
+            const emptyDiv = document.getElementById('relationTopoEmpty');
+
+            if (relations.length === 0) {
+                container.style.display = 'none';
+                emptyDiv.style.display = 'block';
+                return;
+            }
+            container.style.display = 'block';
+            emptyDiv.style.display = 'none';
+
+            const deviceMap = {};
+            devices.forEach(d => { deviceMap[d.device_no] = d; });
+
+            const roomRelations = {};
+            relations.forEach(rel => {
+                const srcDev = deviceMap[rel.source];
+                const tgtDev = deviceMap[rel.target];
+                const roomId = (srcDev && srcDev.cold_room_id) || (tgtDev && tgtDev.cold_room_id) || 'unassigned';
+                if (!roomRelations[roomId]) roomRelations[roomId] = [];
+                roomRelations[roomId].push(rel);
+            });
+
+            let html = '';
+
+            for (const [roomId, rels] of Object.entries(roomRelations)) {
+                const room = (roomId !== 'unassigned') ? coldRooms.find(r => String(r.id) === String(roomId)) : null;
+                const roomName = room ? room.name : '未分配冷库';
+
+                if (filterRoomId && String(roomId) !== String(filterRoomId)) continue;
+
+                html += `<div style="border:1px solid var(--border-color); border-radius:8px; margin-bottom:20px; overflow:hidden;">`;
+                html += `<div style="background:#fafafa; padding:12px 16px; font-weight:600; border-bottom:1px solid var(--border-color); display:flex; align-items:center; gap:8px;">`;
+                html += `<span style="font-size:16px;">🏠</span> ${roomName}`;
+                html += `<span style="font-weight:normal; color:var(--text-secondary); font-size:13px;">(${rels.length}条关系)</span></div>`;
+
+                const nodesInRoom = new Set();
+                rels.forEach(r => { nodesInRoom.add(r.source); nodesInRoom.add(r.target); });
+
+                const adjList = {};
+                rels.forEach(r => {
+                    if (!adjList[r.source]) adjList[r.source] = [];
+                    adjList[r.source].push({ target: r.target, desc: r.desc });
+                });
+
+                const typeGroups = {};
+                nodesInRoom.forEach(no => {
+                    const dev = deviceMap[no];
+                    const type = dev ? (dev.device_type || dev.type || 'other') : 'other';
+                    if (!typeGroups[type]) typeGroups[type] = [];
+                    typeGroups[type].push(no);
+                });
+
+                html += `<div style="padding:16px;">`;
+
+                const sourceNodes = Object.keys(adjList);
+                sourceNodes.forEach(sourceNo => {
+                    const srcDev = deviceMap[sourceNo] || {};
+                    const srcType = srcDev.device_type || srcDev.type || 'other';
+                    const srcColor = getDeviceColor(srcType);
+                    const targets = adjList[sourceNo];
+
+                    html += `<div style="display:flex; align-items:flex-start; margin-bottom:16px;">`;
+
+                    html += `<div style="min-width:180px; background:${srcColor.bg}; border:2px solid ${srcColor.border}; border-radius:8px; padding:10px 14px; text-align:center;">`;
+                    html += `<div style="font-size:18px; margin-bottom:4px;">${srcColor.icon}</div>`;
+                    html += `<div style="font-weight:600; color:${srcColor.text}; font-size:13px;">${DEVICE_TYPE_CN[srcType] || srcType}</div>`;
+                    html += `<div style="font-size:12px; color:#333; margin-top:2px;">${sourceNo}</div>`;
+                    html += `<div style="font-size:11px; color:#999;">${srcDev.brand || ''} ${srcDev.model || ''}</div>`;
+                    html += `</div>`;
+
+                    html += `<div style="display:flex; flex-direction:column; margin-left:8px; flex:1;">`;
+                    targets.forEach((t, i) => {
+                        const tgtDev = deviceMap[t.target] || {};
+                        const tgtType = tgtDev.device_type || tgtDev.type || 'other';
+                        const tgtColor = getDeviceColor(tgtType);
+
+                        html += `<div style="display:flex; align-items:center; margin-bottom:${i < targets.length - 1 ? '8' : '0'}px;">`;
+
+                        html += `<div style="display:flex; align-items:center; width:100px; justify-content:center;">`;
+                        html += `<div style="flex:1; height:2px; background:${srcColor.border};"></div>`;
+                        html += `<div style="font-size:16px; color:#999; margin:0 4px;">→</div>`;
+                        html += `<div style="flex:1; height:2px; background:${tgtColor.border};"></div>`;
+                        html += `</div>`;
+
+                        html += `<div style="min-width:180px; background:${tgtColor.bg}; border:2px solid ${tgtColor.border}; border-radius:8px; padding:10px 14px; text-align:center;">`;
+                        html += `<div style="font-size:18px; margin-bottom:4px;">${tgtColor.icon}</div>`;
+                        html += `<div style="font-weight:600; color:${tgtColor.text}; font-size:13px;">${DEVICE_TYPE_CN[tgtType] || tgtType}</div>`;
+                        html += `<div style="font-size:12px; color:#333; margin-top:2px;">${t.target}</div>`;
+                        html += `<div style="font-size:11px; color:#999;">${tgtDev.brand || ''} ${tgtDev.model || ''}</div>`;
+                        html += `</div>`;
+
+                        if (t.desc) {
+                            html += `<span style="font-size:11px; color:#999; margin-left:8px;">${t.desc}</span>`;
+                        }
+                        html += `</div>`;
+                    });
+                    html += `</div>`;
+                    html += `</div>`;
+                });
+
+                const meterDevices = [];
+                const nonMeterDevices = [];
+                nodesInRoom.forEach(no => {
+                    const dev = deviceMap[no];
+                    const type = dev ? (dev.device_type || dev.type) : '';
+                    if (type === 'meter') meterDevices.push(no);
+                    else nonMeterDevices.push(no);
+                });
+
+                if (meterDevices.length > 0 && nonMeterDevices.length > 0) {
+                    const meterInAdj = meterDevices.some(m => adjList[m]);
+                    if (!meterInAdj) {
+                        html += `<div style="margin-top:12px; padding-top:12px; border-top:1px dashed #d9d9d9;">`;
+                        html += `<div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">电表计量范围（未建立关系时仅显示同冷库设备）：</div>`;
+                        const mColor = getDeviceColor('meter');
+                        meterDevices.forEach(mNo => {
+                            const mDev = deviceMap[mNo] || {};
+                            html += `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">`;
+                            html += `<span style="background:${mColor.bg}; border:1px solid ${mColor.border}; padding:4px 10px; border-radius:4px; font-size:12px; color:${mColor.text};">${mColor.icon} ${mNo}</span>`;
+                            html += `<span style="color:#999;">→ 同冷库设备</span>`;
+                            html += `</div>`;
+                        });
+                        html += `</div>`;
+                    }
+                }
+
+                html += `</div></div>`;
+            }
+
+            if (!html) {
+                container.style.display = 'none';
+                emptyDiv.style.display = 'block';
+                return;
+            }
+
+            html += `<div style="margin-top:16px; padding:12px; background:#fffbe6; border:1px solid #ffe58f; border-radius:4px; font-size:13px; color:#666;">`;
+            html += `<strong>提示：</strong>设备关系在「设备关系配置」页面中维护。箭头方向表示控制或服务方向（源 → 目标）。`;
+            html += `</div>`;
+
+            container.innerHTML = html;
         }
 
         function continueToGateway() {
             if (devices.length === 0) return alert('请至少添加一个设备');
-            window.location.href = 'device-relations.html';
+            window.location.href = 'device-bindline.html';
         }
 
         document.addEventListener('DOMContentLoaded', initPage);

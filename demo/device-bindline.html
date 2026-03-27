@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备关系连线 - 冷库项目信息管理系统</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <script src="assets/js/config.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        .container { max-width: 1600px; margin: 40px auto; padding: 0 20px; }
+        .project-info-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 24px; }
+        .project-info-card h3 { margin: 0 0 12px 0; font-size: 18px; }
+        .project-info-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; font-size: 14px; }
+        .steps { display: flex; justify-content: space-between; margin-bottom: 40px; padding: 0 20px; }
+        .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .step::after { content: ''; position: absolute; top: 20px; left: 50%; width: 100%; height: 2px; background: #e8e8e8; z-index: -1; }
+        .step:last-child::after { display: none; }
+        .step-number { width: 40px; height: 40px; border-radius: 50%; background: #e8e8e8; color: #999; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; margin-bottom: 8px; position: relative; z-index: 1; }
+        .step.active .step-number { background: var(--primary-color); color: white; }
+        .step.completed .step-number { background: #52c41a; color: white; }
+        .step.completed::after { background: #52c41a; }
+        .step-title { font-size: 13px; color: var(--text-secondary); text-align: center; }
+        .step.active .step-title { color: var(--primary-color); font-weight: 500; }
+        .step.completed .step-title { color: #52c41a; }
+        .step.clickable { cursor: pointer; }
+        .step.clickable:hover .step-number { transform: scale(1.1); box-shadow: 0 2px 8px rgba(82,196,26,0.4); }
+
+        .page-header { background: white; padding: 20px 24px; border-radius: 10px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f7; }
+        .page-header h1 { margin: 0 0 6px 0; font-size: 20px; color: #1a1a2e; font-weight: 700; }
+        .page-header p { margin: 0; color: #8c95a6; font-size: 13px; }
+
+        .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: white; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f7; }
+        .toolbar .legend { display: flex; gap: 14px; margin-left: auto; font-size: 11px; color: #8c95a6; }
+        .toolbar .legend-item { display: flex; align-items: center; gap: 4px; }
+        .toolbar .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+        .canvas-wrapper { position: relative; background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%); border: 1px solid #e0e7ef; border-radius: 12px; min-height: 500px; overflow: auto; }
+        .canvas-inner { position: relative; min-width: 100%; min-height: 500px; padding: 24px; }
+        .canvas-inner svg.bindline-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        .canvas-inner svg.bindline-svg path.conn-line { pointer-events: none; }
+        .canvas-inner svg.bindline-svg path.conn-hit { pointer-events: stroke; cursor: pointer; stroke: transparent; fill: none; }
+        .canvas-inner svg.bindline-svg path.conn-hit:hover + path.conn-line,
+        .canvas-inner svg.bindline-svg path.conn-line.highlight { stroke-width: 4; filter: drop-shadow(0 0 4px currentColor); }
+        .canvas-inner svg.bindline-svg g.conn-group { cursor: pointer; pointer-events: auto; }
+        .canvas-inner svg.bindline-svg g.conn-group:hover path.conn-line { stroke-width: 4; filter: drop-shadow(0 0 4px currentColor); }
+
+        .zone { border: 2px solid #e0e7ef; border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; background: rgba(255,255,255,0.85); position: relative; z-index: 2; }
+        .zone-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #eef2f7; display: flex; align-items: center; gap: 8px; }
+        .zone-title .badge { font-size: 12px; font-weight: 500; background: #e6f0ff; padding: 3px 10px; border-radius: 12px; color: #1890ff; }
+
+        .flow-columns { display: flex; gap: 40px; align-items: flex-start; min-height: 120px; position: relative; }
+        .flow-column { display: flex; flex-direction: column; gap: 14px; align-items: center; min-width: 180px; }
+        .flow-column-label { font-size: 11px; font-weight: 600; color: #8c95a6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; text-align: center; padding: 4px 12px; background: #f0f4f8; border-radius: 6px; white-space: nowrap; }
+        .flow-arrow { display: flex; align-items: center; color: #c0c8d4; font-size: 20px; padding-top: 28px; user-select: none; }
+
+        .device-card { width: 180px; border-radius: 10px; background: white; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04); overflow: hidden; position: relative; z-index: 3; transition: box-shadow 0.2s, transform 0.15s; cursor: default; }
+        .device-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(24,144,255,0.2); transform: translateY(-1px); }
+        .device-card.connecting { box-shadow: 0 0 0 3px #1890ff, 0 4px 16px rgba(24,144,255,0.3); }
+        .device-card.valid-target { box-shadow: 0 0 0 3px #52c41a, 0 4px 16px rgba(82,196,26,0.3); animation: pulse-green 1s infinite; }
+
+        @keyframes pulse-green { 0%,100% { box-shadow: 0 0 0 3px #52c41a, 0 4px 16px rgba(82,196,26,0.3); } 50% { box-shadow: 0 0 0 5px #95de64, 0 4px 20px rgba(82,196,26,0.4); } }
+
+        .card-header { padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; color: white; font-size: 12px; font-weight: 500; }
+        .card-header .card-icon { font-size: 14px; }
+        .card-header .card-no { font-size: 10px; font-weight: 400; opacity: 0.9; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 4px; }
+        .card-body { padding: 8px 10px; font-size: 12px; color: #555; line-height: 1.6; }
+        .card-body .card-brand { font-weight: 500; color: #333; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .card-type-thermostat .card-header { background: #1890ff; }
+        .card-type-air_cooler .card-header { background: #13c2c2; }
+        .card-type-unit .card-header { background: #fa8c16; }
+        .card-type-meter .card-header { background: #faad14; }
+        .card-type-cooling_tower .card-header { background: #52c41a; }
+        .card-type-cabinet .card-header { background: #8c8c8c; }
+        .card-type-freezer .card-header { background: #722ed1; }
+        .card-type-defrost_controller .card-header { background: #eb2f96; }
+
+        .port { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: white; border: 2px solid #c0c8d4; cursor: crosshair; z-index: 15; transition: all 0.15s; }
+        .port:hover, .port.active { background: #1890ff; border-color: #1890ff; transform: scale(1.3); }
+        .port-out { right: -6px; top: 50%; transform: translateY(-50%); }
+        .port-in { left: -6px; top: 50%; transform: translateY(-50%); }
+        .port.valid-target { background: #52c41a; border-color: #52c41a; transform: scale(1.4); }
+
+        .conn-label { position: absolute; background: white; border: 1px solid #e8e8e8; border-radius: 4px; padding: 2px 6px; font-size: 10px; color: #999; z-index: 4; pointer-events: none; }
+
+        .action-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 24px; }
+        .btn { padding: 12px 32px; border-radius: 4px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s; border: none; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: #096dd9; }
+        .btn-secondary { background: white; color: var(--text-primary); border: 1px solid #d9d9d9; }
+        .btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-success { background: #52c41a; color: white; }
+        .btn-success:hover { background: #389e0d; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        .btn-danger { background: #ff4d4f; color: white; }
+        .btn-danger:hover { background: #d9363e; }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--text-secondary); }
+        .empty-state h3 { margin-bottom: 8px; color: #999; }
+
+        .stats-bar { display: flex; gap: 20px; padding: 10px 16px; background: white; border: 1px solid #eef2f7; border-radius: 8px; font-size: 12px; color: #8c95a6; margin-bottom: 12px; }
+        .stats-bar .stat { display: flex; align-items: center; gap: 4px; }
+        .stats-bar .stat b { color: #1a1a2e; font-weight: 600; }
+
+        .context-menu { position: fixed; background: white; border: 1px solid #d9d9d9; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); z-index: 100; min-width: 180px; padding: 4px 0; display: none; }
+        .context-menu .menu-item { padding: 8px 16px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .context-menu .menu-item:hover { background: #f5f5f5; }
+        .context-menu .menu-item.danger { color: #ff4d4f; }
+        .context-menu .menu-item.edit { color: #1890ff; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); width: 520px; max-width: 90vw; overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #eef2f7; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { margin: 0; font-size: 16px; color: #1a1a2e; }
+        .modal-header .modal-close { background: none; border: none; font-size: 20px; color: #8c95a6; cursor: pointer; padding: 0 4px; }
+        .modal-header .modal-close:hover { color: #ff4d4f; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 12px 20px; border-top: 1px solid #eef2f7; display: flex; justify-content: flex-end; gap: 8px; }
+        .edit-field { margin-bottom: 16px; }
+        .edit-field label { display: block; font-size: 12px; font-weight: 600; color: #8c95a6; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .edit-field select { width: 100%; padding: 8px 12px; border: 1px solid #d9e0e8; border-radius: 6px; font-size: 13px; color: #1a1a2e; background: white; cursor: pointer; }
+        .edit-field select:focus { outline: none; border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.15); }
+        .edit-field .current-val { display: inline-block; padding: 4px 10px; background: #e6f0ff; color: #1890ff; border-radius: 6px; font-size: 12px; font-weight: 500; margin-top: 4px; }
+        .edit-arrow { text-align: center; font-size: 24px; color: #c0c8d4; padding: 4px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="steps"></div>
+        <script src="assets/js/step-nav.js"></script>
+        <script>renderStepNav(4);</script>
+
+        <div class="project-info-card">
+            <h3>&#x1f4e6; 当前项目</h3>
+            <div class="project-info-grid" id="projectInfo"></div>
+        </div>
+
+        <div class="page-header">
+            <h1>设备关系连线</h1>
+            <p>从设备卡片的输出端口拖拽到目标设备的输入端口，建立关联关系。右键连线可删除。</p>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn btn-sm btn-danger" onclick="clearAllConnections()">清空连线</button>
+            <button class="btn btn-sm btn-primary" onclick="exportToExcel()">导出Excel</button>
+            <button class="btn btn-sm btn-secondary" onclick="importFromExcel()" style="position:relative;">导入Excel<input type="file" id="importFileInput" accept=".xlsx,.xls" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="handleImportFile(this)"></button>
+            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" id="btnConnList">查看关系列表</button>
+            <button class="btn btn-sm btn-secondary" onclick="switchToOldMode()">切换到表单模式</button>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#1890ff"></div>温控器</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#13c2c2"></div>冷风机</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#fa8c16"></div>制冷机组</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#52c41a"></div>冷却塔</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#faad14"></div>电表</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#8c8c8c"></div>电控柜</div>
+            </div>
+        </div>
+
+        <div id="statsBar" class="stats-bar"></div>
+
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <div class="canvas-inner" id="canvas">
+                <svg class="bindline-svg" id="svgLayer"></svg>
+                <div id="zonesContainer"></div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn btn-secondary" onclick="window.location.href='device-register.html'">&#x2190; 返回上一步</button>
+            <div style="display:flex; gap:12px;">
+                <button class="btn btn-primary" onclick="saveConnections()">保存连线</button>
+                <button class="btn btn-success" onclick="continueToSubmit()">完成配置，提交审核 &#x2192;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="context-menu" id="contextMenu">
+        <div class="menu-item" id="ctxConnInfo" style="color:#8c95a6;font-size:11px;cursor:default;padding:6px 16px 2px;"></div>
+        <div class="menu-item edit" onclick="editSelectedConnection()">&#x270E; 编辑此连线</div>
+        <div class="menu-item danger" onclick="deleteSelectedConnection()">&#x2716; 删除此连线</div>
+    </div>
+
+    <div class="modal-overlay" id="editConnModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>编辑设备连线</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="editConnBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-sm btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-sm btn-primary" onclick="saveEditedConnection()">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="connListPanel" style="display:none; background:white; border:1px solid #e0e7ef; border-radius:10px; padding:16px; margin-top:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:15px; color:#1a1a2e;">已建立的设备关系</h3>
+            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" style="padding:4px 12px; font-size:12px;">收起</button>
+        </div>
+        <div id="connListBody"></div>
+    </div>
+
+    <script>
+        requireAuth();
+
+        const DEVICE_TYPE_CN = {
+            'thermostat': '温控器', 'air_cooler': '冷风机', 'unit': '制冷机组',
+            'meter': '电表', 'cooling_tower': '冷却塔', 'cabinet': '电控柜',
+            'freezer': '冷柜', 'defrost_controller': '融霜控制器'
+        };
+        const TYPE_ICONS = {
+            'thermostat': '\u{1f321}', 'air_cooler': '\u2744', 'unit': '\u{1f527}',
+            'meter': '\u26A1', 'cooling_tower': '\u{1f3d7}', 'cabinet': '\u{1f4e6}',
+            'freezer': '\u{1f9ca}', 'defrost_controller': '\u{1f525}'
+        };
+        const CONNECTION_RULES = {
+            'cabinet': ['thermostat', 'meter'],
+            'thermostat': ['air_cooler'],
+            'air_cooler': ['unit'],
+            'unit': ['cooling_tower']
+        };
+        const CODE_TO_DT = {
+            'temp-controller': 'thermostat', 'thermostat': 'thermostat',
+            'air_cooler': 'air_cooler', 'refrigeration_unit': 'unit', 'unit': 'unit',
+            'electric_meter': 'meter', 'meter': 'meter',
+            'cooling_tower': 'cooling_tower', 'cabinet': 'cabinet',
+            'freezer': 'freezer', 'defrost_controller': 'defrost_controller',
+            'wenkonqi': 'thermostat', 'wkq': 'thermostat',
+            'lengfengji': 'air_cooler', 'lfj': 'air_cooler',
+            'jizu': 'unit', 'jz': 'unit', 'zhilengjizu': 'unit',
+            'dianbiao': 'meter', 'db': 'meter',
+            'diankong': 'cabinet', 'diankonggui': 'cabinet', 'dkg': 'cabinet',
+            'lengqueta': 'cooling_tower', 'lqt': 'cooling_tower',
+            'lenggui': 'freezer', 'lg': 'freezer'
+        };
+
+        let coldRooms = [];
+        let devices = [];
+        let connections = [];
+        let dragging = null;
+        let selectedConn = null;
+
+        const project = JSON.parse(localStorage.getItem('currentProject') || '{}');
+        const projectId = localStorage.getItem('currentProjectId');
+
+        function getBindlineStorageKey() { return projectId ? `bindline_${projectId}` : 'bindline'; }
+
+        function normalizeDeviceType(d) {
+            var dt = CODE_TO_DT[d.device_type] || CODE_TO_DT[d.type] || '';
+            if (dt && DEVICE_TYPE_CN[dt]) return dt;
+            dt = d.device_type || d.type || '';
+            if (DEVICE_TYPE_CN[dt]) return dt;
+            var no = (d.device_no || '').toUpperCase();
+            if (/^TC-/.test(no)) return 'thermostat';
+            if (/^AC-/.test(no)) return 'air_cooler';
+            if (/^UN-/.test(no)) return 'unit';
+            if (/^PM-/.test(no)) return 'meter';
+            if (/^CB-/.test(no) || /^DI-/.test(no)) return 'cabinet';
+            if (/^CT-/.test(no)) return 'cooling_tower';
+            if (/^FR-/.test(no)) return 'freezer';
+            if (/^DF-/.test(no)) return 'defrost_controller';
+            var all = ((d.cold_room_name || '') + ' ' + (d.brand || '') + ' ' + (d.model || '')).toLowerCase();
+            if (/电控柜|cabinet/.test(all)) return 'cabinet';
+            if (/温控器|thermostat/.test(all)) return 'thermostat';
+            if (/冷风机|air.?cooler/.test(all)) return 'air_cooler';
+            if (/机组|unit|制冷/.test(all)) return 'unit';
+            if (/电表|meter/.test(all)) return 'meter';
+            if (/冷却塔|tower/.test(all)) return 'cooling_tower';
+            if (/冷柜|freezer/.test(all)) return 'freezer';
+            return dt || 'unknown';
+        }
+
+        function generateCabinetConnections() {
+            var added = 0;
+            devices.forEach(function(d) {
+                if (!d.cabinet_id) return;
+                if (d._dt !== 'thermostat' && d._dt !== 'meter') return;
+                var cabIdStr = String(d.cabinet_id);
+                var devIdStr = String(d.id);
+                var exists = connections.some(function(c) {
+                    return String(c.from) === cabIdStr && String(c.to) === devIdStr;
+                });
+                if (!exists) {
+                    connections.push({ from: d.cabinet_id, to: d.id, _auto: true });
+                    added++;
+                }
+            });
+            if (added > 0) {
+                saveConnections();
+            }
+        }
+
+        async function initPage() {
+            if (!projectId) { alert('未找到项目ID'); window.location.href = 'project-list.html'; return; }
+
+            let roomsData = [], devicesData = [];
+            try { roomsData = await api.projects.getColdRooms(projectId); } catch(e) { console.warn('API冷库:', e.message); }
+            try { devicesData = await api.devices.getDevices({ project_id: projectId }); } catch(e) { console.warn('API设备:', e.message); }
+
+            const localRoomsAll = JSON.parse(localStorage.getItem('coldRooms') || '[]');
+            const localRooms = localRoomsAll.filter(r => String(r.project_id) === String(projectId));
+            const localDevices = JSON.parse(localStorage.getItem(projectId ? `devices_${projectId}` : 'devices') || '[]');
+
+            coldRooms = (roomsData && roomsData.length > 0) ? roomsData : localRooms;
+
+            const apiDevs = (devicesData && devicesData.length > 0) ? devicesData : [];
+            if (apiDevs.length > 0 && localDevices.length > 0) {
+                const merged = [...localDevices];
+                const ids = new Set(localDevices.map(d => String(d.id)));
+                apiDevs.forEach(ad => { if (!ids.has(String(ad.id))) merged.push(ad); });
+                devices = merged;
+            } else {
+                devices = apiDevs.length > 0 ? apiDevs : localDevices;
+            }
+
+            devices.forEach(d => { d._dt = normalizeDeviceType(d); });
+
+
+            connections = JSON.parse(localStorage.getItem(getBindlineStorageKey()) || '[]');
+
+            generateCabinetConnections();
+
+            document.getElementById('projectInfo').innerHTML = `
+                <div><strong>项目编号：</strong>${project.project_no || '-'}</div>
+                <div><strong>项目名称：</strong>${project.name || '-'}</div>
+                <div><strong>最终用户：</strong>${project.end_customer || '-'}</div>
+                <div><strong>冷库数量：</strong>${coldRooms.length}个</div>
+                <div><strong>设备数量：</strong>${devices.length}台</div>
+            `;
+
+            renderCanvas();
+            renderStats();
+        }
+
+        function renderStats() {
+            const types = {};
+            devices.forEach(d => { types[d._dt] = (types[d._dt] || 0) + 1; });
+            var autoConns = connections.filter(function(c) { return c._auto; }).length;
+            var manualConns = connections.length - autoConns;
+            let html = `<div class="stat">设备总数: <b>${devices.length}</b></div><div class="stat">连线: <b>${connections.length}</b>`;
+            if (autoConns > 0) html += ` <span style="color:#8c95a6; font-size:11px;">(自动${autoConns}条)</span>`;
+            html += `</div>`;
+            var typeOrder = ['cabinet', 'thermostat', 'air_cooler', 'unit', 'meter', 'cooling_tower'];
+            typeOrder.forEach(function(t) {
+                if (!types[t]) return;
+                html += `<div class="stat">${DEVICE_TYPE_CN[t] || t}: <b>${types[t]}</b></div>`;
+            });
+            Object.entries(types).forEach(([t, n]) => {
+                if (typeOrder.includes(t)) return;
+                html += `<div class="stat">${DEVICE_TYPE_CN[t] || t}: <b>${n}</b></div>`;
+            });
+            document.getElementById('statsBar').innerHTML = html;
+        }
+
+        function renderCanvas() {
+            if (devices.length === 0) {
+                document.getElementById('zonesContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>暂无设备</h3>
+                        <p>请先在"设备登记"页面添加设备后再配置关系</p>
+                        <a href="device-register.html" class="btn btn-primary btn-sm" style="display:inline-block; margin-top:12px; text-decoration:none;">前往设备登记</a>
+                    </div>`;
+                return;
+            }
+
+            const groups = groupDevices();
+            let html = '';
+
+            var flowLabels = {'cabinet':'电控柜','thermostat':'温控器','air_cooler':'冷风机','unit':'制冷机组','cooling_tower':'冷却塔','meter':'电表','freezer':'冷柜','defrost_controller':'融霜控制器'};
+
+            var flowColumns = [
+                { types: ['cabinet'], label: '电控柜' },
+                { types: ['thermostat', 'meter'], label: '温控器 / 电表' },
+                { types: ['air_cooler'], label: '冷风机' },
+                { types: ['unit'], label: '制冷机组' },
+                { types: ['cooling_tower'], label: '冷却塔' }
+            ];
+            var allFlowTypes = [];
+            flowColumns.forEach(function(col) { col.types.forEach(function(t) { allFlowTypes.push(t); }); });
+
+            groups.forEach(g => {
+                html += `<div class="zone" style="border-color:${g.color}30; border-left: 4px solid ${g.color};">`;
+                html += `<div class="zone-title">${g.icon} ${g.name}<span class="badge">${g.devices.length}台</span></div>`;
+
+                var byType = {};
+                g.devices.forEach(d => { var t = d._dt; if (!byType[t]) byType[t] = []; byType[t].push(d); });
+
+                var hasFlowDevices = allFlowTypes.some(function(t) { return byType[t] && byType[t].length > 0; });
+                if (hasFlowDevices) {
+                    html += '<div class="flow-columns">';
+                    var first = true;
+                    flowColumns.forEach(function(col) {
+                        var colDevices = [];
+                        col.types.forEach(function(t) {
+                            if (byType[t]) colDevices = colDevices.concat(byType[t]);
+                        });
+                        if (colDevices.length === 0) return;
+                        if (!first) html += '<div class="flow-arrow">&#x27A1;</div>';
+                        first = false;
+                        html += '<div class="flow-column">';
+                        var colLabel = col.label;
+                        if (col.types.length > 1) {
+                            var parts = [];
+                            col.types.forEach(function(t) { if (byType[t] && byType[t].length > 0) parts.push((flowLabels[t] || t) + ' ' + byType[t].length); });
+                            colLabel = parts.join(' + ');
+                        } else {
+                            colLabel = (flowLabels[col.types[0]] || col.types[0]) + ' (' + colDevices.length + ')';
+                        }
+                        html += '<div class="flow-column-label">' + colLabel + '</div>';
+                        col.types.forEach(function(t) {
+                            if (!byType[t] || byType[t].length === 0) return;
+                            byType[t].forEach(function(d) { html += renderDeviceCard(d); });
+                        });
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                var otherTypes = [];
+                Object.keys(byType).forEach(function(t) { if (allFlowTypes.indexOf(t) < 0) otherTypes.push(t); });
+                if (otherTypes.length > 0) {
+                    if (hasFlowDevices) html += '<div style="border-top:1px dashed #e8e8e8; margin:16px 0; padding-top:12px;">';
+                    html += '<div class="flow-columns">';
+                    otherTypes.forEach(function(t, idx) {
+                        if (idx > 0) html += '<div style="width:40px;"></div>';
+                        html += '<div class="flow-column">';
+                        html += '<div class="flow-column-label">' + (flowLabels[t] || DEVICE_TYPE_CN[t] || t) + ' (' + byType[t].length + ')</div>';
+                        byType[t].forEach(function(d) { html += renderDeviceCard(d); });
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                    if (hasFlowDevices) html += '</div>';
+                }
+
+                html += `</div>`;
+            });
+
+            document.getElementById('zonesContainer').innerHTML = html;
+
+            requestAnimationFrame(() => { drawConnections(); });
+        }
+
+        function addToRoom(roomMap, roomId, device) {
+            var room = coldRooms.find(function(r) { return String(r.id) === String(roomId); });
+            var key = room ? String(room.id) : String(roomId);
+            if (!roomMap[key]) roomMap[key] = { name: room ? room.name : '冷库' + key, id: key, devices: [], color: '#1890ff', icon: '\u{1f3e0}' };
+            if (!roomMap[key].devices.some(function(e) { return String(e.id) === String(device.id); })) {
+                roomMap[key].devices.push(device);
+            }
+        }
+
+        function groupDevices() {
+            const roomMap = {};
+            const publicDevices = [];
+            const towerDevices = [];
+
+            devices.forEach(d => {
+                if (d._dt === 'cooling_tower') { towerDevices.push(d); return; }
+
+                if (d._dt === 'cabinet') {
+                    if (d.cabinet_rooms && d.cabinet_rooms.length > 0) {
+                        d.cabinet_rooms.forEach(function(roomId) { addToRoom(roomMap, roomId, d); });
+                    } else if (d.cold_room_id && d.cold_room_id !== 'public') {
+                        addToRoom(roomMap, d.cold_room_id, d);
+                    } else {
+                        publicDevices.push(d);
+                    }
+                    return;
+                }
+
+                if (d.cabinet_id) {
+                    var cab = devices.find(function(c) { return String(c.id) === String(d.cabinet_id); });
+                    if (cab && cab.cabinet_rooms && cab.cabinet_rooms.length > 0) {
+                        cab.cabinet_rooms.forEach(function(roomId) { addToRoom(roomMap, roomId, d); });
+                        return;
+                    }
+                }
+
+                var rid = d.cold_room_id;
+                if (!rid || rid === 'public' || rid === 'tower') { publicDevices.push(d); return; }
+                if (d._dt === 'meter' && d.meter_area && d.meter_area !== 'cold_chain') { publicDevices.push(d); return; }
+                addToRoom(roomMap, rid, d);
+            });
+
+            const groups = Object.values(roomMap);
+            if (towerDevices.length > 0) groups.push({ name: '冷却塔区域', id: 'tower', devices: towerDevices, color: '#52c41a', icon: '\u{1f3d7}' });
+            if (publicDevices.length > 0) groups.push({ name: '公共区域', id: 'public', devices: publicDevices, color: '#8c8c8c', icon: '\u{1f4e6}' });
+
+            return groups;
+        }
+
+        function renderDeviceCard(d) {
+            const dt = d._dt;
+            const icon = TYPE_ICONS[dt] || '\u{1f4e6}';
+            const typeName = DEVICE_TYPE_CN[dt] || dt;
+            const no = d.device_no || '-';
+            const brand = d.brand || '-';
+            const model = d.model || '-';
+            const canOut = CONNECTION_RULES[dt] ? true : false;
+            const canReceive = Object.values(CONNECTION_RULES).some(arr => arr.includes(dt));
+
+            return `
+                <div class="device-card card-type-${dt}" data-id="${d.id}" data-dt="${dt}">
+                    <div class="card-header">
+                        <span><span class="card-icon">${icon}</span> ${typeName}</span>
+                        <span class="card-no">${no}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-brand">${brand} ${model}</div>
+                    </div>
+                    ${canOut ? `<div class="port port-out" data-device="${d.id}" data-dir="out" title="拖拽连线到目标设备"></div>` : ''}
+                    ${canReceive ? `<div class="port port-in" data-device="${d.id}" data-dir="in" title="接收连线"></div>` : ''}
+                </div>`;
+        }
+
+        function drawConnections() {
+            const svg = document.getElementById('svgLayer');
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            svg.setAttribute('width', canvas.scrollWidth);
+            svg.setAttribute('height', canvas.scrollHeight);
+
+            let groups = '';
+            connections.forEach((conn, i) => {
+                const fromCard = canvas.querySelector(`.device-card[data-id="${conn.from}"] .port-out`);
+                const toCard = canvas.querySelector(`.device-card[data-id="${conn.to}"] .port-in`);
+                if (!fromCard || !toCard) return;
+
+                const fromRect = fromCard.getBoundingClientRect();
+                const toRect = toCard.getBoundingClientRect();
+
+                const x1 = fromRect.left + fromRect.width / 2 - rect.left + canvas.scrollLeft;
+                const y1 = fromRect.top + fromRect.height / 2 - rect.top + canvas.scrollTop;
+                const x2 = toRect.left + toRect.width / 2 - rect.left + canvas.scrollLeft;
+                const y2 = toRect.top + toRect.height / 2 - rect.top + canvas.scrollTop;
+
+                const cx = (x1 + x2) / 2;
+                const d = `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`;
+
+                const color = getConnectionColor(conn);
+                groups += `<g class="conn-group" data-idx="${i}">`;
+                groups += `<path class="conn-hit" d="${d}" stroke-width="16" />`;
+                var dashStyle = conn._temp ? '6,4' : (conn._auto ? '8,4' : 'none');
+                groups += `<path class="conn-line" d="${d}" stroke="${color}" stroke-width="2.5" fill="none" 
+                    stroke-dasharray="${dashStyle}" 
+                    marker-end="url(#arrowhead-${color.replace('#','')})" />`;
+                groups += `</g>`;
+            });
+
+            const colors = ['#1890ff', '#13c2c2', '#fa8c16', '#52c41a', '#8c8c8c'];
+            let defs = '<defs>';
+            colors.forEach(c => {
+                defs += `<marker id="arrowhead-${c.replace('#','')}" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="${c}" /></marker>`;
+            });
+            defs += '</defs>';
+
+            svg.innerHTML = defs + groups;
+
+            svg.querySelectorAll('g.conn-group').forEach(g => {
+                var idx = parseInt(g.getAttribute('data-idx'));
+                g.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    selectedConn = idx;
+                    showContextMenu(e.clientX, e.clientY);
+                });
+                g.addEventListener('dblclick', (e) => {
+                    e.preventDefault();
+                    openEditModal(idx);
+                });
+                g.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        function getConnectionColor(conn) {
+            const fromDev = devices.find(d => String(d.id) === String(conn.from));
+            if (!fromDev) return '#1890ff';
+            const dt = fromDev._dt;
+            if (dt === 'cabinet') return '#8c8c8c';
+            if (dt === 'thermostat') return '#1890ff';
+            if (dt === 'air_cooler') return '#13c2c2';
+            if (dt === 'unit') return '#fa8c16';
+            return '#1890ff';
+        }
+
+        // --- Drag-to-connect logic ---
+        let dragLine = null;
+        let dragFrom = null;
+
+        document.addEventListener('mousedown', (e) => {
+            const port = e.target.closest('.port-out');
+            if (!port) return;
+            e.preventDefault();
+            dragFrom = port.getAttribute('data-device');
+            const fromDev = devices.find(d => String(d.id) === String(dragFrom));
+            if (!fromDev) return;
+
+            const allowed = CONNECTION_RULES[fromDev._dt] || [];
+            document.querySelectorAll('.device-card').forEach(card => {
+                const cdt = card.getAttribute('data-dt');
+                const cid = card.getAttribute('data-id');
+                if (cid === dragFrom) return;
+                if (allowed.includes(cdt)) {
+                    card.classList.add('valid-target');
+                    const pin = card.querySelector('.port-in');
+                    if (pin) pin.classList.add('valid-target');
+                }
+            });
+
+            port.classList.add('active');
+
+            const svg = document.getElementById('svgLayer');
+            dragLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            dragLine.setAttribute('stroke', '#1890ff');
+            dragLine.setAttribute('stroke-width', '2.5');
+            dragLine.setAttribute('fill', 'none');
+            dragLine.setAttribute('stroke-dasharray', '6,4');
+            dragLine.style.pointerEvents = 'none';
+            svg.appendChild(dragLine);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!dragLine || !dragFrom) return;
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const fromPort = canvas.querySelector(`.device-card[data-id="${dragFrom}"] .port-out`);
+            if (!fromPort) return;
+
+            const fromRect = fromPort.getBoundingClientRect();
+            const x1 = fromRect.left + fromRect.width / 2 - rect.left + canvas.scrollLeft;
+            const y1 = fromRect.top + fromRect.height / 2 - rect.top + canvas.scrollTop;
+            const x2 = e.clientX - rect.left + canvas.scrollLeft;
+            const y2 = e.clientY - rect.top + canvas.scrollTop;
+
+            const cx = (x1 + x2) / 2;
+            dragLine.setAttribute('d', `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`);
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!dragLine || !dragFrom) return;
+
+            const targetPort = e.target.closest('.port-in.valid-target');
+            const targetCard = e.target.closest('.device-card.valid-target');
+
+            let targetId = null;
+            if (targetPort) {
+                targetId = targetPort.getAttribute('data-device');
+            } else if (targetCard) {
+                targetId = targetCard.getAttribute('data-id');
+            }
+
+            if (targetId && targetId !== dragFrom) {
+                const exists = connections.some(c => String(c.from) === String(dragFrom) && String(c.to) === String(targetId));
+                if (!exists) {
+                    connections.push({ from: dragFrom, to: targetId });
+                    saveConnections();
+                    drawConnections();
+                    renderStats();
+                    renderConnList();
+                }
+            }
+
+            if (dragLine && dragLine.parentNode) dragLine.parentNode.removeChild(dragLine);
+            dragLine = null;
+            dragFrom = null;
+
+            document.querySelectorAll('.valid-target').forEach(el => el.classList.remove('valid-target'));
+            document.querySelectorAll('.port.active').forEach(el => el.classList.remove('active'));
+        });
+
+        document.addEventListener('click', () => {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeEditModal();
+        });
+
+        document.getElementById('editConnModal').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+
+        function deleteSelectedConnection() {
+            if (selectedConn !== null && connections[selectedConn]) {
+                connections.splice(selectedConn, 1);
+                saveConnections();
+                drawConnections();
+                renderStats();
+                renderConnList();
+            }
+            selectedConn = null;
+        }
+
+        var editingConnIdx = null;
+
+        function editSelectedConnection() {
+            document.getElementById('contextMenu').style.display = 'none';
+            if (selectedConn !== null && connections[selectedConn]) {
+                openEditModal(selectedConn);
+            }
+            selectedConn = null;
+        }
+
+        function editConnection(idx) {
+            openEditModal(idx);
+        }
+
+        function openEditModal(idx) {
+            var conn = connections[idx];
+            if (!conn) return;
+            editingConnIdx = idx;
+
+            var fromDev = devices.find(function(d) { return String(d.id) === String(conn.from); });
+            var toDev = devices.find(function(d) { return String(d.id) === String(conn.to); });
+            var fromDt = fromDev ? fromDev._dt : '';
+            var toDt = toDev ? toDev._dt : '';
+
+            var allowedTargetTypes = CONNECTION_RULES[fromDt] || [];
+            var allowedSourceTypes = [];
+            Object.keys(CONNECTION_RULES).forEach(function(st) {
+                if (CONNECTION_RULES[st].includes(toDt)) allowedSourceTypes.push(st);
+            });
+
+            var sourceOptions = devices.filter(function(d) {
+                return d._dt === fromDt || allowedSourceTypes.indexOf(d._dt) >= 0;
+            });
+            var targetOptions = devices.filter(function(d) {
+                if (fromDev && CONNECTION_RULES[fromDev._dt]) {
+                    return CONNECTION_RULES[fromDev._dt].indexOf(d._dt) >= 0;
+                }
+                return d._dt === toDt || allowedTargetTypes.indexOf(d._dt) >= 0;
+            });
+
+            var html = '<div class="edit-field">';
+            html += '<label>源设备（输出端）</label>';
+            html += '<select id="editConnFrom">';
+            sourceOptions.forEach(function(d) {
+                var label = (DEVICE_TYPE_CN[d._dt] || d._dt) + ' ' + (d.device_no || '-') + ' - ' + (d.brand || '') + ' ' + (d.model || '');
+                var sel = String(d.id) === String(conn.from) ? ' selected' : '';
+                html += '<option value="' + d.id + '"' + sel + '>' + label + '</option>';
+            });
+            html += '</select>';
+            if (fromDev) html += '<div class="current-val">当前: ' + getDeviceLabel(conn.from) + '</div>';
+            html += '</div>';
+
+            html += '<div class="edit-arrow">&#x2B07;</div>';
+
+            html += '<div class="edit-field">';
+            html += '<label>目标设备（输入端）</label>';
+            html += '<select id="editConnTo">';
+            targetOptions.forEach(function(d) {
+                var label = (DEVICE_TYPE_CN[d._dt] || d._dt) + ' ' + (d.device_no || '-') + ' - ' + (d.brand || '') + ' ' + (d.model || '');
+                var sel = String(d.id) === String(conn.to) ? ' selected' : '';
+                html += '<option value="' + d.id + '"' + sel + '>' + label + '</option>';
+            });
+            html += '</select>';
+            if (toDev) html += '<div class="current-val">当前: ' + getDeviceLabel(conn.to) + '</div>';
+            html += '</div>';
+
+            document.getElementById('editConnBody').innerHTML = html;
+
+            var fromSel = document.getElementById('editConnFrom');
+            fromSel.addEventListener('change', function() {
+                var newFromId = this.value;
+                var newFromDev = devices.find(function(d) { return String(d.id) === String(newFromId); });
+                if (!newFromDev) return;
+                var newTargetTypes = CONNECTION_RULES[newFromDev._dt] || [];
+                var toSel = document.getElementById('editConnTo');
+                var curToVal = toSel.value;
+                var newTargets = devices.filter(function(d) { return newTargetTypes.indexOf(d._dt) >= 0; });
+                toSel.innerHTML = '';
+                newTargets.forEach(function(d) {
+                    var label = (DEVICE_TYPE_CN[d._dt] || d._dt) + ' ' + (d.device_no || '-') + ' - ' + (d.brand || '') + ' ' + (d.model || '');
+                    var opt = document.createElement('option');
+                    opt.value = d.id; opt.textContent = label;
+                    if (String(d.id) === String(curToVal)) opt.selected = true;
+                    toSel.appendChild(opt);
+                });
+            });
+
+            document.getElementById('editConnModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editConnModal').classList.remove('active');
+            editingConnIdx = null;
+        }
+
+        function saveEditedConnection() {
+            if (editingConnIdx === null) return;
+            var newFrom = document.getElementById('editConnFrom').value;
+            var newTo = document.getElementById('editConnTo').value;
+
+            if (!newFrom || !newTo) { alert('请选择源设备和目标设备'); return; }
+            if (String(newFrom) === String(newTo)) { alert('源设备和目标设备不能相同'); return; }
+
+            var duplicate = connections.some(function(c, i) {
+                return i !== editingConnIdx && String(c.from) === String(newFrom) && String(c.to) === String(newTo);
+            });
+            if (duplicate) { alert('该连线关系已存在'); return; }
+
+            connections[editingConnIdx] = { from: newFrom, to: newTo };
+            saveConnections();
+            drawConnections();
+            renderStats();
+            renderConnList();
+            closeEditModal();
+            api.projects.showSuccess('连线已更新');
+        }
+
+        function deleteConnection(idx) {
+            if (!confirm('确定删除此连线？')) return;
+            connections.splice(idx, 1);
+            saveConnections();
+            drawConnections();
+            renderStats();
+            renderConnList();
+        }
+
+        function getDeviceLabel(id) {
+            var d = devices.find(function(dev) { return String(dev.id) === String(id); });
+            if (!d) return '未知设备';
+            var typeName = DEVICE_TYPE_CN[d._dt] || d._dt;
+            return typeName + ' ' + (d.device_no || '-');
+        }
+
+        function toggleConnList() {
+            var panel = document.getElementById('connListPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                renderConnList();
+                document.getElementById('btnConnList').textContent = '隐藏关系列表';
+            } else {
+                panel.style.display = 'none';
+                document.getElementById('btnConnList').textContent = '查看关系列表';
+            }
+        }
+
+        function renderConnList() {
+            var body = document.getElementById('connListBody');
+            if (!body) return;
+            if (connections.length === 0) {
+                body.innerHTML = '<div style="text-align:center; color:#8c95a6; padding:20px; font-size:13px;">暂无连线关系，请从左侧端口拖拽到右侧端口建立关系</div>';
+                return;
+            }
+            var html = '<table style="width:100%; border-collapse:collapse; font-size:13px;">';
+            html += '<thead><tr style="background:#f8fafc; color:#8c95a6; font-size:11px; text-transform:uppercase;">';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">序号</th>';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">源设备</th>';
+            html += '<th style="padding:8px 12px; text-align:center; font-weight:600;">关系</th>';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">目标设备</th>';
+            html += '<th style="padding:8px 12px; text-align:center; font-weight:600; width:120px;">操作</th>';
+            html += '</tr></thead><tbody>';
+            connections.forEach(function(conn, i) {
+                var fromLabel = getDeviceLabel(conn.from);
+                var toLabel = getDeviceLabel(conn.to);
+                var color = getConnectionColor(conn);
+                var autoTag = conn._auto ? ' <span style="font-size:10px; background:#f0f4f8; color:#8c95a6; padding:1px 6px; border-radius:3px;">自动</span>' : '';
+                html += '<tr style="border-bottom:1px solid #f0f4f8;">';
+                html += '<td style="padding:8px 12px; color:#8c95a6;">' + (i + 1) + autoTag + '</td>';
+                html += '<td style="padding:8px 12px; font-weight:500; color:#1a1a2e;">' + fromLabel + '</td>';
+                html += '<td style="padding:8px 12px; text-align:center;"><span style="color:' + color + '; font-size:16px;">&#x2192;</span></td>';
+                html += '<td style="padding:8px 12px; font-weight:500; color:#1a1a2e;">' + toLabel + '</td>';
+                html += '<td style="padding:8px 12px; text-align:center; white-space:nowrap;">';
+                html += '<button onclick="editConnection(' + i + ')" style="background:none; border:1px solid #91d5ff; color:#1890ff; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer; margin-right:4px;">编辑</button>';
+                html += '<button onclick="deleteConnection(' + i + ')" style="background:none; border:1px solid #ffa39e; color:#ff4d4f; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer;">删除</button>';
+                html += '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            body.innerHTML = html;
+        }
+
+        function showContextMenu(x, y) {
+            var menu = document.getElementById('contextMenu');
+            if (selectedConn !== null && connections[selectedConn]) {
+                var conn = connections[selectedConn];
+                var info = getDeviceLabel(conn.from) + ' → ' + getDeviceLabel(conn.to);
+                document.getElementById('ctxConnInfo').textContent = info;
+            } else {
+                document.getElementById('ctxConnInfo').textContent = '';
+            }
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.style.display = 'block';
+        }
+
+        // --- Actions ---
+        function saveConnections() {
+            localStorage.setItem(getBindlineStorageKey(), JSON.stringify(connections));
+        }
+
+        function clearAllConnections() {
+            if (!confirm('确定清空所有连线？')) return;
+            connections = [];
+            saveConnections();
+            drawConnections();
+            renderStats();
+            renderConnList();
+        }
+
+        function importFromExcel() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleImportFile(input) {
+            var file = input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var wb = XLSX.read(e.target.result, { type: 'array' });
+                    var ws = wb.Sheets[wb.SheetNames[0]];
+                    var rows = XLSX.utils.sheet_to_json(ws);
+                    if (!rows || rows.length === 0) { alert('Excel文件为空或格式不正确'); return; }
+                    processImportedRows(rows);
+                } catch (err) {
+                    alert('读取Excel失败: ' + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            input.value = '';
+        }
+
+        function findDeviceByNo(no) {
+            if (!no) return null;
+            var s = String(no).trim();
+            return devices.find(function(d) { return String(d.device_no).trim() === s; }) || null;
+        }
+
+        function processImportedRows(rows) {
+            var added = 0;
+            var skipped = 0;
+            var notFound = [];
+
+            rows.forEach(function(row, rowIdx) {
+                var cabinetNo = String(row['电控柜'] || '').trim();
+                var tcNo = String(row['温控器编号'] || '').trim();
+                var meterNo = String(row['电表编号'] || '').trim();
+                var acNo = String(row['冷风机编号'] || '').trim();
+                var unitNo = String(row['机组编号'] || '').trim();
+                var towerNo = String(row['冷却塔编号'] || '').trim();
+
+                var cabinetDev = findDeviceByNo(cabinetNo);
+                var tcDev = findDeviceByNo(tcNo);
+                var meterDev = findDeviceByNo(meterNo);
+                var acDev = findDeviceByNo(acNo);
+                var unitDev = findDeviceByNo(unitNo);
+                var towerDev = findDeviceByNo(towerNo);
+
+                var pairs = [];
+                if (cabinetDev && tcDev) pairs.push([cabinetDev, tcDev]);
+                if (cabinetDev && meterDev) pairs.push([cabinetDev, meterDev]);
+                if (tcDev && acDev) pairs.push([tcDev, acDev]);
+                if (acDev && unitDev) pairs.push([acDev, unitDev]);
+                if (unitDev && towerDev) pairs.push([unitDev, towerDev]);
+
+                var missing = [];
+                if (cabinetNo && !cabinetDev) missing.push('电控柜:' + cabinetNo);
+                if (tcNo && !tcDev) missing.push('温控器:' + tcNo);
+                if (meterNo && !meterDev) missing.push('电表:' + meterNo);
+                if (acNo && !acDev) missing.push('冷风机:' + acNo);
+                if (unitNo && !unitDev) missing.push('机组:' + unitNo);
+                if (towerNo && !towerDev) missing.push('冷却塔:' + towerNo);
+                if (missing.length > 0) notFound.push('第' + (rowIdx + 2) + '行: ' + missing.join(', '));
+
+                pairs.forEach(function(pair) {
+                    var fromId = String(pair[0].id);
+                    var toId = String(pair[1].id);
+                    var exists = connections.some(function(c) { return String(c.from) === fromId && String(c.to) === toId; });
+                    if (!exists) {
+                        connections.push({ from: pair[0].id, to: pair[1].id });
+                        added++;
+                    } else {
+                        skipped++;
+                    }
+                });
+            });
+
+            if (added > 0) {
+                saveConnections();
+                drawConnections();
+                renderStats();
+                renderConnList();
+            }
+
+            var msg = '导入完成: 新增 ' + added + ' 条连线';
+            if (skipped > 0) msg += ', 跳过 ' + skipped + ' 条(已存在)';
+            if (notFound.length > 0) {
+                msg += '\n\n以下设备未找到:\n' + notFound.slice(0, 10).join('\n');
+                if (notFound.length > 10) msg += '\n...等共 ' + notFound.length + ' 处';
+            }
+            alert(msg);
+        }
+
+        function switchToOldMode() {
+            window.location.href = 'device-relations.html';
+        }
+
+        function exportToExcel() {
+            if (connections.length === 0) { alert('暂无连线数据可导出'); return; }
+
+            const adjOut = {};
+            const adjIn = {};
+            connections.forEach(c => {
+                if (!adjOut[c.from]) adjOut[c.from] = [];
+                adjOut[c.from].push(c.to);
+                if (!adjIn[c.to]) adjIn[c.to] = [];
+                adjIn[c.to].push(c.from);
+            });
+
+            const byId = {};
+            devices.forEach(d => { byId[String(d.id)] = d; });
+
+            const thermostats = devices.filter(d => d._dt === 'thermostat');
+            const rows = [];
+            const roomRows = {};
+
+            thermostats.forEach(tc => {
+                const tcId = String(tc.id);
+                const acIds = adjOut[tcId] || [];
+                const acs = acIds.map(id => byId[String(id)]).filter(d => d && d._dt === 'air_cooler');
+
+                if (acs.length === 0) {
+                    rows.push(buildRow(tc, null, null, null));
+                    return;
+                }
+                acs.forEach(ac => {
+                    const unitIds = adjOut[String(ac.id)] || [];
+                    const units = unitIds.map(id => byId[String(id)]).filter(d => d && d._dt === 'unit');
+                    if (units.length === 0) {
+                        rows.push(buildRow(tc, ac, null, null));
+                    } else {
+                        units.forEach(unit => {
+                            const towerIds = adjOut[String(unit.id)] || [];
+                            const towers = towerIds.map(id => byId[String(id)]).filter(d => d && d._dt === 'cooling_tower');
+                            rows.push(buildRow(tc, ac, unit, towers.length > 0 ? towers[0] : null));
+                        });
+                    }
+                });
+            });
+
+            const orphanACs = devices.filter(d => d._dt === 'air_cooler' && !(adjIn[String(d.id)] || []).some(fid => byId[String(fid)] && byId[String(fid)]._dt === 'thermostat'));
+            orphanACs.forEach(ac => {
+                const unitIds = adjOut[String(ac.id)] || [];
+                const units = unitIds.map(id => byId[String(id)]).filter(d => d && d._dt === 'unit');
+                if (units.length === 0) rows.push(buildRow(null, ac, null, null));
+                else units.forEach(u => rows.push(buildRow(null, ac, u, null)));
+            });
+
+            const grouped = {};
+            rows.forEach(r => {
+                const key = r['冷库名称'] || '公共';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(r);
+            });
+
+            const finalRows = [];
+            let seq = 1;
+            Object.entries(grouped).forEach(([roomName, rlist]) => {
+                const meters = devices.filter(d => d._dt === 'meter' && d.cold_room_name && d.cold_room_name.includes(roomName));
+                rlist.forEach((r, idx) => {
+                    r['序号'] = seq++;
+                    if (idx === 0 && meters.length > 0) {
+                        r['电表编号'] = meters.map(m => m.device_no).join(', ');
+                        r['电表品牌'] = meters.map(m => m.brand).join(', ');
+                        r['电表型号'] = meters.map(m => m.model).join(', ');
+                    }
+                    finalRows.push(r);
+                });
+            });
+
+            const headers = ['序号', '冷库名称', '电控柜', '电表编号', '电表品牌', '电表型号', '温控器编号', '温控器品牌', '温控器型号', '冷风机编号', '冷风机品牌', '冷风机型号', '机组编号', '机组品牌', '机组型号', '冷却塔编号', '冷却塔品牌', '冷却塔型号'];
+
+            const wsData = [headers];
+            finalRows.forEach(r => {
+                wsData.push(headers.map(h => r[h] || ''));
+            });
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            ws['!cols'] = headers.map(() => ({ wch: 14 }));
+            XLSX.utils.book_append_sheet(wb, ws, '电控信息');
+            XLSX.writeFile(wb, `${project.name || '项目'}_设备关系表.xlsx`);
+        }
+
+        function buildRow(tc, ac, unit, tower) {
+            const room = tc ? (tc.cold_room_name || '-') : (ac ? (ac.cold_room_name || '-') : '-');
+            const cabinetDev = tc && tc.cabinet_id ? devices.find(d => String(d.id) === String(tc.cabinet_id)) : null;
+            return {
+                '冷库名称': room,
+                '电控柜': cabinetDev ? cabinetDev.device_no : (tc ? (tc.cold_room_name + '电控柜') : ''),
+                '电表编号': '', '电表品牌': '', '电表型号': '',
+                '温控器编号': tc ? tc.device_no : '', '温控器品牌': tc ? tc.brand : '', '温控器型号': tc ? tc.model : '',
+                '冷风机编号': ac ? ac.device_no : '', '冷风机品牌': ac ? ac.brand : '', '冷风机型号': ac ? ac.model : '',
+                '机组编号': unit ? unit.device_no : '', '机组品牌': unit ? unit.brand : '', '机组型号': unit ? unit.model : '',
+                '冷却塔编号': tower ? tower.device_no : '', '冷却塔品牌': tower ? tower.brand : '', '冷却塔型号': tower ? tower.model : ''
+            };
+        }
+
+        function continueToSubmit() {
+            if (connections.length === 0) {
+                if (!confirm('还没有配置任何设备关系，确定要继续吗？')) return;
+            }
+
+            const legacyRelations = connections.map(c => {
+                const fd = devices.find(d => String(d.id) === String(c.from));
+                const td = devices.find(d => String(d.id) === String(c.to));
+                return {
+                    id: Date.now() + Math.random(),
+                    source: fd ? fd.device_no : c.from,
+                    target: td ? td.device_no : c.to,
+                    desc: '',
+                    created_at: new Date().toISOString()
+                };
+            });
+            localStorage.setItem('deviceRelations', JSON.stringify(legacyRelations));
+
+            window.location.href = 'project-complete.html?mode=submit';
+        }
+
+        // Resize handler
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => drawConnections(), 200);
+        });
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
     <script src="assets/js/api.js?v=20260223"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .page-container { max-width: 1320px; margin: 24px auto; width: calc(100% - 32px); }
         .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
@@ -98,7 +99,13 @@
                         </div>
                         <button class="btn-primary" id="addBtn">新增配置</button>
                     </div>
-                    <div class="hint">管理员新增后，客户在新建项目页将可选择对应关系。</div>
+                    <div style="display:flex; gap:8px; margin-top:12px; margin-bottom:8px; flex-wrap:wrap;">
+                        <button class="btn-primary" id="exportBtn" onclick="exportBusinessOptions()" style="padding:6px 14px; font-size:13px; background:#1890ff; border:none; color:white; border-radius:4px; cursor:pointer;">📥 导出Excel</button>
+                        <button class="btn-primary" id="importBtn" onclick="document.getElementById('boImportFile').click()" style="padding:6px 14px; font-size:13px; background:#52c41a; border:none; color:white; border-radius:4px; cursor:pointer;">📤 从Excel导入</button>
+                        <input type="file" id="boImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importBusinessOptions(event)">
+                        <button onclick="downloadBOTemplate()" style="padding:6px 14px; font-size:13px; background:white; border:1px solid #d9d9d9; border-radius:4px; cursor:pointer;">📋 下载模板</button>
+                    </div>
+                    <div class="hint">管理员新增后，客户在新建项目页将可选择对应关系。支持Excel批量导入。</div>
                 </div>
 
                 <div class="card">
@@ -278,6 +285,72 @@
             }
         }
 
+        // ========== Excel 导入导出 ==========
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const wb = XLSX.read(e.target.result, { type: 'array' });
+                        const ws = wb.Sheets[wb.SheetNames[0]];
+                        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                        resolve(data);
+                    } catch(err) { reject(err); }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function downloadExcel(data, headers, filename) {
+            const ws = XLSX.utils.json_to_sheet(data, { header: headers });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            XLSX.writeFile(wb, filename);
+        }
+
+        function exportBusinessOptions() {
+            if (!currentList || currentList.length === 0) return alert('暂无数据可导出');
+            const data = currentList.map(item => ({
+                '最终用户': item.end_customer || '',
+                '业务类型': item.business_type || ''
+            }));
+            downloadExcel(data, ['最终用户','业务类型'], '业务类型配置.xlsx');
+        }
+
+        function downloadBOTemplate() {
+            const data = [
+                { '最终用户': '盒马', '业务类型': '前置仓' },
+                { '最终用户': '盒马', '业务类型': '物流中心' },
+                { '最终用户': '永辉', '业务类型': '门店' }
+            ];
+            downloadExcel(data, ['最终用户','业务类型'], '业务类型配置_导入模板.xlsx');
+        }
+
+        async function importBusinessOptions(event) {
+            if (role !== 'admin') return alert('仅管理员可执行导入操作');
+            const file = event.target.files[0];
+            if (!file) return;
+            event.target.value = '';
+            try {
+                const rows = await readExcelFile(file);
+                if (rows.length === 0) return alert('Excel 文件为空');
+                const items = rows
+                    .filter(r => r['最终用户'] && r['业务类型'])
+                    .map(r => ({
+                        end_customer: String(r['最终用户']).trim(),
+                        business_type: String(r['业务类型']).trim()
+                    }));
+                if (items.length === 0) return alert('未找到有效数据，请确保Excel包含"最终用户"和"业务类型"列');
+                const result = await api.projects.batchCreateBusinessOptions(items);
+                const created = Array.isArray(result) ? result.length : 0;
+                alert('导入完成: 成功新增 ' + created + ' 条，跳过已存在 ' + (items.length - created) + ' 条');
+                await loadOptions();
+            } catch(e) {
+                alert('导入失败: ' + e.message);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             initUserContext();
             document.getElementById('addBtn').addEventListener('click', addOption);
@@ -286,6 +359,10 @@
                 document.getElementById('endCustomerFilter').value = '';
                 await loadOptions();
             });
+            if (role !== 'admin') {
+                const importBtn = document.getElementById('importBtn');
+                if (importBtn) importBtn.style.display = 'none';
+            }
             await loadOptions();
         });
     </script>

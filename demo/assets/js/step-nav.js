@@ -8,7 +8,7 @@ const STEP_PAGES = [
     { step: 1, title: '创建项目', page: 'project-create.html', phase: 'customer' },
     { step: 2, title: '创建冷库', page: 'cold-room-create.html', phase: 'customer' },
     { step: 3, title: '登记设备', page: 'device-register.html', phase: 'customer' },
-    { step: 4, title: '设备关系', page: 'device-relations.html', phase: 'customer' },
+    { step: 4, title: '设备关系', page: 'device-bindline.html', phase: 'customer' },
     { step: 5, title: '提交审核', page: 'project-complete.html?mode=submit', phase: 'customer' },
     { step: 6, title: '网关配置', page: 'gateway-setup.html', phase: 'admin' },
     { step: 7, title: '通讯设置', page: 'communication-setup.html', phase: 'admin' },

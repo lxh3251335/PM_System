@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>项目列表 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/config.js?v=20260331c"></script>
+    <script src="assets/js/api.js?v=20260331c"></script>
     <style>
         /* 统计卡片样式 */
         .stats-grid {
@@ -92,10 +92,74 @@
         .action-btn-group {
             display: flex;
             gap: 6px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
         }
         .action-btn-group .btn-sm {
             white-space: nowrap;
+        }
+        .attach-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 24px;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .attach-badge.on {
+            background: #f6ffed;
+            color: #389e0d;
+            border: 1px solid #b7eb8f;
+        }
+        .attach-badge.off {
+            background: #fafafa;
+            color: #bfbfbf;
+            border: 1px solid #f0f0f0;
+        }
+        .preview-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 11000;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .preview-modal-overlay.show { display: flex; }
+        .preview-modal-box {
+            background: #fff;
+            border-radius: 8px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .preview-modal-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color, #eee);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .preview-modal-body {
+            padding: 12px 18px;
+            overflow: auto;
+            flex: 1;
+        }
+        .preview-modal-body pre {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
 
         /* 详情图标样式 */
@@ -238,7 +302,7 @@
                                     <th>城市</th>
                                     <th>期望到货时间</th>
                                     <th>当前流程</th>
-                                    <th style="min-width:220px;">操作</th>
+                                    <th style="min-width:340px;">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -254,11 +318,27 @@
         </main>
     </div>
 
+    <input type="file" id="attachmentFileInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none" onchange="onAttachmentFileSelected(this)">
+
+    <div class="preview-modal-overlay" id="previewModal" onclick="if(event.target===this) closePreviewModal()">
+        <div class="preview-modal-box" onclick="event.stopPropagation()">
+            <div class="preview-modal-head">
+                <span>Excel 解析结果（结构化 JSON）</span>
+                <button type="button" class="btn-sm" onclick="closePreviewModal()">关闭</button>
+            </div>
+            <div class="preview-modal-body">
+                <div id="previewSummary" style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;"></div>
+                <pre id="previewJson"></pre>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 全局数据
         let allProjects = [];
         let filteredProjects = [];
         let sortOrder = 'desc'; // 'desc' = 最新在前, 'asc' = 最早在前
+        let uploadAttachmentTargetId = null;
 
         // 页面加载时获取数据
         async function loadProjects() {
@@ -329,7 +409,12 @@
                 return;
             }
 
-            tbody.innerHTML = filteredProjects.map((project, index) => `
+            tbody.innerHTML = filteredProjects.map((project, index) => {
+                const hasAtt = !!project.config_attachment_updated_at;
+                const attTitle = hasAtt
+                    ? ('已上传配置：' + (project.config_attachment_original_name || 'Excel'))
+                    : '未上传配置 Excel';
+                return `
                 <tr>
                     <td>${project.project_no || 'P' + String(project.id).padStart(6, '0')}</td>
                     <td>${formatDate(project.created_at) || '-'}</td>
@@ -346,15 +431,21 @@
                         <span class="badge ${getStatusClass(project.status)}">${getStatusText(project.status)}</span>
                     </td>
                     <td>
-                        <div class="action-btn-group">
+                        <div class="action-btn-group" style="align-items:center;">
+                            <span class="attach-badge ${hasAtt ? 'on' : 'off'}" title="${attTitle.replace(/"/g, '&quot;')}">${hasAtt ? '已传' : '未传'}</span>
                             <button class="btn-sm btn-primary" onclick="viewProject(${project.id})">进入</button>
                             <button class="btn-sm" onclick="editProject(${project.id})">编辑</button>
                             <button class="btn-sm" onclick="copyProject(${project.id})">复制</button>
+                            <button class="btn-sm btn-secondary" onclick="downloadProjectConfig(${project.id})" title="由系统生成当前项目快照 Excel">导出配置</button>
+                            <button class="btn-sm btn-secondary" onclick="triggerUploadAttachment(${project.id})" title="上传 Excel 保存为项目附件（可下载）">上传配置</button>
+                            <button class="btn-sm btn-secondary" onclick="downloadUploadedAttachment(${project.id})" ${hasAtt ? '' : 'disabled'} title="下载已上传的 Excel 附件">下载附件</button>
+                            <button class="btn-sm btn-secondary" onclick="previewUploadedAttachment(${project.id})" ${hasAtt ? '' : 'disabled'} title="从已上传文件中摘取项目/冷库/设备/关系信息">解析预览</button>
                             <button class="btn-sm" onclick="deleteProject(${project.id})" style="color:#ff4d4f;border-color:#ff4d4f;">删除</button>
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
             var countEl = document.getElementById('recordCount');
             if (countEl) countEl.textContent = '共 ' + filteredProjects.length + ' 条记录';
@@ -451,6 +542,127 @@
         // 复制项目
         function copyProject(id) {
             window.location.href = 'project-create.html?copyFrom=' + id;
+        }
+
+        async function downloadProjectConfig(id) {
+            if (!isProductionMode()) {
+                alert('演示模式下无后端全量数据，请使用正式部署环境后再导出。');
+                return;
+            }
+            try {
+                const p = allProjects.find(function(x) { return x.id === id; });
+                const no = (p && p.project_no) ? p.project_no : String(id);
+                const r = await api.projects.exportProjectConfigXlsx(id);
+                var fn = r.filename || ('项目配置_' + no + '.xlsx');
+                if (!/_config_v\d+\.xlsx$/i.test(fn)) {
+                    var ver =
+                        (r.exportVersion != null && String(r.exportVersion).trim() !== ''
+                            ? String(r.exportVersion).trim()
+                            : null) ||
+                        (typeof CONFIG !== 'undefined' && CONFIG.PM_EXPORT_CONFIG_VERSION
+                            ? String(CONFIG.PM_EXPORT_CONFIG_VERSION)
+                            : '2');
+                    var safeNo = String(no).replace(/[/\\?*:[\]]/g, '-');
+                    fn = safeNo + '_config_v' + ver + '.xlsx';
+                }
+                const url = URL.createObjectURL(r.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fn;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                api.projects.showSuccess('已下载：' + fn + '（系统生成中文模板；勿与「下载附件」混淆）');
+            } catch (err) {
+                console.error(err);
+                api.projects.showError('导出失败: ' + err.message);
+            }
+        }
+
+        function triggerUploadAttachment(id) {
+            if (!isProductionMode()) {
+                alert('演示模式下请使用正式部署环境后再上传。');
+                return;
+            }
+            uploadAttachmentTargetId = id;
+            document.getElementById('attachmentFileInput').click();
+        }
+
+        async function onAttachmentFileSelected(input) {
+            const file = input.files[0];
+            input.value = '';
+            if (!file || uploadAttachmentTargetId == null) {
+                uploadAttachmentTargetId = null;
+                return;
+            }
+            const pid = uploadAttachmentTargetId;
+            uploadAttachmentTargetId = null;
+            try {
+                const res = await api.projects.uploadProjectConfigAttachment(pid, file);
+                api.projects.showSuccess(res.message || '上传成功');
+                await loadProjects();
+            } catch (err) {
+                console.error(err);
+                api.projects.showError('上传失败: ' + err.message);
+            }
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').classList.remove('show');
+        }
+
+        async function previewUploadedAttachment(id) {
+            if (!isProductionMode()) {
+                alert('演示模式下无法解析。');
+                return;
+            }
+            const p = allProjects.find(function(x) { return x.id === id; });
+            if (!p || !p.config_attachment_updated_at) {
+                api.projects.showError('请先上传配置 Excel');
+                return;
+            }
+            try {
+                const data = await api.projects.getProjectConfigAttachmentPreview(id);
+                const s = data.summary || {};
+                document.getElementById('previewSummary').textContent =
+                    '工作表：' + (data.sheet_names || []).join('、') +
+                    ' | 冷库 ' + (s.cold_room_count != null ? s.cold_room_count : 0) +
+                    ' 条，设备 ' + (s.device_count != null ? s.device_count : 0) +
+                    ' 条，关系 ' + (s.relation_count != null ? s.relation_count : 0) + ' 条';
+                document.getElementById('previewJson').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('previewModal').classList.add('show');
+            } catch (err) {
+                console.error(err);
+                api.projects.showError('解析失败: ' + err.message);
+            }
+        }
+
+        async function downloadUploadedAttachment(id) {
+            if (!isProductionMode()) {
+                alert('演示模式下无法下载附件。');
+                return;
+            }
+            const p = allProjects.find(function(x) { return x.id === id; });
+            if (!p || !p.config_attachment_updated_at) {
+                api.projects.showError('尚未上传配置附件');
+                return;
+            }
+            try {
+                const r = await api.projects.downloadProjectConfigAttachment(id);
+                const url = URL.createObjectURL(r.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = r.filename || (p.config_attachment_original_name || '项目配置.xlsx');
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                api.projects.showSuccess('已开始下载附件');
+            } catch (err) {
+                console.error(err);
+                api.projects.showError('下载失败: ' + err.message);
+            }
         }
 
         // 辅助函数

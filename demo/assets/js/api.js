@@ -3,6 +3,31 @@
  * 统一管理所有后端API调用
  */
 
+/** 从 Content-Disposition 解析文件名（兼容 UTF-8 / utf-8、引号形式） */
+function parseContentDispositionFilename(dispo) {
+    if (!dispo || typeof dispo !== 'string') {
+        return null;
+    }
+    const star = /filename\*=(?:UTF-8|utf-8)''([^;\n]+)/i.exec(dispo);
+    if (star) {
+        var raw = star[1].trim().replace(/^["']+|["']+$/g, '');
+        try {
+            return decodeURIComponent(raw);
+        } catch (e) {
+            return raw;
+        }
+    }
+    var q = /filename="((?:[^"\\]|\\.)*)"/i.exec(dispo);
+    if (q) {
+        return q[1].replace(/\\"/g, '"');
+    }
+    var plain = /filename=([^;\n]+)/i.exec(dispo);
+    if (plain) {
+        return plain[1].trim().replace(/^["']+|["']+$/g, '');
+    }
+    return null;
+}
+
 class ApiClient {
     constructor() {
         this.baseUrl = CONFIG.API_BASE_URL;
@@ -124,6 +149,149 @@ class ApiClient {
                 this.showError(error.message);
             }
             throw error;
+        }
+    }
+
+    /**
+     * GET 下载二进制（如 Excel）
+     */
+    async getBlob(urlPath) {
+        const rawRole = (localStorage.getItem('userRole') || '').toLowerCase();
+        const normalizedRole = rawRole === 'factory' ? 'admin' : (rawRole === 'user' ? 'customer' : rawRole);
+        const currentUserId = (localStorage.getItem('currentUserId') || '').trim();
+        const currentUsername = (localStorage.getItem('currentUsername') || '').trim();
+        const encodedUsername = currentUsername ? encodeURIComponent(currentUsername) : '';
+        const token = localStorage.getItem(getStorageKey('token')) || this.token;
+        const headers = {
+            ...(normalizedRole ? { 'X-User-Role': normalizedRole } : {}),
+            ...(currentUserId ? { 'X-User-Id': currentUserId } : {}),
+            ...(encodedUsername ? { 'X-Username': encodedUsername } : {}),
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const fullUrl = `${this.baseUrl}${urlPath}`;
+        this.showLoading();
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+            const response = await fetch(fullUrl, {
+                method: 'GET',
+                headers,
+                signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+                let errMsg = '下载失败';
+                const text = await response.text();
+                try {
+                    const j = JSON.parse(text);
+                    errMsg = j.detail || j.message || errMsg;
+                    if (Array.isArray(errMsg)) {
+                        errMsg = errMsg.map(function(e) { return e.msg || JSON.stringify(e); }).join('; ');
+                    }
+                } catch (e) {
+                    if (text) errMsg = text.slice(0, 200);
+                }
+                if (response.status === 401) {
+                    this.clearToken();
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('currentUserId');
+                    localStorage.removeItem('currentUsername');
+                    if (!window.location.pathname.endsWith('login.html')) {
+                        alert('登录已过期，请重新登录');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error('登录已过期');
+                }
+                throw new Error(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
+            }
+            const blob = await response.blob();
+            const sig = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
+            const looksLikeZip =
+                sig.length >= 2 && sig[0] === 0x50 && sig[1] === 0x4b;
+            if (!looksLikeZip) {
+                throw new Error('下载内容不是有效的 Excel（可能未登录或接口返回了错误页），请重新登录后重试');
+            }
+            const dispo = response.headers.get('Content-Disposition') || '';
+            const parsed = parseContentDispositionFilename(dispo);
+            let filename = parsed || 'download.xlsx';
+            var hdrVer = response.headers.get('X-PM-Export-Version');
+            var fnVer = /_config_v(\d+)\.xlsx$/i.exec(filename);
+            var exportVersion = hdrVer || (fnVer ? fnVer[1] : null);
+            return { blob, filename, exportVersion };
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('请求超时，请检查网络连接');
+            }
+            throw error;
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    /**
+     * POST multipart（上传文件）
+     */
+    async postMultipart(urlPath, formData) {
+        const rawRole = (localStorage.getItem('userRole') || '').toLowerCase();
+        const normalizedRole = rawRole === 'factory' ? 'admin' : (rawRole === 'user' ? 'customer' : rawRole);
+        const currentUserId = (localStorage.getItem('currentUserId') || '').trim();
+        const currentUsername = (localStorage.getItem('currentUsername') || '').trim();
+        const encodedUsername = currentUsername ? encodeURIComponent(currentUsername) : '';
+        const token = localStorage.getItem(getStorageKey('token')) || this.token;
+        const headers = {
+            ...(normalizedRole ? { 'X-User-Role': normalizedRole } : {}),
+            ...(currentUserId ? { 'X-User-Id': currentUserId } : {}),
+            ...(encodedUsername ? { 'X-Username': encodedUsername } : {}),
+        };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const fullUrl = `${this.baseUrl}${urlPath}`;
+        this.showLoading();
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers,
+                body: formData,
+                signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            let result;
+            try {
+                result = await response.json();
+            } catch (e) {
+                result = { detail: '服务器返回非 JSON' };
+            }
+            if (!response.ok) {
+                if (response.status === 401) {
+                    this.clearToken();
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('currentUserId');
+                    localStorage.removeItem('currentUsername');
+                    if (!window.location.pathname.endsWith('login.html')) {
+                        alert('登录已过期，请重新登录');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error('登录已过期');
+                }
+                let errMsg = result.detail || result.message || '请求失败';
+                if (Array.isArray(errMsg)) {
+                    errMsg = errMsg.map(function(e) { return e.msg || JSON.stringify(e); }).join('; ');
+                }
+                throw new Error(errMsg);
+            }
+            return result;
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('请求超时，请检查网络连接');
+            }
+            throw error;
+        } finally {
+            this.hideLoading();
         }
     }
 
@@ -387,6 +555,13 @@ class ProjectAPI extends ApiClient {
     }
 
     /**
+     * 批量创建最终用户-业务类型配置
+     */
+    async batchCreateBusinessOptions(items) {
+        return this.post('/projects/business-options/batch', items);
+    }
+
+    /**
      * 更新项目
      */
     async updateProject(id, data) {
@@ -401,10 +576,55 @@ class ProjectAPI extends ApiClient {
     }
 
     /**
-     * 复制项目
+     * 复制项目（请求体须含 new_project_name；兼容旧版仅传 name）
      */
     async copyProject(id, data) {
-        return this.post(`/projects/${id}/copy`, data);
+        const payload = Object.assign({}, data);
+        if (payload.new_project_name == null && payload.name != null) {
+            payload.new_project_name = payload.name;
+            delete payload.name;
+        }
+        if (payload.copy_cold_rooms === undefined) {
+            payload.copy_cold_rooms = true;
+        }
+        if (payload.copy_devices === undefined) {
+            payload.copy_devices = false;
+        }
+        return this.post(`/projects/${id}/copy`, payload);
+    }
+
+    /** 导出项目配置 Excel */
+    async exportProjectConfigXlsx(projectId) {
+        return this.getBlob(`/projects/${projectId}/export-config-xlsx?t=${Date.now()}`);
+    }
+
+    /** 将 Excel 合并写入项目数据库（多表模板） */
+    async importProjectConfigXlsx(projectId, file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        return this.postMultipart(`/projects/${projectId}/import-config-xlsx`, fd);
+    }
+
+    /** 上传项目配置 Excel 附件（仅保存文件，可下载） */
+    async uploadProjectConfigAttachment(projectId, file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        return this.postMultipart(`/projects/${projectId}/config-attachment`, fd);
+    }
+
+    /** 下载已上传的配置 Excel 附件 */
+    async downloadProjectConfigAttachment(projectId) {
+        return this.getBlob(`/projects/${projectId}/config-attachment`);
+    }
+
+    /** 解析已上传附件为 JSON（不写库） */
+    async getProjectConfigAttachmentPreview(projectId) {
+        return this.get(`/projects/${projectId}/config-attachment/preview`);
+    }
+
+    /** 删除已上传的配置附件 */
+    async deleteProjectConfigAttachment(projectId) {
+        return this.delete(`/projects/${projectId}/config-attachment`);
     }
 
     /**
@@ -567,6 +787,18 @@ class EquipmentAPI extends ApiClient {
      */
     async deleteModel(id) {
         return this.delete(`/equipment-library/models/${id}`);
+    }
+
+    async batchCreateCategories(items) {
+        return this.post('/equipment-library/categories/batch', items);
+    }
+
+    async batchCreateBrands(items) {
+        return this.post('/equipment-library/brands/batch', items);
+    }
+
+    async batchCreateModels(items) {
+        return this.post('/equipment-library/models/batch', items);
     }
 }
 

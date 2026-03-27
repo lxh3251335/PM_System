@@ -18,6 +18,23 @@ const CONFIG = {
     
     // 本地存储键名前缀
     STORAGE_PREFIX: 'pm_system_',
+
+    /** 与后端 EXPORT_VERSION 一致；跨域时读不到响应头时用于默认导出文件名 */
+    PM_EXPORT_CONFIG_VERSION: '2',
+
+    /**
+     * 若用 Live Server 等非 8000 端口打开 demo，相对路径 /api 会打到错误端口。
+     * 此时自动把 API 指到本机 uvicorn 默认端口 8000（仅 localhost/127.0.0.1）。
+     */
+    _applyLocalApiOverride: function () {
+        if (typeof window === 'undefined') return;
+        const h = window.location.hostname;
+        const p = window.location.port;
+        const local = h === '127.0.0.1' || h === 'localhost';
+        if (local && p && p !== '8000') {
+            this.API_BASE_URL = 'http://' + h + ':8000/api';
+        }
+    },
     
     // 分页配置
     PAGE_SIZE: 20,
@@ -28,6 +45,10 @@ const CONFIG = {
         ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
     }
 };
+
+if (typeof CONFIG._applyLocalApiOverride === 'function') {
+    CONFIG._applyLocalApiOverride();
+}
 
 // 工具函数：判断是否为演示模式
 function isDemoMode() {

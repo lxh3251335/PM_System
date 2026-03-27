@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新建项目 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/config.js?v=20260327"></script>
+    <script src="assets/js/api.js?v=20260327"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -395,8 +395,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('id');
         const copyFromId = urlParams.get('copyFrom');
-        const isEditMode = !!editId;
         const isCopyMode = !!copyFromId;
+        const isEditMode = !!editId && !isCopyMode;
 
         // 页面初始化
         document.addEventListener('DOMContentLoaded', async function() {
@@ -680,7 +680,23 @@
                         result = await api.projects.updateProject(editId, projectData);
                         api.projects.showSuccess('项目更新成功！');
                     } else if (isCopyMode) {
-                        result = await api.projects.copyProject(copyFromId, projectData);
+                        const copyPayload = {
+                            new_project_name: projectData.name,
+                            copy_cold_rooms: true,
+                            copy_devices: false,
+                            end_customer: projectData.end_customer,
+                            business_type: projectData.business_type,
+                            city: projectData.city,
+                            address: projectData.address,
+                            recipient_name: projectData.recipient_name,
+                            recipient_phone: projectData.recipient_phone,
+                            mailing_address: projectData.mailing_address,
+                            remarks: projectData.remarks
+                        };
+                        if (projectData.expected_arrival_time) {
+                            copyPayload.expected_arrival_time = projectData.expected_arrival_time;
+                        }
+                        result = await api.projects.copyProject(copyFromId, copyPayload);
                         api.projects.showSuccess('项目复制成功！');
                     } else {
                         result = await api.projects.createProject(projectData);

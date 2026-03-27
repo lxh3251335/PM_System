@@ -24,6 +24,13 @@
         .badge-role { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
         .badge-role.admin { background: #e6f4ff; color: #1677ff; }
         .badge-role.customer { background: #f6ffed; color: #389e0d; }
+        .copy-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #52c41a; color: white; padding: 10px 24px; border-radius: 6px;
+            font-size: 14px; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: toastIn 0.3s ease-out;
+        }
+        @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(-10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
     </style>
 </head>
 <body>
@@ -122,6 +129,7 @@
         const role = rawRole === 'factory' ? 'admin' : (rawRole === 'user' ? 'customer' : rawRole);
         const username = localStorage.getItem('currentUsername') || '';
         let currentUsers = [];
+        const passwordCache = {};
 
         function initUserContext() {
             const roleText = role === 'admin' ? '管理员' : '客户';
@@ -180,6 +188,7 @@
                                     <td>${item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}</td>
                                     <td>
                                         ${role === 'admin' ? `
+                                            <span class="action-link" onclick="copyUserInfo(${item.id})">复制</span>
                                             <span class="action-link" onclick="showEditUser(${item.id})">编辑</span>
                                             <span class="action-link" onclick="toggleUserActive(${item.id}, ${item.is_active})">${item.is_active ? '停用' : '启用'}</span>
                                             <span class="action-link danger" onclick="deleteUser(${item.id})">删除</span>
@@ -209,7 +218,7 @@
             }
 
             try {
-                await api.users.createUser({
+                const result = await api.users.createUser({
                     username: usernameValue,
                     password: passwordValue,
                     company_name: companyValue,
@@ -217,6 +226,17 @@
                     is_active: activeValue
                 }, role);
                 api.projects.showSuccess('账号创建成功');
+                passwordCache[usernameValue] = passwordValue;
+
+                const newUser = {
+                    username: usernameValue,
+                    company_name: companyValue,
+                    role: roleValue,
+                    is_active: activeValue,
+                    created_at: result?.created_at || new Date().toISOString()
+                };
+                showNewUserCopyDialog(newUser, passwordValue);
+
                 document.getElementById('usernameInput').value = '';
                 document.getElementById('passwordInput').value = '';
                 document.getElementById('companyInput').value = '';
@@ -328,12 +348,133 @@
 
             try {
                 await api.users.updateUser(userId, payload, role);
+                if (password) {
+                    const target = currentUsers.find(u => u.id === userId);
+                    if (target) passwordCache[target.username] = password;
+                }
                 api.projects.showSuccess('用户信息更新成功');
                 document.getElementById('editUserModal').remove();
                 await loadUsers();
             } catch (error) {
                 api.projects.showError(error.message);
             }
+        }
+
+        function showCopyToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.textContent = msg || '已复制到剪贴板';
+            document.body.appendChild(toast);
+            setTimeout(() => { if (toast.parentElement) toast.remove(); }, 2000);
+        }
+
+        function formatUserInfoText(user, password) {
+            const roleText = (user.role || '').toLowerCase() === 'admin' ? '管理员' : '客户';
+            const statusText = user.is_active ? '启用' : '停用';
+            const createdAt = user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '-';
+            let lines = [
+                '--- 账号信息 ---',
+                '用户名: ' + (user.username || '-'),
+                '密码: ' + (password || '(请联系管理员获取)'),
+                '企业名称: ' + (user.company_name || '-'),
+                '角色: ' + roleText,
+                '状态: ' + statusText,
+                '创建时间: ' + createdAt
+            ];
+            return lines.join('\n');
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch(e) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;left:-9999px;';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch(ex) {}
+                document.body.removeChild(ta);
+                return true;
+            }
+        }
+
+        function copyUserInfo(userId) {
+            const user = currentUsers.find(u => u.id === userId);
+            if (!user) return;
+            const cachedPwd = passwordCache[user.username];
+            if (cachedPwd) {
+                const text = formatUserInfoText(user, cachedPwd);
+                copyToClipboard(text).then(() => showCopyToast('账号信息已复制到剪贴板'));
+            } else {
+                showPasswordInputForCopy(user);
+            }
+        }
+
+        function showPasswordInputForCopy(user) {
+            const old = document.getElementById('pwdCopyModal');
+            if (old) old.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'pwdCopyModal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000;';
+            modal.innerHTML = `
+                <div style="background:white;border-radius:8px;padding:28px;width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
+                    <h3 style="margin:0 0 12px 0;">复制账号信息 - ${user.username}</h3>
+                    <p style="margin:0 0 12px 0;font-size:13px;color:#666;">请输入该用户的密码（系统不存储明文密码，需手动填写）：</p>
+                    <input type="text" id="copyPwdInput" placeholder="输入密码" style="width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;margin-bottom:16px;">
+                    <div id="copyPreviewArea" style="display:none;margin-bottom:16px;">
+                        <textarea id="copyPreviewText" readonly style="width:100%;height:150px;padding:12px;border:1px solid #d9d9d9;border-radius:4px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;background:#fafafa;color:#333;"></textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:flex-end;">
+                        <button onclick="doCopyWithPwd(${user.id})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">复制</button>
+                        <button onclick="document.getElementById('pwdCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">取消</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('copyPwdInput').focus();
+        }
+
+        function doCopyWithPwd(userId) {
+            const user = currentUsers.find(u => u.id === userId);
+            if (!user) return;
+            const pwd = document.getElementById('copyPwdInput').value;
+            if (pwd) passwordCache[user.username] = pwd;
+            const text = formatUserInfoText(user, pwd || '(未填写)');
+            copyToClipboard(text).then(() => {
+                document.getElementById('pwdCopyModal').remove();
+                showCopyToast('账号信息已复制到剪贴板');
+            });
+        }
+
+        function showNewUserCopyDialog(user, password) {
+            const old = document.getElementById('newUserCopyModal');
+            if (old) old.remove();
+
+            const text = formatUserInfoText(user, password);
+            const modal = document.createElement('div');
+            modal.id = 'newUserCopyModal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000;';
+            modal.innerHTML = `
+                <div style="background:white;border-radius:8px;padding:28px;width:460px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
+                    <h3 style="margin:0 0 8px 0; color:#52c41a;">账号创建成功</h3>
+                    <p style="margin:0 0 16px 0; font-size:13px; color:#666;">以下信息包含密码，可直接复制发送给用户：</p>
+                    <textarea id="newUserInfoText" readonly style="width:100%;height:160px;padding:12px;border:1px solid #d9d9d9;border-radius:4px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;background:#fafafa;color:#333;">${text}</textarea>
+                    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
+                        <button onclick="copyNewUserInfo()" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">复制信息</button>
+                        <button onclick="document.getElementById('newUserCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">关闭</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function copyNewUserInfo() {
+            const ta = document.getElementById('newUserInfoText');
+            if (!ta) return;
+            copyToClipboard(ta.value).then(() => showCopyToast('账号信息（含密码）已复制到剪贴板'));
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
