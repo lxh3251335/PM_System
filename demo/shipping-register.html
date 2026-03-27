@@ -54,6 +54,12 @@
         .step.clickable:hover .step-number { transform: scale(1.1); }
 
         .flow-action-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 24px; }
+
+        .copy-actions { display: flex; flex-wrap: wrap; gap: 6px; max-width: 280px; }
+        .btn-copy { padding: 4px 10px; font-size: 12px; border-radius: 4px; border: 1px solid #d9d9d9; background: #fafafa; color: var(--text-primary); cursor: pointer; white-space: nowrap; }
+        .btn-copy:hover { border-color: var(--primary-color); color: var(--primary-color); background: #f0f5ff; }
+        .btn-copy.primary { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .btn-copy.primary:hover { background: #096dd9; color: #fff; }
     </style>
 </head>
 <body>
@@ -284,7 +290,7 @@
             const adminActions = isAdmin();
             let html = '<table><thead><tr>';
             html += '<th>快递公司</th><th>快递单号</th><th>邮寄日期</th><th>预计到达</th><th>实际到达</th>';
-            html += '<th>收件人</th><th>物品</th><th>状态</th>';
+            html += '<th>收件人</th><th>物品</th><th>快捷复制</th><th>状态</th>';
             if (adminActions) html += '<th>操作</th>';
             html += '</tr></thead><tbody>';
 
@@ -307,6 +313,10 @@
                 html += `<td>${r.actual_arrival_date || '-'}</td>`;
                 html += `<td>${r.recipient_name || '-'} ${r.recipient_phone ? '(' + r.recipient_phone + ')' : ''}</td>`;
                 html += `<td>${r.item_description || '-'}</td>`;
+                html += `<td><div class="copy-actions">` +
+                    `<button type="button" class="btn-copy primary" onclick="copyShipmentAll(${r.id})" title="快递、单号、收件信息整段复制">一键复制</button>` +
+                    `<button type="button" class="btn-copy" onclick="copyShipmentRecipient(${r.id})" title="收件人、电话、地址、物品">复制邮寄信息</button>` +
+                    `</div></td>`;
                 html += `<td><span class="status-badge ${statusClass}">${status}</span></td>`;
                 if (adminActions) {
                     html += `<td>`;
@@ -385,6 +395,91 @@
             } catch (e) {
                 console.error('删除失败:', e.message);
             }
+        }
+
+        function getRecordById(recordId) {
+            return (records || []).find(function (x) { return Number(x.id) === Number(recordId); });
+        }
+
+        function copyToClipboard(text) {
+            var t = (text == null ? '' : String(text));
+            if (!t.trim()) {
+                if (typeof api !== 'undefined' && api.projects && api.projects.showSuccess) {
+                    api.projects.showSuccess('没有可复制的内容');
+                } else {
+                    alert('没有可复制的内容');
+                }
+                return Promise.resolve(false);
+            }
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(t).then(function () { return true; }).catch(function () {
+                    return copyToClipboardFallback(t);
+                });
+            }
+            return Promise.resolve(copyToClipboardFallback(t));
+        }
+
+        function copyToClipboardFallback(text) {
+            try {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function notifyCopied(ok, hint) {
+            if (typeof api !== 'undefined' && api.projects && api.projects.showSuccess) {
+                api.projects.showSuccess(ok ? (hint || '已复制到剪贴板') : '复制失败，请手动选择复制');
+            } else {
+                alert(ok ? (hint || '已复制到剪贴板') : '复制失败');
+            }
+        }
+
+        /** 一键：快递 + 单号 + 完整邮寄信息（适合发给客服或粘贴到备忘录） */
+        function formatShipmentAll(r) {
+            var lines = [];
+            lines.push('快递公司：' + (r.courier_company || '-'));
+            lines.push('快递单号：' + (r.tracking_no || '-'));
+            lines.push('---');
+            lines.push('收件人：' + (r.recipient_name || '-'));
+            lines.push('电话：' + (r.recipient_phone || '-'));
+            lines.push('收件地址：' + (r.recipient_address || '-'));
+            if (r.item_description) lines.push('物品：' + r.item_description);
+            if (r.mailing_date) lines.push('邮寄日期：' + r.mailing_date);
+            if (r.expected_arrival_date) lines.push('预计到达：' + r.expected_arrival_date);
+            if (r.remarks) lines.push('备注：' + r.remarks);
+            return lines.join('\n');
+        }
+
+        /** 邮寄信息：收件人侧（含地址），不含快递公司/单号 */
+        function formatShipmentRecipient(r) {
+            var lines = [];
+            lines.push('收件人：' + (r.recipient_name || '-'));
+            lines.push('电话：' + (r.recipient_phone || '-'));
+            lines.push('收件地址：' + (r.recipient_address || '-'));
+            if (r.item_description) lines.push('物品：' + r.item_description);
+            return lines.join('\n');
+        }
+
+        function copyShipmentAll(recordId) {
+            var r = getRecordById(recordId);
+            if (!r) return;
+            copyToClipboard(formatShipmentAll(r)).then(function (ok) { notifyCopied(ok, '已复制整段发货信息'); });
+        }
+
+        function copyShipmentRecipient(recordId) {
+            var r = getRecordById(recordId);
+            if (!r) return;
+            copyToClipboard(formatShipmentRecipient(r)).then(function (ok) { notifyCopied(ok, '已复制邮寄信息'); });
         }
 
         document.addEventListener('DOMContentLoaded', initPage);
