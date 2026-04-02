@@ -65,9 +65,9 @@
             '</div>' +
             '<nav class="sidebar-nav">' +
             navHtml +
-            '    <a href="index.html" class="nav-item" style="margin-top: auto;">' +
+            '    <a href="project-list.html" class="nav-item" style="margin-top: auto;">' +
             '        <span class="nav-icon">←</span>' +
-            '        <span>返回首页</span>' +
+            '        <span>返回项目列表</span>' +
             '    </a>' +
             '</nav>' +
             '<div class="sidebar-footer" style="padding:12px 16px;font-size:11px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.1);text-align:center;line-height:1.6;">' +

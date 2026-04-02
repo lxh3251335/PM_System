@@ -7,7 +7,7 @@
     <title>设备登记 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260328"></script>
     <style>
         .container {
             max-width: 1400px;
@@ -373,6 +373,7 @@
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(3);</script>
+        <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <!-- 项目信息 -->
         <div class="project-info-card" id="projectInfoCard">
@@ -464,6 +465,7 @@
         let projectId = null;
         let coldRooms = [];
         let devices = [];
+        let editingDeviceId = null;
         let currentCategory = null;
         let categories = [];
         let viewMode = 'type';
@@ -631,6 +633,18 @@
                     if (localIdSet[d.id]) return;
                     var catCode = d.device_type || '';
                     var categoryId = catCodeMap[catCode] || null;
+                    if (categoryId == null) {
+                        var dtNorm = resolveDeviceType(catCode) || catCode;
+                        var hit = categories.find(function(c) { return resolveCategoryType(c) === dtNorm; });
+                        if (hit) categoryId = hit.id;
+                    }
+                    var room = coldRooms.find(function(rm) { return String(rm.id) === String(d.cold_room_id); });
+                    var specs = d.specifications;
+                    if (typeof specs === 'string' && specs) {
+                        try { specs = JSON.parse(specs); } catch (e) { specs = {}; }
+                    } else if (!specs) {
+                        specs = {};
+                    }
                     devices.push({
                         id: d.id,
                         categoryId: categoryId,
@@ -638,10 +652,12 @@
                         device_type: d.device_type,
                         device_no: d.device_no,
                         cold_room_id: d.cold_room_id ? String(d.cold_room_id) : '',
-                        cold_room_name: '',
+                        cold_room_name: room ? room.name : '',
                         brand: d.brand || '-',
                         model: d.model || '-',
-                        specifications: {},
+                        comm_port_type: d.comm_port_type || null,
+                        comm_protocol: d.comm_protocol || null,
+                        specifications: specs,
                         created_at: d.created_at || new Date().toISOString()
                     });
                     added++;
@@ -816,20 +832,26 @@
             `;
         }
 
-        async function switchDeviceTab(categoryId) {
-            currentCategory = categories.find(c => c.id === categoryId);
+        function categoryIdEquals(a, b) {
+            return Number(a) === Number(b);
+        }
+
+        async function switchDeviceTab(categoryId, preserveEditState) {
+            if (!preserveEditState) editingDeviceId = null;
+            const cid = Number(categoryId);
+            currentCategory = categories.find(c => Number(c.id) === cid);
             if (!currentCategory) return;
 
             // Update UI
             document.querySelectorAll('.device-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab_${categoryId}`)?.classList.add('active');
+            document.getElementById('tab_' + categoryId)?.classList.add('active');
 
             // Load Brands for this category
             await loadBrandsForCategory(categoryId);
-            
+
             // Render Form
             renderDeviceForm();
-            
+
             // Render List
             renderDeviceList();
         }
@@ -971,8 +993,9 @@
 
             // Buttons
             html += `
-                <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
-                    <button type="submit" class="btn btn-primary">添加设备</button>
+                <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" id="deviceFormSubmitBtn">添加设备</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelDeviceEdit" onclick="cancelDeviceEdit()" style="display:none;">取消编辑</button>
                     <button type="button" class="btn btn-secondary" onclick="resetDeviceForm()">重置</button>
                     <span id="qtyHint" style="font-size:12px; color:var(--text-secondary);"></span>
                 </div>
@@ -1199,8 +1222,24 @@
         }
 
         function resetDeviceForm() {
-            document.getElementById('deviceForm').reset();
-            if (document.getElementById('meterAreaSelect')) onMeterAreaChange();
+            editingDeviceId = null;
+            if (!currentCategory || isCabinetCategory(currentCategory)) {
+                document.getElementById('deviceForm').reset();
+                if (document.getElementById('meterAreaSelect')) onMeterAreaChange();
+                return;
+            }
+            renderDeviceForm();
+        }
+
+        function cancelDeviceEdit() {
+            editingDeviceId = null;
+            if (currentCategory && !isCabinetCategory(currentCategory)) {
+                renderDeviceForm();
+            }
+            updateStats();
+            if (viewMode === 'room') { renderRoomGroupedView(); }
+            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else { renderDeviceList(); }
         }
 
         async function onBrandChange() {
@@ -1278,9 +1317,260 @@
             }
         }
 
+        /** 将设备已保存的规格与通讯字段写入动态表单项（模板 key 可能与库型号不一致） */
+        function applyDynamicSpecsFromDevice(device) {
+            let specs = device.specifications || {};
+            if (typeof specs === 'string' && specs) {
+                try { specs = JSON.parse(specs); } catch (e) { specs = {}; }
+            }
+            Object.keys(specs).forEach(function(key) {
+                const input = document.querySelector('[name="spec_' + key + '"]');
+                if (input && specs[key] != null && specs[key] !== '') {
+                    input.value = specs[key];
+                }
+            });
+            const topMap = [
+                ['comm_port_type', ['comm_port_type', 'port']],
+                ['comm_protocol', ['comm_protocol', 'protocol']]
+            ];
+            topMap.forEach(function(row) {
+                const v = device[row[0]];
+                if (v == null || v === '') return;
+                for (var i = 0; i < row[1].length; i++) {
+                    const input = document.querySelector('[name="spec_' + row[1][i] + '"]');
+                    if (input) {
+                        input.value = v;
+                        return;
+                    }
+                }
+            });
+        }
+
+        async function saveEditedDevice() {
+            if (!currentCategory || editingDeviceId === null) return;
+
+            const form = document.getElementById('deviceForm');
+            const isMeter = isMeterCategory(currentCategory);
+            const isTower = isCoolingTowerCategory(currentCategory);
+            const brandId = form.brand_id.value;
+            const modelName = form.model_name.value;
+
+            if (!brandId || !modelName) {
+                api.projects.showError('请选择品牌与型号');
+                return;
+            }
+
+            let coldRoomId = '';
+            let coldRoomName = '-';
+            let meterArea = '';
+            let meterColdRoomIds = [];
+
+            if (isMeter) {
+                meterArea = document.getElementById('meterAreaSelect').value;
+                const areaObj = METER_AREAS.find(a => a.value === meterArea);
+                coldRoomName = areaObj ? areaObj.label : meterArea;
+                if (meterArea === 'cold_chain') {
+                    document.querySelectorAll('input[name="meter_cold_rooms"]:checked').forEach(cb => {
+                        meterColdRoomIds.push(cb.value);
+                    });
+                    if (meterColdRoomIds.length === 0) {
+                        api.projects.showError('请至少勾选一个冷库');
+                        return;
+                    }
+                    const roomNames = meterColdRoomIds.map(rid => {
+                        const r = coldRooms.find(rm => String(rm.id) === String(rid));
+                        return r ? r.name : rid;
+                    });
+                    coldRoomName = '冷链电表 (' + roomNames.join(', ') + ')';
+                }
+            } else if (isTower) {
+                const loc = form.install_location ? form.install_location.value : '楼顶';
+                coldRoomName = loc || '楼顶';
+            } else {
+                coldRoomId = form.cold_room_id.value;
+                const coldRoom = coldRooms.find(r => r.id == coldRoomId);
+                coldRoomName = coldRoom ? coldRoom.name : (coldRoomId === 'public' ? '公共区域' : '-');
+            }
+
+            const specs = {};
+            form.querySelectorAll('.dynamic-input').forEach(input => {
+                const key = input.name.replace('spec_', '');
+                specs[key] = input.value;
+            });
+
+            const brand = equipmentLibrary.brands.find(b => b.id == brandId);
+            const brandName = brand ? brand.name : '-';
+
+            const idx = devices.findIndex(d => String(d.id) === String(editingDeviceId));
+            if (idx === -1) {
+                api.projects.showError('设备不存在，可能已被删除');
+                cancelDeviceEdit();
+                return;
+            }
+            const existing = devices[idx];
+
+            const updatePayload = {
+                brand: brandName,
+                model: modelName,
+                cold_room_id: coldRoomId ? parseInt(coldRoomId, 10) : null,
+                specifications: Object.keys(specs).length > 0 ? JSON.stringify(specs) : null
+            };
+            var elPort = form.querySelector('[name="spec_comm_port_type"]');
+            var elProto = form.querySelector('[name="spec_comm_protocol"]');
+            if (elPort && elPort.value) updatePayload.comm_port_type = elPort.value;
+            if (elProto && elProto.value) updatePayload.comm_protocol = elProto.value;
+            if (!updatePayload.comm_port_type && specs.comm_port_type) updatePayload.comm_port_type = specs.comm_port_type;
+            if (!updatePayload.comm_protocol && specs.comm_protocol) updatePayload.comm_protocol = specs.comm_protocol;
+
+            if (projectId) {
+                try {
+                    await api.devices.updateDevice(editingDeviceId, updatePayload);
+                } catch (err) {
+                    console.warn('API更新设备失败:', err.message);
+                    api.projects.showError('保存失败: ' + (err.message || '请稍后重试'));
+                    return;
+                }
+            }
+
+            devices[idx] = {
+                ...existing,
+                cold_room_id: coldRoomId || (isMeter ? meterArea : (isTower ? 'tower' : '')),
+                cold_room_name: coldRoomName,
+                brand: brandName,
+                model: modelName,
+                meter_area: isMeter ? meterArea : null,
+                meter_cold_room_ids: isMeter ? meterColdRoomIds : [],
+                comm_port_type: updatePayload.comm_port_type != null ? updatePayload.comm_port_type : existing.comm_port_type,
+                comm_protocol: updatePayload.comm_protocol != null ? updatePayload.comm_protocol : existing.comm_protocol,
+                specifications: { ...specs }
+            };
+
+            saveDevicesToStorage();
+            editingDeviceId = null;
+            api.projects.showSuccess('设备已更新');
+            renderDeviceForm();
+            updateStats();
+            if (viewMode === 'room') { renderRoomGroupedView(); }
+            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else { renderDeviceList(); }
+        }
+
+        async function editDevice(id) {
+            const device = devices.find(d => String(d.id) === String(id));
+            if (!device) return;
+
+            const dt = resolveDeviceType(device.device_type || device.type);
+            const cat = categories.find(c => resolveCategoryType(c) === dt);
+            if (!cat) {
+                api.projects.showError('无法识别该设备类型，无法编辑');
+                return;
+            }
+
+            var dev = device;
+            if (projectId) {
+                try {
+                    var fresh = await api.devices.getDevice(device.id);
+                    dev = Object.assign({}, device, fresh);
+                    if (typeof dev.specifications === 'string' && dev.specifications) {
+                        try {
+                            dev.specifications = JSON.parse(dev.specifications);
+                        } catch (e) { /* 保持原样 */ }
+                    }
+                } catch (e) {
+                    console.warn('拉取设备详情失败，使用本地缓存:', e.message);
+                }
+            }
+
+            if (!currentCategory || !categoryIdEquals(cat.id, currentCategory.id)) {
+                await switchDeviceTab(cat.id, true);
+            } else {
+                await loadBrandsForCategory(cat.id);
+                renderDeviceForm();
+            }
+
+            if (isCabinetCategory(currentCategory)) {
+                editingDeviceId = null;
+                return;
+            }
+
+            editingDeviceId = dev.id;
+
+            const form = document.getElementById('deviceForm');
+            const isMeter = isMeterCategory(currentCategory);
+            const isTower = isCoolingTowerCategory(currentCategory);
+
+            if (isMeter) {
+                const ma = document.getElementById('meterAreaSelect');
+                if (ma) {
+                    ma.value = dev.meter_area || 'total';
+                    onMeterAreaChange();
+                }
+                if ((dev.meter_area || '') === 'cold_chain') {
+                    const selected = (dev.meter_cold_room_ids || []).map(String);
+                    document.querySelectorAll('input[name="meter_cold_rooms"]').forEach(function(cb) {
+                        cb.checked = selected.indexOf(String(cb.value)) !== -1;
+                    });
+                }
+            } else if (isTower) {
+                if (form.install_location) {
+                    const loc = dev.cold_room_name;
+                    form.install_location.value = (loc && loc !== '-' && loc !== '楼顶') ? loc : '楼顶';
+                }
+            } else if (form.cold_room_id) {
+                form.cold_room_id.value = dev.cold_room_id ? String(dev.cold_room_id) : '';
+            }
+
+            const brandNameNorm = (dev.brand || '').trim();
+            const brandRec = equipmentLibrary.brands.find(b => (b.name || '').trim() === brandNameNorm);
+            const brandSelect = document.getElementById('brandSelect');
+            if (brandSelect) {
+                brandSelect.value = brandRec ? String(brandRec.id) : '';
+                await onBrandChange();
+            }
+            const modelSelect = document.getElementById('modelSelect');
+            if (modelSelect && dev.model) {
+                const mn = String(dev.model).trim();
+                const hasOpt = Array.from(modelSelect.options).some(function(o) { return o.value === mn; });
+                if (!hasOpt && mn) {
+                    modelSelect.appendChild(new Option(mn, mn));
+                }
+                modelSelect.value = mn;
+                onModelChange();
+            }
+
+            applyDynamicSpecsFromDevice(dev);
+
+            const qtySel = document.getElementById('deviceQtySelect');
+            if (qtySel) {
+                qtySel.value = '1';
+                qtySel.disabled = true;
+            }
+
+            const titleEl = form.querySelector('h3');
+            if (titleEl) {
+                const catLabel = DEVICE_TYPE_CN[currentCategory.code] || currentCategory.name;
+                titleEl.textContent = '编辑' + catLabel;
+            }
+
+            const submitBtn = document.getElementById('deviceFormSubmitBtn');
+            if (submitBtn) {
+                submitBtn.textContent = '保存修改';
+                submitBtn.style.background = '#faad14';
+            }
+            const cancelBtn = document.getElementById('btnCancelDeviceEdit');
+            if (cancelBtn) cancelBtn.style.display = '';
+
+            const card = document.getElementById('deviceFormCard');
+            if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         async function addDevice() {
             if (!currentCategory) return;
-            
+            if (editingDeviceId !== null) {
+                await saveEditedDevice();
+                return;
+            }
+
             const form = document.getElementById('deviceForm');
             const isMeter = isMeterCategory(currentCategory);
             const isTower = isCoolingTowerCategory(currentCategory);
@@ -1424,6 +1714,7 @@
                         <div class="device-item-header">
                             <div class="device-item-title">${d.device_no} - ${d.brand} ${d.model}</div>
                             <div class="device-item-actions">
+                                <button type="button" onclick="editDevice(${d.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 12px;border-radius:4px;cursor:pointer;">编辑</button>
                                 <button class="copy" onclick="copyDevice(${d.id})">复制</button>
                                 <button onclick="deleteDevice(${d.id})" class="delete">删除</button>
                             </div>
@@ -1512,6 +1803,9 @@
         async function deleteDevice(id) {
             if (!confirm('确定删除?')) return;
             var idStr = String(id);
+            if (editingDeviceId !== null && String(editingDeviceId) === idStr) {
+                editingDeviceId = null;
+            }
             var target = devices.find(d => String(d.id) === idStr);
             if (!target) { alert('设备不存在，可能已被删除'); return; }
             try { await api.devices.deleteDevice(id); } catch (err) { /* local-only device */ }

@@ -58,5 +58,9 @@ function goToStep(step) {
         var pid = localStorage.getItem('currentProjectId');
         if (pid) url = 'project-create.html?id=' + pid;
     }
+    if (step === 6) {
+        var pidGw = localStorage.getItem('currentProjectId');
+        if (pidGw) url = 'gateway-setup.html?project_id=' + encodeURIComponent(pidGw);
+    }
     window.location.href = url;
 }

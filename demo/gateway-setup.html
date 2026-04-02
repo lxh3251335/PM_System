@@ -7,7 +7,7 @@
     <title>网关配置 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260328"></script>
     <style>
         .container {
             max-width: 1200px;
@@ -256,10 +256,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .action-bar-left {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
         }
 
         .btn {
@@ -312,6 +321,7 @@
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(6);</script>
+        <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <!-- 项目信息 -->
         <div class="project-info-card">
@@ -422,8 +432,11 @@
 
         <!-- 操作栏 -->
         <div class="action-bar">
-            <button class="btn btn-secondary" onclick="window.location.href='device-relations.html'">← 返回上一步</button>
-            <button class="btn btn-success" onclick="completeProject()">完成网关配置，继续通讯配置 →</button>
+            <div class="action-bar-left">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='device-relations.html'">← 返回上一步</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'" title="返回项目管理 - 项目列表">返回项目列表</button>
+            </div>
+            <button type="button" class="btn btn-success" onclick="completeProject()">完成网关配置，继续通讯配置 →</button>
         </div>
     </div>
 
@@ -443,21 +456,103 @@
                 throw new Error('ACCESS_DENIED');
             }
         })();
-        const project = JSON.parse(localStorage.getItem('currentProject') || '{}');
-        const gwProjectId = localStorage.getItem('currentProjectId');
+        const qsPid = new URLSearchParams(window.location.search).get('project_id');
+        let gwProjectId = localStorage.getItem('currentProjectId') || qsPid;
+        if (qsPid) {
+            localStorage.setItem('currentProjectId', String(qsPid));
+            gwProjectId = String(qsPid);
+        }
+
+        let project = JSON.parse(localStorage.getItem('currentProject') || '{}');
         const coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
         const devKey = gwProjectId ? 'devices_' + gwProjectId : 'devices';
         const devices = JSON.parse(localStorage.getItem(devKey) || '[]');
-        let gateways = JSON.parse(localStorage.getItem('gateways') || '[]');
+        let gateways = [];
 
-        // 显示项目信息
-        document.getElementById('projectInfo').innerHTML = `
-            <div><strong>项目编号：</strong>${project.project_no}</div>
-            <div><strong>项目名称：</strong>${project.name}</div>
-            <div><strong>最终用户：</strong>${project.end_customer}</div>
+        function renderProjectInfoCard() {
+            document.getElementById('projectInfo').innerHTML = `
+            <div><strong>项目编号：</strong>${project.project_no || '-'}</div>
+            <div><strong>项目名称：</strong>${project.name || '-'}</div>
+            <div><strong>最终用户：</strong>${project.end_customer || '-'}</div>
             <div><strong>冷库数量：</strong>${coldRooms.length}个</div>
             <div><strong>设备数量：</strong>${devices.length}台</div>
         `;
+        }
+
+        renderProjectInfoCard();
+
+        /** 后端 Gateway -> 页面展示结构 */
+        function mapServerGatewayToUi(g) {
+            const ports = g.total_ports != null ? String(g.total_ports) + '口' : '-';
+            return {
+                id: g.id,
+                project_id: g.project_id,
+                gateway_no: g.gateway_no,
+                brand: g.brand || '',
+                model: g.model || '',
+                rs485_ports: ports,
+                eth_ports: '-',
+                iot_card_no: g.sim_card_no || '',
+                sim_operator: g.sim_operator || '',
+                sim_iccid: g.sim_iccid || '',
+                ip_address: g.ip_address || '',
+                mac_address: g.mac_address || '',
+                serial_no: g.serial_no || '',
+                inventory_id: null,
+                created_at: g.created_at
+            };
+        }
+
+        function persistGatewaysProjectCache() {
+            if (!gwProjectId) return;
+            try {
+                localStorage.setItem('gateways_' + gwProjectId, JSON.stringify(gateways));
+            } catch (e) { /* ignore */ }
+        }
+
+        async function loadGatewaysFromServerOrStorage() {
+            gateways = [];
+            if (!gwProjectId) {
+                renderGateways();
+                return;
+            }
+            if (isProductionMode()) {
+                try {
+                    const list = await api.gateways.getGateways({ project_id: gwProjectId });
+                    if (Array.isArray(list)) {
+                        gateways = list.map(mapServerGatewayToUi);
+                        persistGatewaysProjectCache();
+                        renderGateways();
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('从服务器加载网关失败:', e.message);
+                }
+            }
+            var raw = JSON.parse(localStorage.getItem('gateways_' + gwProjectId) || '[]');
+            if (!Array.isArray(raw) || raw.length === 0) {
+                raw = JSON.parse(localStorage.getItem('gateways') || '[]');
+            }
+            if (Array.isArray(raw)) {
+                gateways = raw.filter(function (g) {
+                    return !g.project_id || String(g.project_id) === String(gwProjectId);
+                });
+            }
+            persistGatewaysProjectCache();
+            renderGateways();
+        }
+
+        async function ensureProjectMeta() {
+            if ((!project || !project.name) && (!project || !project.project_no) && gwProjectId && isProductionMode()) {
+                try {
+                    project = await api.projects.getProject(gwProjectId);
+                    localStorage.setItem('currentProject', JSON.stringify(project));
+                    renderProjectInfoCard();
+                } catch (e) {
+                    console.warn('加载项目信息失败:', e.message);
+                }
+            }
+        }
 
         // 从网关型号库动态加载品牌和型号
         let gwModelLibrary = [];
@@ -487,8 +582,6 @@
             invFilter.innerHTML = '<option value="">全部</option>' +
                 gwModelLibrary.map(m => `<option value="${m.id}">${m.brand} ${m.model_name}</option>`).join('');
         }
-
-        loadGwModelLibrary();
 
         document.getElementById('brandSelect').addEventListener('change', function() {
             const brand = this.value;
@@ -602,15 +695,16 @@
             };
 
             gateways.push(gateway);
-            localStorage.setItem('gateways', JSON.stringify(gateways));
+            persistGatewaysProjectCache();
 
             if (isProductionMode() && gwProjectId) {
                 try {
                     const totalPorts = gm ? gm.serial_port_count : 8;
-                    await api.gateways.post('/gateways/?project_id=' + gwProjectId, {
+                    const created = await api.gateways.post('/gateways/?project_id=' + gwProjectId, {
                         brand: gateway.brand,
                         model: gateway.model,
                         total_ports: totalPorts,
+                        serial_no: gateway.serial_no || null,
                         sim_card_no: gateway.iot_card_no,
                         sim_operator: gateway.sim_operator,
                         sim_iccid: gateway.sim_iccid,
@@ -618,6 +712,11 @@
                         mac_address: gateway.mac_address,
                         specifications: JSON.stringify({ inventory_id: item.id, serial_no: item.serial_no })
                     });
+                    if (created && created.id) {
+                        gateway.id = created.id;
+                        gateway.gateway_no = created.gateway_no || gateway.gateway_no;
+                    }
+                    persistGatewaysProjectCache();
                 } catch(e) { console.warn('同步到后端失败:', e.message); }
             }
 
@@ -633,7 +732,27 @@
             const formData = new FormData(this);
 
             if (editingGatewayId) {
-                const idx = gateways.findIndex(g => g.id === editingGatewayId);
+                const eid = editingGatewayId;
+                const idx = gateways.findIndex(function (g) { return Number(g.id) === Number(eid); });
+                if (isProductionMode()) {
+                    try {
+                        const rs485 = parseInt((formData.get('rs485_ports') || '0').replace(/\D/g, '')) || 8;
+                        await api.gateways.updateGateway(eid, {
+                            brand: formData.get('brand'),
+                            model: formData.get('model'),
+                            total_ports: rs485,
+                            serial_no: formData.get('serial_no') || null,
+                            sim_card_no: formData.get('iot_card_no') || null,
+                            sim_operator: formData.get('sim_operator') || null,
+                            sim_iccid: formData.get('sim_iccid') || null,
+                            ip_address: formData.get('ip_address') || null,
+                            mac_address: formData.get('mac_address') || null
+                        });
+                    } catch (err) {
+                        alert('保存失败：' + (err.message || '未知错误'));
+                        return;
+                    }
+                }
                 if (idx !== -1) {
                     gateways[idx] = {
                         ...gateways[idx],
@@ -685,6 +804,7 @@
                             brand: brand,
                             model: model,
                             total_ports: rs485,
+                            serial_no: formData.get('serial_no') || null,
                             sim_card_no: formData.get('iot_card_no'),
                             sim_operator: formData.get('sim_operator'),
                             sim_iccid: formData.get('sim_iccid'),
@@ -699,17 +819,17 @@
                 }
             }
 
-            localStorage.setItem('gateways', JSON.stringify(gateways));
+            persistGatewaysProjectCache();
             this.reset();
             document.getElementById('modelSelect').disabled = true;
             renderGateways();
         });
 
         function editGateway(id) {
-            const gw = gateways.find(g => g.id === id);
+            const gw = gateways.find(function (g) { return Number(g.id) === Number(id); });
             if (!gw) return;
 
-            editingGatewayId = id;
+            editingGatewayId = Number(id);
             const form = document.getElementById('gatewayForm');
             document.getElementById('brandSelect').value = gw.brand;
             document.getElementById('brandSelect').dispatchEvent(new Event('change'));
@@ -798,13 +918,25 @@
             }
         }
 
-        // 删除网关
-        function deleteGateway(id) {
-            if (confirm('确定要删除这个网关吗？')) {
-                gateways = gateways.filter(g => g.id !== id);
-                localStorage.setItem('gateways', JSON.stringify(gateways));
-                renderGateways();
+        // 删除网关（生产环境同步删除后端）
+        async function deleteGateway(id) {
+            if (!confirm('确定要删除这个网关吗？')) return;
+            if (isProductionMode()) {
+                try {
+                    await api.gateways.deleteGateway(id);
+                } catch (e) {
+                    alert('删除失败：' + (e.message || '未知错误'));
+                    return;
+                }
             }
+            gateways = gateways.filter(function (g) { return Number(g.id) !== Number(id); });
+            if (!isProductionMode()) {
+                var all = JSON.parse(localStorage.getItem('gateways') || '[]');
+                all = all.filter(function (g) { return Number(g.id) !== Number(id); });
+                localStorage.setItem('gateways', JSON.stringify(all));
+            }
+            persistGatewaysProjectCache();
+            renderGateways();
         }
 
         // 继续到通讯配置
@@ -817,8 +949,12 @@
             window.location.href = 'communication-setup.html';
         }
 
-        // 初始化
-        renderGateways();
+        // 初始化：项目信息、型号库、网关列表（生产环境从 API 按项目加载）
+        (async function bootstrapGatewaySetup() {
+            await ensureProjectMeta();
+            await loadGwModelLibrary();
+            await loadGatewaysFromServerOrStorage();
+        })();
     </script>
 </body>
 </html>

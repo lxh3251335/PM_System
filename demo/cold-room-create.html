@@ -7,7 +7,7 @@
     <title>创建冷库 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260328"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -308,6 +308,7 @@
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(2);</script>
+        <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <!-- 项目信息展示 -->
         <div class="project-info-card" id="projectInfoCard">
@@ -677,23 +678,21 @@
             }
             
             try {
-                if (isProductionMode()) {
-                    // 生产模式：调用API删除
-                    // TODO: 后端需要添加删除冷库的API
-                    // await api.projects.deleteColdRoom(projectId, id);
+                if (isProductionMode() && projectId) {
+                    await api.projects.deleteColdRoom(projectId, id);
                     api.projects.showSuccess('冷库删除成功！');
                 } else {
-                    // 演示模式：从localStorage删除
-                    alert('冷库已删除');
+                    api.projects.showSuccess('冷库已删除');
                 }
-                
-                coldRooms = coldRooms.filter(room => room.id !== id);
-                localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+
+                coldRooms = coldRooms.filter(room => String(room.id) !== String(id));
+                if (!isProductionMode()) {
+                    localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+                }
                 renderColdRooms();
-                
             } catch (error) {
                 console.error('删除冷库失败:', error);
-                api.projects.showError('删除冷库失败: ' + error.message);
+                api.projects.showError('删除冷库失败: ' + (error.message || String(error)));
             }
         }
 

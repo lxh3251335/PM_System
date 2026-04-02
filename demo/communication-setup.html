@@ -7,7 +7,7 @@
     <title>通讯配置及485地址分配 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260328"></script>
     <style>
         .container {
             max-width: 1400px;
@@ -601,6 +601,7 @@
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(7);</script>
+        <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <div class="project-info-card">
             <h3>当前项目</h3>
@@ -644,6 +645,13 @@
                 <div class="modal-header" id="modalTitle">添加从站设备</div>
                 <form id="deviceForm">
                     <div class="form-group">
+                        <label>设备类型</label>
+                        <select id="deviceTypeFilter" onchange="onModalDeviceTypeFilterChange()">
+                            <option value="">全部类型</option>
+                        </select>
+                        <div class="form-help">先选类型可缩小下方设备列表</div>
+                    </div>
+                    <div class="form-group">
                         <label>选择设备 <span style="color: #f5222d;">*</span></label>
                         <select name="device" id="deviceSelect" required>
                             <option value="">请选择通讯设备</option>
@@ -664,7 +672,7 @@
         </div>
 
         <div class="action-bar">
-            <button class="btn btn-secondary" onclick="window.location.href='gateway-setup.html'">&#8592; 返回上一步</button>
+            <button type="button" class="btn btn-secondary" onclick="(function(){var p=localStorage.getItem('currentProjectId');location.href=p?'gateway-setup.html?project_id='+encodeURIComponent(p):'gateway-setup.html';})()">&#8592; 返回上一步</button>
             <button class="btn btn-success" onclick="completeProject()">完成通讯配置，继续发货登记 &#8594;</button>
         </div>
     </div>
@@ -689,7 +697,12 @@
             }
         })();
         let project = JSON.parse(localStorage.getItem('currentProject') || '{}');
-        const projectId = localStorage.getItem('currentProjectId');
+        const qsPid = new URLSearchParams(window.location.search).get('project_id');
+        let projectId = localStorage.getItem('currentProjectId') || qsPid;
+        if (qsPid) {
+            localStorage.setItem('currentProjectId', String(qsPid));
+            projectId = String(qsPid);
+        }
         let coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
 
         const devicesKey = projectId ? `devices_${projectId}` : 'devices';
@@ -719,12 +732,90 @@
         const DEVICE_TYPE_CN = {
             'air_cooler': '冷风机', 'thermostat': '温控器', 'unit': '制冷机组',
             'meter': '电表', 'freezer': '冷柜', 'defrost_controller': '融霜控制器',
+            'cooling_tower': '冷却塔', 'cabinet': '电控柜',
             'temp-controller': '温控器', 'refrigeration_unit': '制冷机组', 'electric_meter': '电表'
         };
 
+        /** 用于筛选的统一类型键（与后端/本地 device_type 对齐） */
+        function getDeviceTypeKey(device) {
+            var t = (device && (device.device_type || device.type) || '').toString();
+            var aliases = {
+                'temp-controller': 'thermostat',
+                'refrigeration_unit': 'unit',
+                'electric_meter': 'meter'
+            };
+            return aliases[t] || t || '';
+        }
+
         function getDeviceTypeName(d) {
             var t = d.device_type || d.type || '';
-            return DEVICE_TYPE_CN[t] || t || '设备';
+            return DEVICE_TYPE_CN[t] || DEVICE_TYPE_CN[getDeviceTypeKey(d)] || t || '设备';
+        }
+
+        var modalAvailableDevices = [];
+
+        function populateDeviceTypeFilter(list) {
+            var typeFilter = document.getElementById('deviceTypeFilter');
+            if (!typeFilter) return;
+            var keySet = {};
+            (list || []).forEach(function(d) {
+                var k = getDeviceTypeKey(d);
+                if (k) keySet[k] = true;
+            });
+            var keys = Object.keys(keySet).sort(function(a, b) {
+                var na = DEVICE_TYPE_CN[a] || a;
+                var nb = DEVICE_TYPE_CN[b] || b;
+                return na.localeCompare(nb, 'zh-CN');
+            });
+            typeFilter.innerHTML = '<option value="">全部类型</option>';
+            keys.forEach(function(k) {
+                var opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = DEVICE_TYPE_CN[k] || k;
+                typeFilter.appendChild(opt);
+            });
+        }
+
+        function fillDeviceSelectFromFilter() {
+            var typeFilter = document.getElementById('deviceTypeFilter');
+            var filterVal = typeFilter ? typeFilter.value : '';
+            var deviceSelect = document.getElementById('deviceSelect');
+            var list = modalAvailableDevices;
+            if (filterVal) {
+                list = modalAvailableDevices.filter(function(d) { return getDeviceTypeKey(d) === filterVal; });
+            }
+            deviceSelect.innerHTML = '<option value="">请选择通讯设备</option>';
+            list.forEach(function(device) {
+                var typeName = getDeviceTypeName(device);
+                var modelStr = [device.brand, device.model].filter(Boolean).join(' ');
+                var roomLabel = getColdRoomLabelForDevice(device);
+                var option = document.createElement('option');
+                option.value = device.device_no;
+                option.textContent = roomLabel + ' - ' + typeName + ' - ' + device.device_no + ' - ' + (modelStr || '-');
+                deviceSelect.appendChild(option);
+            });
+        }
+
+        function onModalDeviceTypeFilterChange() {
+            fillDeviceSelectFromFilter();
+        }
+
+        /** 下拉与展示用：解析设备所属冷库/区域名称 */
+        function getColdRoomLabelForDevice(device) {
+            if (!device) return '未分配冷库';
+            var raw = device.cold_room_name;
+            if (raw != null && String(raw).trim() !== '' && String(raw).trim() !== '-') {
+                return String(raw).trim();
+            }
+            var crid = device.cold_room_id;
+            if (crid == null || crid === '') return '未分配冷库';
+            if (String(crid) === 'tower') return '冷却塔';
+            var areaKeys = ['total', 'cold_chain', 'ac', 'fish_tank', 'lighting', 'hot_kitchen'];
+            if (areaKeys.indexOf(String(crid)) !== -1) {
+                return device.cold_room_name && String(device.cold_room_name).trim() ? String(device.cold_room_name).trim() : '电表区域';
+            }
+            var room = coldRooms.find(function(r) { return String(r.id) === String(crid); });
+            return room ? room.name : ('冷库#' + crid);
         }
 
         function getCommInfo(device) {
@@ -1018,19 +1109,10 @@
 
             document.getElementById('modalTitle').textContent = `${gatewayNo} - ${comPort} 添加从站设备`;
 
-            const deviceSelect = document.getElementById('deviceSelect');
             const assignedDevices = comConfigs.map(c => c.device_no);
-            const availableDevices = commDevices.filter(d => !assignedDevices.includes(d.device_no));
+            modalAvailableDevices = commDevices.filter(d => !assignedDevices.includes(d.device_no));
 
-            deviceSelect.innerHTML = '<option value="">请选择通讯设备</option>';
-            availableDevices.forEach(device => {
-                const typeName = getDeviceTypeName(device);
-                const modelStr = [device.brand, device.model].filter(Boolean).join(' ');
-                const option = document.createElement('option');
-                option.value = device.device_no;
-                option.textContent = typeName + ' - ' + device.device_no + ' - ' + (modelStr || '-');
-                deviceSelect.appendChild(option);
-            });
+            populateDeviceTypeFilter(modalAvailableDevices);
 
             const usedAddresses = comConfigs
                 .filter(c => c.gateway_no === gatewayNo && c.com_port === comPort)
@@ -1041,6 +1123,9 @@
                 : '每个设备的485地址必须唯一(1-247)';
 
             document.getElementById('deviceForm').reset();
+            var tf = document.getElementById('deviceTypeFilter');
+            if (tf) tf.value = '';
+            fillDeviceSelectFromFilter();
             document.getElementById('deviceModal').classList.add('active');
         }
 

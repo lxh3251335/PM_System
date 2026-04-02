@@ -7,7 +7,7 @@
     <title>项目详情 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260223"></script>
+    <script src="assets/js/api.js?v=20260328"></script>
     <style>
         .tabs {
             display: flex;
@@ -318,8 +318,8 @@
                     <span>网关配置</span>
                 </a>
                 <a href="index.html" class="nav-item">
-                    <span class="nav-icon">←</span>
-                    <span>返回首页</span>
+                    <span class="nav-icon">🏠</span>
+                    <span>产品门户</span>
                 </a>
             </nav>
             <!-- 收缩按钮 -->
@@ -486,9 +486,12 @@
 
                     <!-- Tab 4: 通讯设置 -->
                     <div class="tab-content">
-                        <div style="margin-bottom: 20px;">
-                            <h3 style="margin: 0;">通讯设置概览</h3>
-                            <p style="color: var(--text-secondary); font-size: 13px; margin-top: 6px;">展示每台设备与网关的绑定关系、通讯端口和地址，用于现场安装接线参考</p>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                            <div>
+                                <h3 style="margin: 0;">通讯设置概览</h3>
+                                <p style="color: var(--text-secondary); font-size: 13px; margin-top: 6px; margin-bottom: 0;">展示每台设备与网关的绑定关系、通讯端口和地址，用于现场安装接线参考</p>
+                            </div>
+                            <button type="button" class="btn-primary" onclick="goToCommunicationSetup()" style="flex-shrink: 0;">前往通讯配置页面</button>
                         </div>
                         <div id="commOverviewContainer">
                             <p style="text-align: center; color: var(--text-secondary); padding: 40px;">加载通讯配置...</p>
@@ -512,6 +515,7 @@
 
     <script src="assets/js/app.js"></script>
     <script src="assets/js/nav.js"></script>
+    <script src="assets/js/config-home-fab.js?v=20260329"></script>
     <script>
         let currentProjectId = null;
 
@@ -1045,7 +1049,27 @@
                 alert('网关配置由管理员操作，客户无需进行此步骤。');
                 return;
             }
-            window.location.href = 'gateway-setup.html';
+            if (!currentProjectId) {
+                alert('无法确定当前项目，请从项目详情进入。');
+                return;
+            }
+            localStorage.setItem('currentProjectId', String(currentProjectId));
+            window.location.href = 'gateway-setup.html?project_id=' + encodeURIComponent(currentProjectId);
+        }
+
+        function goToCommunicationSetup() {
+            const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+            const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
+            if (normalizedRole !== 'admin') {
+                alert('通讯配置（COM口与485地址分配）由管理员操作，客户无需进行此步骤。');
+                return;
+            }
+            if (!currentProjectId) {
+                alert('无法确定当前项目，请从项目列表进入项目详情后再试。');
+                return;
+            }
+            localStorage.setItem('currentProjectId', String(currentProjectId));
+            window.location.href = 'communication-setup.html?project_id=' + encodeURIComponent(currentProjectId);
         }
 
         // ========== 8. 通讯设置Tab ==========

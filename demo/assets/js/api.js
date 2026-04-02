@@ -646,6 +646,13 @@ class ProjectAPI extends ApiClient {
     }
 
     /**
+     * 删除冷库
+     */
+    async deleteColdRoom(projectId, coldRoomId) {
+        return this.delete(`/projects/${projectId}/cold-rooms/${coldRoomId}`);
+    }
+
+    /**
      * 批量创建冷库
      */
     async batchCreateColdRooms(projectId, dataList) {
