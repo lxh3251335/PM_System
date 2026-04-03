@@ -109,7 +109,9 @@ class ProjectCopy(BaseModel):
     """复制项目请求（new_project_name 必填；其余字段若传入则覆盖源项目对应字段）"""
     new_project_name: str = Field(..., description="新项目名称")
     copy_cold_rooms: bool = Field(True, description="是否复制冷库")
-    copy_devices: bool = Field(False, description="是否复制设备")
+    copy_devices: bool = Field(True, description="是否复制设备")
+    copy_gateways: bool = Field(True, description="是否复制网关配置")
+    copy_relations: bool = Field(True, description="是否复制设备关系")
 
     @model_validator(mode="before")
     @classmethod

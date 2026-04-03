@@ -588,7 +588,13 @@ class ProjectAPI extends ApiClient {
             payload.copy_cold_rooms = true;
         }
         if (payload.copy_devices === undefined) {
-            payload.copy_devices = false;
+            payload.copy_devices = true;
+        }
+        if (payload.copy_gateways === undefined) {
+            payload.copy_gateways = true;
+        }
+        if (payload.copy_relations === undefined) {
+            payload.copy_relations = true;
         }
         return this.post(`/projects/${id}/copy`, payload);
     }

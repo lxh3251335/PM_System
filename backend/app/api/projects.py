@@ -10,6 +10,8 @@ from typing import List, Optional
 from datetime import date, datetime, timezone
 from ..database import get_db
 from ..models.project import Project, ColdRoom, ProjectStatus, CustomerBusinessType
+from ..models.device import Device, DeviceRelation
+from ..models.gateway import Gateway
 from ..models.user import User
 from ..schemas import project as schemas
 from ..auth_utils import get_current_user, require_admin, normalize_role, check_project_permission
@@ -398,6 +400,30 @@ async def delete_project(
     return {"message": "项目删除成功"}
 
 
+def _generate_device_no_for_copy(project_id: int, device_type, db: Session) -> str:
+    """复制项目时生成设备编号（与 devices.py 中逻辑一致）"""
+    from ..models.device import DeviceType
+    prefix_map = {
+        DeviceType.AIR_COOLER: "AC",
+        DeviceType.THERMOSTAT: "TC",
+        DeviceType.UNIT: "UN",
+        DeviceType.METER: "PM",
+        DeviceType.FREEZER: "FR",
+        DeviceType.DEFROST_CONTROLLER: "DF",
+    }
+    prefix = prefix_map.get(device_type, "DEV")
+    count = db.query(Device).filter(
+        and_(Device.project_id == project_id, Device.device_type == device_type)
+    ).count()
+    return f"{prefix}-{str(project_id).zfill(3)}-{str(count + 1).zfill(3)}"
+
+
+def _generate_gateway_no_for_copy(project_id: int, db: Session) -> str:
+    """复制项目时生成网关编号（与 gateways.py 中逻辑一致）"""
+    count = db.query(Gateway).filter(Gateway.project_id == project_id).count()
+    return f"GW-{str(project_id).zfill(3)}-{str(count + 1).zfill(3)}"
+
+
 @router.post("/{project_id}/copy", response_model=schemas.Project, status_code=201)
 async def copy_project(
     project_id: int,
@@ -406,8 +432,8 @@ async def copy_project(
     current_user: User = Depends(get_current_user)
 ):
     """
-    复制项目
-    支持复制冷库和设备
+    完整复制项目
+    支持复制：冷库、设备、网关、设备关系（含通讯配置）
     """
     role = normalize_role(current_user.role)
     original = query_project_with_permission(db, project_id, role, current_user)
@@ -415,7 +441,9 @@ async def copy_project(
     req_data = copy_request.model_dump(exclude_unset=True)
     new_name = req_data.pop("new_project_name")
     copy_cold_rooms = req_data.pop("copy_cold_rooms", True)
-    copy_devices = req_data.pop("copy_devices", False)
+    copy_devices = req_data.pop("copy_devices", True)
+    copy_gateways = req_data.pop("copy_gateways", True)
+    copy_relations = req_data.pop("copy_relations", True)
 
     merge_keys = (
         "end_customer",
@@ -450,11 +478,12 @@ async def copy_project(
         created_by=current_user.id,
         **merge_values,
     )
-    
+
     db.add(new_project)
-    db.flush()  # 获取new_project.id
-    
-    # 复制冷库
+    db.flush()
+
+    # ── 1. 复制冷库，记录 old_id -> new_id 映射 ──
+    cold_room_id_map: dict[int, int] = {}
     if copy_cold_rooms:
         original_cold_rooms = db.query(ColdRoom).filter(ColdRoom.project_id == project_id).all()
         for old_room in original_cold_rooms:
@@ -467,15 +496,85 @@ async def copy_project(
                 area=old_room.area,
                 height=old_room.height,
                 volume=old_room.volume,
-                refrigerant_type=old_room.refrigerant_type
+                refrigerant_type=old_room.refrigerant_type,
             )
             db.add(new_room)
-    
-    # 复制设备（如果需要）
+            db.flush()
+            cold_room_id_map[old_room.id] = new_room.id
+
+    # ── 2. 复制网关，记录 old_id -> new_id 映射 ──
+    gateway_id_map: dict[int, int] = {}
+    if copy_gateways:
+        original_gateways = db.query(Gateway).filter(Gateway.project_id == project_id).all()
+        for old_gw in original_gateways:
+            new_gw = Gateway(
+                project_id=new_project.id,
+                gateway_no=_generate_gateway_no_for_copy(new_project.id, db),
+                brand=old_gw.brand,
+                model=old_gw.model,
+                total_ports=old_gw.total_ports,
+                serial_no=None,
+                sim_card_no=old_gw.sim_card_no,
+                sim_operator=old_gw.sim_operator,
+                sim_iccid=old_gw.sim_iccid,
+                ip_address=old_gw.ip_address,
+                mac_address=old_gw.mac_address,
+                specifications=old_gw.specifications,
+                remarks=old_gw.remarks,
+            )
+            db.add(new_gw)
+            db.flush()
+            gateway_id_map[old_gw.id] = new_gw.id
+
+    # ── 3. 复制设备，记录 old_id -> new_id 映射 ──
+    device_id_map: dict[int, int] = {}
     if copy_devices:
-        # TODO: 实现设备复制逻辑
-        pass
-    
+        original_devices = db.query(Device).filter(Device.project_id == project_id).all()
+        for old_dev in original_devices:
+            new_cold_room_id = cold_room_id_map.get(old_dev.cold_room_id) if old_dev.cold_room_id else None
+            new_gateway_id = gateway_id_map.get(old_dev.gateway_id) if old_dev.gateway_id else None
+
+            new_dev = Device(
+                project_id=new_project.id,
+                cold_room_id=new_cold_room_id,
+                device_no=_generate_device_no_for_copy(new_project.id, old_dev.device_type, db),
+                device_type=old_dev.device_type,
+                brand=old_dev.brand,
+                model=old_dev.model,
+                defrost_method=old_dev.defrost_method,
+                has_intelligent_defrost=old_dev.has_intelligent_defrost,
+                expansion_valve_type=old_dev.expansion_valve_type,
+                factory_no=old_dev.factory_no,
+                comm_port_type=old_dev.comm_port_type,
+                comm_protocol=old_dev.comm_protocol,
+                gateway_id=new_gateway_id,
+                gateway_port=old_dev.gateway_port,
+                rs485_address=old_dev.rs485_address,
+                specifications=old_dev.specifications,
+                remarks=old_dev.remarks,
+            )
+            db.add(new_dev)
+            db.flush()
+            device_id_map[old_dev.id] = new_dev.id
+
+    # ── 4. 复制设备关系 ──
+    if copy_relations and copy_devices:
+        original_relations = db.query(DeviceRelation).filter(
+            DeviceRelation.project_id == project_id
+        ).all()
+        for old_rel in original_relations:
+            new_from = device_id_map.get(old_rel.from_device_id)
+            new_to = device_id_map.get(old_rel.to_device_id)
+            if new_from and new_to:
+                new_rel = DeviceRelation(
+                    project_id=new_project.id,
+                    from_device_id=new_from,
+                    to_device_id=new_to,
+                    relation_type=old_rel.relation_type,
+                    description=old_rel.description,
+                )
+                db.add(new_rel)
+
     db.commit()
     db.refresh(new_project)
     return new_project

@@ -7,7 +7,7 @@
     <title>新建项目 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260327"></script>
-    <script src="assets/js/api.js?v=20260327"></script>
+    <script src="assets/js/api.js?v=20260403"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -684,7 +684,9 @@
                         const copyPayload = {
                             new_project_name: projectData.name,
                             copy_cold_rooms: true,
-                            copy_devices: false,
+                            copy_devices: true,
+                            copy_gateways: true,
+                            copy_relations: true,
                             end_customer: projectData.end_customer,
                             business_type: projectData.business_type,
                             city: projectData.city,
@@ -723,9 +725,12 @@
                     localStorage.setItem('currentProject', JSON.stringify(result));
                 }
                 
-                // 跳转到冷库创建页面
                 setTimeout(() => {
-                    window.location.href = 'cold-room-create.html';
+                    if (isCopyMode && result && result.id) {
+                        window.location.href = 'project-detail.html?id=' + result.id;
+                    } else {
+                        window.location.href = 'cold-room-create.html';
+                    }
                 }, 1000);
                 
             } catch (error) {
