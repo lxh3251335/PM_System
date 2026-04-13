@@ -7,7 +7,7 @@
     <title>设备登记 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260403"></script>
+    <script src="assets/js/api.js?v=20260413"></script>
     <style>
         .container {
             max-width: 1400px;
@@ -819,7 +819,7 @@
         }
 
         function getRoomTypeName(type) {
-            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库' };
+            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库', 'low_temp_cabinet': '低温冷柜', 'medium_temp_cabinet': '中温冷柜' };
             return names[type] || type || '-';
         }
 
@@ -1238,7 +1238,7 @@
             }
             updateStats();
             if (viewMode === 'room') { renderRoomGroupedView(); }
-            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else if (viewMode === 'relation') { renderRelationTopoView(); }
             else { renderDeviceList(); }
         }
 
@@ -1451,7 +1451,7 @@
             renderDeviceForm();
             updateStats();
             if (viewMode === 'room') { renderRoomGroupedView(); }
-            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else if (viewMode === 'relation') { renderRelationTopoView(); }
             else { renderDeviceList(); }
         }
 
@@ -1687,10 +1687,11 @@
             }
             var stdType = resolveCategoryType(currentCategory);
             let list = devices.filter(function(d) {
-                if (d.categoryId === currentCategory.id) return true;
-                if (stdType && !d.categoryId) {
+                if (d.categoryId != null && d.categoryId === currentCategory.id) return true;
+                if (stdType) {
                     var dt = d.device_type || d.type || '';
-                    return dt === stdType || (CODE_TO_DEVICE_TYPE[dt] || '') === stdType;
+                    var resolved = CODE_TO_DEVICE_TYPE[dt] || dt;
+                    if (resolved === stdType) return true;
                 }
                 return false;
             });
@@ -1734,10 +1735,11 @@
             categories.forEach(cat => {
                 var st = resolveCategoryType(cat);
                 let list = devices.filter(function(d) {
-                    if (d.categoryId === cat.id) return true;
-                    if (st && !d.categoryId) {
+                    if (d.categoryId != null && d.categoryId === cat.id) return true;
+                    if (st) {
                         var dt = d.device_type || d.type || '';
-                        return dt === st || (CODE_TO_DEVICE_TYPE[dt] || '') === st;
+                        var resolved = CODE_TO_DEVICE_TYPE[dt] || dt;
+                        if (resolved === st) return true;
                     }
                     return false;
                 });
@@ -1748,7 +1750,7 @@
         }
 
         async function copyDevice(id) {
-            const device = devices.find(d => d.id === id);
+            const device = devices.find(d => String(d.id) === String(id));
             if (!device) return;
             
             const countStr = prompt('请输入复制数量 (1-10):', '1');
@@ -1817,7 +1819,7 @@
             saveDevicesToStorage();
             updateStats();
             if (viewMode === 'room') { renderRoomGroupedView(); }
-            else if (viewMode === 'relation') { renderRelationTopology(); }
+            else if (viewMode === 'relation') { renderRelationTopoView(); }
             else if (isCabinetCategory(currentCategory)) { renderCabinetManageUI(document.getElementById('deviceForm')); }
             else { renderDeviceList(); }
         }

@@ -75,10 +75,12 @@ class CustomerBusinessType(Base):
 
 
 class ColdRoomType(str, enum.Enum):
-    """冷库类型"""
+    """冷库/冷区类型"""
     LOW_TEMP = "low_temp"  # 低温库
     REFRIGERATED = "refrigerated"  # 冷藏库
     MEDIUM_TEMP = "medium_temp"  # 中温库
+    LOW_TEMP_CABINET = "low_temp_cabinet"  # 低温冷柜
+    MEDIUM_TEMP_CABINET = "medium_temp_cabinet"  # 中温冷柜
 
 
 class ColdRoom(Base):

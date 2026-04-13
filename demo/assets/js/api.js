@@ -378,6 +378,12 @@ class ApiClient {
         }
     }
 
+    _escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     /**
      * 显示错误提示
      */
@@ -408,7 +414,7 @@ class ApiClient {
                 <span style="font-size: 20px;">⚠️</span>
                 <div style="flex: 1;">
                     <div style="font-weight: 600; margin-bottom: 4px;">操作失败</div>
-                    <div style="font-size: 14px; opacity: 0.9;">${message}</div>
+                    <div style="font-size: 14px; opacity: 0.9;">${this._escapeHtml(message)}</div>
                 </div>
                 <button onclick="this.parentElement.parentElement.remove()" style="
                     background: none;
@@ -451,7 +457,7 @@ class ApiClient {
         success.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span style="font-size: 20px;">✓</span>
-                <div style="font-size: 14px;">${message}</div>
+                <div style="font-size: 14px;">${this._escapeHtml(message)}</div>
             </div>
         `;
         document.body.appendChild(success);

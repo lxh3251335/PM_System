@@ -7,7 +7,7 @@
     <title>创建冷库 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260403"></script>
+    <script src="assets/js/api.js?v=20260413"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -336,10 +336,12 @@
                     <div class="form-group">
                         <label>冷库类型 <span class="required">*</span></label>
                         <select name="room_type" id="roomType" required>
-                            <option value="">请选择冷库类型</option>
+                            <option value="">请选择冷库/冷柜类型</option>
                             <option value="low_temp">低温库（-18℃~-15℃）</option>
                             <option value="refrigerated">冷藏库（1℃~4℃）</option>
                             <option value="medium_temp">中温库（8℃~10℃）</option>
+                            <option value="low_temp_cabinet">低温冷柜（-18℃~-15℃）</option>
+                            <option value="medium_temp_cabinet">中温冷柜（2℃~8℃）</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -505,6 +507,20 @@
                         roomNameInput.value = (roomCount + 1) + '号中温库';
                     }
                     break;
+                case 'low_temp_cabinet':
+                    tempMinInput.value = -18;
+                    tempMaxInput.value = -15;
+                    if (!roomNameInput.value) {
+                        roomNameInput.value = (roomCount + 1) + '号低温冷柜';
+                    }
+                    break;
+                case 'medium_temp_cabinet':
+                    tempMinInput.value = 2;
+                    tempMaxInput.value = 8;
+                    if (!roomNameInput.value) {
+                        roomNameInput.value = (roomCount + 1) + '号中温冷柜';
+                    }
+                    break;
             }
         });
 
@@ -556,7 +572,7 @@
             
             try {
                 if (editingRoomId) {
-                    const idx = coldRooms.findIndex(r => r.id === editingRoomId);
+                    const idx = coldRooms.findIndex(r => String(r.id) === String(editingRoomId));
                     if (idx !== -1) {
                         coldRoomData.id = editingRoomId;
                         if (isProductionMode() && projectId) {
@@ -588,10 +604,25 @@
                     }
                 }
                 
+                var keepType = '';
+                var keepRefrigerant = '';
+                if (continueAdding) {
+                    keepType = document.getElementById('roomType').value;
+                    keepRefrigerant = document.querySelector('select[name="refrigerant_type"]').value;
+                }
+
                 document.getElementById('coldRoomForm').reset();
                 document.getElementById('roomName').value = '';
                 document.getElementById('volume').textContent = '面积 x 高度 = 自动计算';
-                
+
+                if (continueAdding && keepType) {
+                    document.getElementById('roomType').value = keepType;
+                    document.getElementById('roomType').dispatchEvent(new Event('change'));
+                    if (keepRefrigerant) {
+                        document.querySelector('select[name="refrigerant_type"]').value = keepRefrigerant;
+                    }
+                }
+
                 renderColdRooms();
                 
             } catch (error) {
@@ -603,7 +634,7 @@
         let editingRoomId = null;
 
         function editColdRoom(id) {
-            const room = coldRooms.find(r => r.id === id);
+            const room = coldRooms.find(r => String(r.id) === String(id));
             if (!room) return;
 
             editingRoomId = id;
@@ -667,7 +698,9 @@
             const names = {
                 'low_temp': '低温库',
                 'refrigerated': '冷藏库',
-                'medium_temp': '中温库'
+                'medium_temp': '中温库',
+                'low_temp_cabinet': '低温冷柜',
+                'medium_temp_cabinet': '中温冷柜'
             };
             return names[type] || type;
         }

@@ -3,7 +3,7 @@
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from typing import List, Optional
 from ..database import get_db
 from ..models.device import Device, DeviceRelation, DeviceType
@@ -340,12 +340,15 @@ async def delete_device(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """删除设备（校验项目归属）"""
+    """删除设备（校验项目归属，同时清理关联的设备关系）"""
     device = db.query(Device).filter(Device.id == device_id).first()
     if not device:
         raise HTTPException(status_code=404, detail="设备不存在")
     check_project_permission(db, device.project_id, current_user)
-    
+
+    db.query(DeviceRelation).filter(
+        or_(DeviceRelation.from_device_id == device_id, DeviceRelation.to_device_id == device_id)
+    ).delete()
     db.delete(device)
     db.commit()
     return {"message": "设备删除成功"}

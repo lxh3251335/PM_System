@@ -7,7 +7,7 @@
     <title>项目详情 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260403"></script>
+    <script src="assets/js/api.js?v=20260413"></script>
     <style>
         .tabs {
             display: flex;
@@ -533,10 +533,11 @@
 
         const NORMALIZE_TYPE = {
             'temp-controller': 'thermostat', 'thermostat': 'thermostat',
-            'air_cooler': 'air_cooler',
+            'air_cooler': 'air_cooler', 'air-cooler': 'air_cooler',
             'refrigeration_unit': 'unit', 'unit': 'unit',
-            'electric_meter': 'meter', 'meter': 'meter',
-            'freezer': 'freezer', 'defrost_controller': 'defrost_controller'
+            'electric_meter': 'meter', 'meter': 'meter', 'electric-meter': 'meter',
+            'freezer': 'freezer',
+            'defrost_controller': 'defrost_controller', 'defrost-controller': 'defrost_controller'
         };
 
         function textOrDash(value) {
@@ -560,7 +561,7 @@
         }
 
         function getRoomTypeName(type) {
-            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库' };
+            const names = { 'low_temp': '低温库', 'refrigerated': '冷藏库', 'medium_temp': '中温库', 'low_temp_cabinet': '低温冷柜', 'medium_temp_cabinet': '中温冷柜' };
             return names[type] || type || '-';
         }
 
@@ -692,11 +693,11 @@
 
             var codeNormalize = {
                 'temp-controller': 'thermostat', 'thermostat': 'thermostat',
-                'air_cooler': 'air_cooler',
+                'air_cooler': 'air_cooler', 'air-cooler': 'air_cooler',
                 'refrigeration_unit': 'unit', 'unit': 'unit',
-                'electric_meter': 'meter', 'meter': 'meter',
+                'electric_meter': 'meter', 'meter': 'meter', 'electric-meter': 'meter',
                 'freezer': 'freezer',
-                'defrost_controller': 'defrost_controller'
+                'defrost_controller': 'defrost_controller', 'defrost-controller': 'defrost_controller'
             };
 
             var counts = {};

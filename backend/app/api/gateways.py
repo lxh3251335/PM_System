@@ -7,6 +7,7 @@ from typing import List, Optional
 from datetime import datetime
 from ..database import get_db
 from ..models.gateway import Gateway, MailingRecord, FlowRecord
+from ..models.device import Device
 from ..models.project import Project
 from ..models.user import User
 from ..schemas import gateway as schemas
@@ -357,13 +358,16 @@ async def delete_gateway(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """删除网关（仅管理员）"""
+    """删除网关（仅管理员，同时解除设备关联）"""
     require_admin(current_user)
     gateway = db.query(Gateway).filter(Gateway.id == gateway_id).first()
     if not gateway:
         raise HTTPException(status_code=404, detail="网关不存在")
     check_project_permission(db, gateway.project_id, current_user)
-    
+
+    db.query(Device).filter(Device.gateway_id == gateway_id).update(
+        {Device.gateway_id: None, Device.gateway_port: None, Device.rs485_address: None}
+    )
     db.delete(gateway)
     db.commit()
     return {"message": "网关删除成功"}

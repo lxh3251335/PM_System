@@ -11,7 +11,7 @@ from datetime import date, datetime, timezone
 from ..database import get_db
 from ..models.project import Project, ColdRoom, ProjectStatus, CustomerBusinessType
 from ..models.device import Device, DeviceRelation
-from ..models.gateway import Gateway
+from ..models.gateway import Gateway, MailingRecord, FlowRecord
 from ..models.user import User
 from ..schemas import project as schemas
 from ..auth_utils import get_current_user, require_admin, normalize_role, check_project_permission
@@ -393,6 +393,10 @@ async def delete_project(
     """删除项目（级联删除关联数据）"""
     role = normalize_role(current_user.role)
     project = query_project_with_permission(db, project_id, role, current_user)
+
+    db.query(DeviceRelation).filter(DeviceRelation.project_id == project_id).delete()
+    db.query(MailingRecord).filter(MailingRecord.project_id == project_id).delete()
+    db.query(FlowRecord).filter(FlowRecord.project_id == project_id).delete()
 
     remove_attachment_file(project_id)
     db.delete(project)
@@ -848,7 +852,10 @@ async def delete_cold_room(
     
     if not cold_room:
         raise HTTPException(status_code=404, detail="冷库不存在")
-    
+
+    db.query(Device).filter(Device.cold_room_id == cold_room_id).update(
+        {Device.cold_room_id: None}
+    )
     db.delete(cold_room)
     db.commit()
     return {"message": "冷库删除成功"}

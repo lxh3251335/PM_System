@@ -120,6 +120,8 @@ COLD_ROOM_TYPE_ZH: Dict[ColdRoomType, str] = {
     ColdRoomType.LOW_TEMP: "低温库",
     ColdRoomType.REFRIGERATED: "冷藏库",
     ColdRoomType.MEDIUM_TEMP: "中温库",
+    ColdRoomType.LOW_TEMP_CABINET: "低温冷柜",
+    ColdRoomType.MEDIUM_TEMP_CABINET: "中温冷柜",
 }
 COLD_ROOM_STR_TO_TYPE: Dict[str, ColdRoomType] = {}
 for _e, _zh in COLD_ROOM_TYPE_ZH.items():
