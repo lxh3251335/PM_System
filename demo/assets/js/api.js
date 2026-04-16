@@ -496,7 +496,8 @@ class ProjectAPI extends ApiClient {
      * 获取项目列表
      */
     async getProjects(params = {}) {
-        return this.get('/projects/', params);
+        var p = Object.assign({ limit: 10000 }, params || {});
+        return this.get('/projects/', p);
     }
 
     /**
@@ -572,6 +573,16 @@ class ProjectAPI extends ApiClient {
      */
     async updateProject(id, data) {
         return this.put(`/projects/${id}`, data);
+    }
+
+    /**
+     * 批量更新项目（end_customer / business_type / city）
+     * @param {Array<number>} projectIds
+     * @param {Object} fields 至少包含 end_customer / business_type / city 之一
+     */
+    async batchUpdateProjects(projectIds, fields) {
+        const payload = Object.assign({ project_ids: projectIds }, fields || {});
+        return this.patch('/projects/batch-update', payload);
     }
 
     /**
@@ -677,7 +688,8 @@ class DeviceAPI extends ApiClient {
      * 获取设备列表
      */
     async getDevices(params = {}) {
-        return this.get('/devices/', params);
+        var p = Object.assign({ limit: 10000 }, params || {});
+        return this.get('/devices/', p);
     }
 
     /**
@@ -826,7 +838,8 @@ class GatewayAPI extends ApiClient {
      * 获取网关列表
      */
     async getGateways(params = {}) {
-        return this.get('/gateways/', params);
+        var p = Object.assign({ limit: 10000 }, params || {});
+        return this.get('/gateways/', p);
     }
 
     /**

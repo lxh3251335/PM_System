@@ -33,6 +33,10 @@ class DeviceBase(BaseModel):
     gateway_port: Optional[int] = Field(None, description="网关端口号")
     rs485_address: Optional[str] = Field(None, description="RS485地址")
     
+    # 电控柜/电表扩展
+    cabinet_id: Optional[int] = Field(None, description="所属电控柜设备ID")
+    meter_area: Optional[str] = Field(None, description="电表所属区域")
+
     # 其他
     specifications: Optional[str] = Field(None, description="规格参数（JSON）")
     remarks: Optional[str] = Field(None, description="备注")
@@ -46,6 +50,7 @@ class DeviceCreate(DeviceBase):
 class DeviceUpdate(BaseModel):
     """更新设备"""
     cold_room_id: Optional[int] = None
+    device_no: Optional[str] = None
     brand: Optional[str] = None
     model: Optional[str] = None
     defrost_method: Optional[str] = None
@@ -57,6 +62,8 @@ class DeviceUpdate(BaseModel):
     gateway_id: Optional[int] = None
     gateway_port: Optional[int] = None
     rs485_address: Optional[str] = None
+    cabinet_id: Optional[int] = None
+    meter_area: Optional[str] = None
     specifications: Optional[str] = None
     remarks: Optional[str] = None
 

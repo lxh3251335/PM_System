@@ -84,6 +84,20 @@ class ProjectUpdate(BaseModel):
     remarks: Optional[str] = None
 
 
+class ProjectBatchUpdate(BaseModel):
+    """批量更新项目指定字段"""
+    project_ids: List[int] = Field(..., min_length=1, description="需要更新的项目 ID 列表")
+    end_customer: Optional[str] = Field(None, description="最终用户（传则覆盖）")
+    business_type: Optional[str] = Field(None, description="业务类型（传则覆盖）")
+    city: Optional[str] = Field(None, description="城市（传则覆盖）")
+
+    @model_validator(mode="after")
+    def require_at_least_one_field(self):
+        if self.end_customer is None and self.business_type is None and self.city is None:
+            raise ValueError("至少需要指定一个要更新的字段")
+        return self
+
+
 class Project(ProjectBase):
     """项目响应模型"""
     id: int

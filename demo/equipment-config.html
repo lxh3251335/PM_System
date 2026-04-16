@@ -1,18 +1,18 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>è®¾å¤‡é…ç½®ç®¡ç† - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
+    <title>Éè±¸ÅäÖÃ¹ÜÀí - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260417"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* å¤ç”¨ app.css çš„å˜é‡ï¼Œä½†åšå±€éƒ¨è¦†ç›–ä»¥é€‚é…æœ¬é¡µé¢çš„ç‰¹æ®Šå¸ƒå±€ */
+        /* ¸´ÓÃ app.css µÄ±äÁ¿£¬µ«×ö¾Ö²¿¸²¸ÇÒÔÊÊÅä±¾Ò³ÃæµÄÌØÊâ²¼¾Ö */
         :root {
-            /* ä¿æŒä¸€è‡´çš„è‰²å½©å˜é‡ */
+            /* ±£³ÖÒ»ÖÂµÄÉ«²Ê±äÁ¿ */
             --primary-color: #1890ff;
             --success-color: #52c41a;
             --warning-color: #faad14;
@@ -24,10 +24,10 @@
         }
 
         
-        /* å¸ƒå±€å®¹å™¨ - ä¿æŒä¸ app.css ä¸€è‡´ */
+        /* ²¼¾ÖÈİÆ÷ - ±£³ÖÓë app.css Ò»ÖÂ */
         /* .app-container { display: flex; min-height: 100vh; } */
         
-        /* ä¾§è¾¹æ  - å®Œå…¨å¤ç”¨ app.css çš„æ ·å¼é€»è¾‘ */
+        /* ²à±ßÀ¸ - ÍêÈ«¸´ÓÃ app.css µÄÑùÊ½Âß¼­ */
         /* .sidebar { width: 240px; background: #001529; color: white; display: flex; flex-direction: column; position: fixed; height: 100%; left: 0; top: 0; z-index: 100; } */
         /* .sidebar-header { height: 64px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); } */
         /* .logo { font-size: 24px; margin-right: 12px; } */
@@ -38,10 +38,10 @@
         /* .nav-item.active { background: var(--primary-color); color: white; } */
         /* .nav-icon { margin-right: 12px; font-size: 18px; } */
 
-        /* ä¸»å†…å®¹åŒº - ä¿®æ­£ margin-left ä»¥åŒ¹é… sidebar å®½åº¦ */
+        /* Ö÷ÄÚÈİÇø - ĞŞÕı margin-left ÒÔÆ¥Åä sidebar ¿í¶È */
         /* .main-content { flex: 1; margin-left: 240px; display: flex; flex-direction: column; background: var(--bg-color); min-height: 100vh; } */
         
-/* é¡¶éƒ¨å¯¼èˆªæ  - ä¿æŒä¸€è‡´ */
+/* ¶¥²¿µ¼º½À¸ - ±£³ÖÒ»ÖÂ */
         /* .top-bar { 
             height: 64px; 
             background: #fff; 
@@ -56,13 +56,13 @@
         } */
         /* .top-bar h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 0; } */
         
-/* é¡µé¢å®¹å™¨ */
+/* Ò³ÃæÈİÆ÷ */
         .page-container { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
         
-        /* å¡ç‰‡æ ·å¼ */
+        /* ¿¨Æ¬ÑùÊ½ */
         .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 2px -2px rgba(0,0,0,.16), 0 3px 6px 0 rgba(0,0,0,.12), 0 5px 12px 4px rgba(0,0,0,.09); margin-bottom: 24px; }
 
-        /* Tabs - ç‰¹å®šäºæœ¬é¡µé¢çš„æ ·å¼ */
+        /* Tabs - ÌØ¶¨ÓÚ±¾Ò³ÃæµÄÑùÊ½ */
         .tabs-nav { display: flex; border-bottom: 1px solid var(--border-color); padding: 0 24px; background: #fff; border-radius: 4px 4px 0 0; }
         .tab-btn {
             background: none; border: none; padding: 16px 0; margin-right: 32px; font-size: 14px; color: var(--text-primary);
@@ -74,7 +74,7 @@
         .tab-pane.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* è¡¨å•ä¸è¾“å…¥æ¡† */
+        /* ±íµ¥ÓëÊäÈë¿ò */
         .form-grid { display: grid; gap: 24px; margin-bottom: 24px; }
         .cols-3 { grid-template-columns: repeat(3, 1fr); }
         .cols-auto { grid-template-columns: auto 1fr auto; align-items: end; }
@@ -86,7 +86,7 @@
         .form-control:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(24,144,255,0.2); }
         .form-control:disabled { background-color: #f5f5f5; cursor: not-allowed; color: rgba(0,0,0,.25); }
 
-        /* æŒ‰é’® - å¤ç”¨ app.css é£æ ¼ */
+        /* °´Å¥ - ¸´ÓÃ app.css ·ç¸ñ */
         .btn { display: inline-block; font-weight: 400; text-align: center; cursor: pointer; background-image: none; border: 1px solid transparent; white-space: nowrap; padding: 4px 15px; font-size: 14px; border-radius: 4px; height: 32px; user-select: none; transition: all 0.3s; color: var(--text-primary); background-color: #fff; border-color: var(--border-color); }
         .btn-primary { color: #fff; background-color: var(--primary-color); border-color: var(--primary-color); text-shadow: 0 -1px 0 rgba(0,0,0,.12); box-shadow: 0 2px 0 rgba(0,0,0,.045); }
         .btn-primary:hover { color: #fff; background-color: #40a9ff; border-color: #40a9ff; }
@@ -95,18 +95,18 @@
         .btn-icon:hover { color: #40a9ff; }
         .btn-sm { padding: 0 7px; height: 24px; font-size: 12px; }
 
-        /* è¡¨æ ¼ - æ ·å¼ç»Ÿä¸€ä¸ºä¸šåŠ¡é…ç½®é¡µé£æ ¼ */
+        /* ±í¸ñ - ÑùÊ½Í³Ò»ÎªÒµÎñÅäÖÃÒ³·ç¸ñ */
         .table-container { width: 100%; overflow-x: auto; border: none; box-shadow: none; border-radius: 0; }
         .data-table { width: 100%; min-width: 900px; border-collapse: collapse; }
         .data-table th, .data-table td { text-align: left; border-bottom: 1px solid #f0f0f0; padding: 10px 8px; font-size: 14px; background: #fff; }
         .data-table th { font-weight: 600; color: #333; }
         .data-table tr:hover > td { background: transparent; }
 
-        /* å·¥å…·æ  */
+        /* ¹¤¾ßÀ¸ */
         .toolbar { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; }
         .toolbar-spacer { flex: 1; }
 
-        /* æ¨¡æ€æ¡† */
+        /* Ä£Ì¬¿ò */
         .modal-overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000; height: 100%; background-color: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; }
         .modal-overlay.open { display: flex; }
         .modal-content { position: relative; background-color: #fff; background-clip: padding-box; border: 0; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.15); pointer-events: auto; width: 600px; max-width: calc(100vw - 32px); display: flex; flex-direction: column; max-height: 90vh; }
@@ -115,7 +115,7 @@
         .modal-body { padding: 24px; font-size: 14px; line-height: 1.5; word-wrap: break-word; overflow-y: auto; }
         .modal-footer { padding: 10px 16px; text-align: right; background: transparent; border-top: 1px solid #f0f0f0; border-radius: 0 0 4px 4px; }
 
-        /* å…¶ä»–ç»„ä»¶ */
+        /* ÆäËû×é¼ş */
         .badge { display: inline-block; height: auto; padding: 0 7px; font-size: 12px; line-height: 20px; white-space: nowrap; background: #fafafa; border: 1px solid #d9d9d9; border-radius: 2px; cursor: default; opacity: 1; transition: all .3s cubic-bezier(.78,.14,.15,.86); color: rgba(0,0,0,.65); }
         .field-builder { background: #fafafa; border: 1px solid #d9d9d9; padding: 16px; border-radius: 4px; margin-top: 8px; }
         .field-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
@@ -131,57 +131,57 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">ğŸ“¦</div>
-                <span class="brand-name">å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</span>
+                <div class="logo">??</div>
+                <span class="brand-name">Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</span>
             </div>
             <nav class="sidebar-nav">
                 <a href="project-list.html" class="nav-item">
-                    <span class="nav-icon">ğŸ“‹</span>
-                    <span>é¡¹ç›®ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÏîÄ¿¹ÜÀí</span>
                 </a>
                 <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">ğŸ”§</span>
-                    <span>è®¾å¤‡ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>Éè±¸¹ÜÀí</span>
                 </a>
                 <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">ğŸ“¡</span>
-                    <span>ç½‘å…³é…ç½®</span>
+                    <span class="nav-icon">??</span>
+                    <span>Íø¹ØÅäÖÃ</span>
                 </a>
                 <a href="business-options.html" class="nav-item" id="navBusinessOptions">
-                    <span class="nav-icon">âš™ï¸</span>
-                    <span>ä¸šåŠ¡ç±»å‹é…ç½®</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÒµÎñÀàĞÍÅäÖÃ</span>
                 </a>
                 <a href="equipment-config.html" class="nav-item active" id="navEquipmentConfig">
-                    <span class="nav-icon">ğŸ§©</span>
-                    <span>è®¾å¤‡é…ç½®ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>Éè±¸ÅäÖÃ¹ÜÀí</span>
                 </a>
                 <a href="user-management.html" class="nav-item" id="navUserManagement">
-                    <span class="nav-icon">ğŸ‘¥</span>
-                    <span>ç”¨æˆ·ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÓÃ»§¹ÜÀí</span>
                 </a>
                 <a href="index.html" class="nav-item">
-                    <span class="nav-icon">ğŸ </span>
-                    <span>äº§å“é—¨æˆ·</span>
+                    <span class="nav-icon">??</span>
+                    <span>²úÆ·ÃÅ»§</span>
                 </a>
             </nav>
         </aside>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>è®¾å¤‡é…ç½®ç®¡ç†</h1>
+                <h1>Éè±¸ÅäÖÃ¹ÜÀí</h1>
                 <div class="user-menu">
-                    <span class="user-name" id="userDisplayName">ğŸ‘¤ ç”¨æˆ·å</span>
-                    <button class="btn-logout" onclick="location.href='index.html'">é€€å‡º</button>
+                    <span class="user-name" id="userDisplayName">?? ÓÃ»§Ãû</span>
+                    <button class="btn-logout" onclick="location.href='index.html'">ÍË³ö</button>
                 </div>
             </header>
 
             <div class="page-container">
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <div class="tabs-nav" style="padding: 0 24px; margin: 0; background: #fff; border-bottom: 1px solid var(--line);">
-                        <button class="tab-btn active" onclick="switchTab('category')">1. è®¾å¤‡ç±»å‹ (Admin)</button>
-                        <button class="tab-btn" onclick="switchTab('brand')">2. å“ç‰Œä¸æ¨¡æ¿</button>
-                        <button class="tab-btn" onclick="switchTab('model')">3. å‹å·æ•°æ®</button>
-                        <button class="tab-btn" onclick="switchTab('gateway')">4. ç½‘å…³å‹å·ç®¡ç†</button>
+                        <button class="tab-btn active" onclick="switchTab('category')">1. Éè±¸ÀàĞÍ (Admin)</button>
+                        <button class="tab-btn" onclick="switchTab('brand')">2. Æ·ÅÆÓëÄ£°å</button>
+                        <button class="tab-btn" onclick="switchTab('model')">3. ĞÍºÅÊı¾İ</button>
+                        <button class="tab-btn" onclick="switchTab('gateway')">4. Íø¹ØĞÍºÅ¹ÜÀí</button>
                     </div>
 
                     <div style="padding: 24px;">
@@ -189,33 +189,33 @@
                         <div id="categoryTab" class="tab-pane active">
                             <div class="form-grid cols-auto" style="margin-bottom: 24px; align-items: end;">
                                 <div class="form-group" style="width: 240px;">
-                                    <label>ç±»å‹åç§°</label>
-                                    <input id="catName" class="form-control" placeholder="å¦‚ï¼šæ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨" oninput="onCatNameInput()">
+                                    <label>ÀàĞÍÃû³Æ</label>
+                                    <input id="catName" class="form-control" placeholder="Èç£ºÎÂÊª¶È´«¸ĞÆ÷" oninput="onCatNameInput()">
                                 </div>
                                 <div class="form-group" style="width: 320px;">
                                     <label style="display:flex; align-items:center; justify-content:space-between;">
-                                        <span>ç±»å‹ç¼–ç  (è‹±æ–‡)</span>
+                                        <span>ÀàĞÍ±àÂë (Ó¢ÎÄ)</span>
                                         <label style="font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; cursor:pointer; font-weight:normal;">
                                             <input type="checkbox" id="catCodeAutoMode" checked onchange="toggleCatCodeMode()" style="width:14px;height:14px;">
-                                            è‡ªåŠ¨ç”Ÿæˆ
+                                            ×Ô¶¯Éú³É
                                         </label>
                                     </label>
                                     <div style="position:relative;">
-                                        <input id="catCode" class="form-control" placeholder="è‡ªåŠ¨ç”Ÿæˆä¸­..." readonly style="background:#f5f5f5;">
-                                        <span id="catCodeHint" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--text-secondary);">è‡ªåŠ¨</span>
+                                        <input id="catCode" class="form-control" placeholder="×Ô¶¯Éú³ÉÖĞ..." readonly style="background:#f5f5f5;">
+                                        <span id="catCodeHint" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--text-secondary);">×Ô¶¯</span>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" onclick="addCategory()">+ æ–°å¢ç±»å‹</button>
+                                <button class="btn btn-primary" onclick="addCategory()">+ ĞÂÔöÀàĞÍ</button>
                             </div>
                             <div style="display:flex; gap:8px; margin-bottom:16px; justify-content:flex-end;">
-                                <button class="btn btn-secondary btn-sm" onclick="exportCategories()">ğŸ“¥ å¯¼å‡ºExcel</button>
-                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('catImportFile').click()">ğŸ“¤ ä»Excelå¯¼å…¥</button>
+                                <button class="btn btn-secondary btn-sm" onclick="exportCategories()">?? µ¼³öExcel</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('catImportFile').click()">?? ´ÓExcelµ¼Èë</button>
                                 <input type="file" id="catImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importCategories(event)">
-                                <button class="btn btn-secondary btn-sm" onclick="downloadCategoryTemplate()">ğŸ“‹ ä¸‹è½½æ¨¡æ¿</button>
+                                <button class="btn btn-secondary btn-sm" onclick="downloadCategoryTemplate()">?? ÏÂÔØÄ£°å</button>
                             </div>
                             <div class="table-container">
                                 <table class="data-table">
-                                    <thead><tr><th>ID</th><th>åç§°</th><th>ç¼–ç </th><th>è¯´æ˜</th><th style="text-align:right">æ“ä½œ</th></tr></thead>
+                                    <thead><tr><th>ID</th><th>Ãû³Æ</th><th>±àÂë</th><th>ËµÃ÷</th><th style="text-align:right">²Ù×÷</th></tr></thead>
                                     <tbody id="catTableBody"></tbody>
                                 </table>
                             </div>
@@ -225,18 +225,18 @@
                         <div id="brandTab" class="tab-pane">
                             <div class="toolbar">
                                 <div class="form-group" style="width: 200px;">
-                                    <label>ç­›é€‰è®¾å¤‡ç±»å‹</label>
+                                    <label>É¸Ñ¡Éè±¸ÀàĞÍ</label>
                                     <select id="brandFilterCat" class="form-control" onchange="loadBrands()"></select>
                                 </div>
                                 <div class="toolbar-spacer"></div>
-                                <button class="btn btn-secondary btn-sm" onclick="exportBrands()">ğŸ“¥ å¯¼å‡º</button>
-                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('brandImportFile').click()">ğŸ“¤ å¯¼å…¥</button>
+                                <button class="btn btn-secondary btn-sm" onclick="exportBrands()">?? µ¼³ö</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('brandImportFile').click()">?? µ¼Èë</button>
                                 <input type="file" id="brandImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importBrands(event)">
-                                <button class="btn btn-primary" onclick="openBrandModal()">+ æ–°å¢å“ç‰Œ/å®šåˆ¶æ¨¡æ¿</button>
+                                <button class="btn btn-primary" onclick="openBrandModal()">+ ĞÂÔöÆ·ÅÆ/¶¨ÖÆÄ£°å</button>
                             </div>
                             <div class="table-container">
                                 <table class="data-table">
-                                    <thead><tr><th>å“ç‰Œåç§°</th><th>æ‰€å±ç±»å‹</th><th>æ¨¡æ¿å­—æ®µæ•°</th><th style="text-align:right">æ“ä½œ</th></tr></thead>
+                                    <thead><tr><th>Æ·ÅÆÃû³Æ</th><th>ËùÊôÀàĞÍ</th><th>Ä£°å×Ö¶ÎÊı</th><th style="text-align:right">²Ù×÷</th></tr></thead>
                                     <tbody id="brandTableBody"></tbody>
                                 </table>
                             </div>
@@ -246,22 +246,22 @@
                         <div id="modelTab" class="tab-pane">
                             <div class="toolbar">
                                 <div class="form-group" style="width: 200px;">
-                                    <label>é€‰æ‹©å“ç‰Œ</label>
+                                    <label>Ñ¡ÔñÆ·ÅÆ</label>
                                     <select id="modelFilterBrand" class="form-control" onchange="onModelBrandChange()"></select>
                                 </div>
                                 <div class="form-group" style="width: 240px;">
-                                    <label>æœç´¢å‹å·</label>
-                                    <input id="modelSearch" class="form-control" placeholder="è¾“å…¥å‹å·åç§°..." oninput="filterModels()">
+                                    <label>ËÑË÷ĞÍºÅ</label>
+                                    <input id="modelSearch" class="form-control" placeholder="ÊäÈëĞÍºÅÃû³Æ..." oninput="filterModels()">
                                 </div>
                                 <div class="toolbar-spacer"></div>
-                                <button class="btn btn-secondary btn-sm" onclick="exportModels()">ğŸ“¥ å¯¼å‡º</button>
-                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modelImportFile').click()">ğŸ“¤ å¯¼å…¥</button>
+                                <button class="btn btn-secondary btn-sm" onclick="exportModels()">?? µ¼³ö</button>
+                                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modelImportFile').click()">?? µ¼Èë</button>
                                 <input type="file" id="modelImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importModels(event)">
-                                <button class="btn btn-primary" onclick="openModelModal()">+ å½•å…¥æ–°å‹å·</button>
+                                <button class="btn btn-primary" onclick="openModelModal()">+ Â¼ÈëĞÂĞÍºÅ</button>
                             </div>
                             <div class="table-container">
                                 <table class="data-table">
-                                    <thead><tr><th>å‹å·åç§°</th><th>æ‰€å±å“ç‰Œ</th><th>è§„æ ¼å‚æ•°é¢„è§ˆ</th><th style="text-align:right">æ“ä½œ</th></tr></thead>
+                                    <thead><tr><th>ĞÍºÅÃû³Æ</th><th>ËùÊôÆ·ÅÆ</th><th>¹æ¸ñ²ÎÊıÔ¤ÀÀ</th><th style="text-align:right">²Ù×÷</th></tr></thead>
                                     <tbody id="modelTableBody"></tbody>
                                 </table>
                             </div>
@@ -271,18 +271,18 @@
                         <div id="gatewayTab" class="tab-pane">
                             <div class="toolbar">
                                 <div class="form-group" style="width: 200px;">
-                                    <label>ç­›é€‰å“ç‰Œ</label>
-                                    <input id="gwBrandFilter" class="form-control" placeholder="è¾“å…¥å“ç‰Œå..." oninput="loadGatewayModels()">
+                                    <label>É¸Ñ¡Æ·ÅÆ</label>
+                                    <input id="gwBrandFilter" class="form-control" placeholder="ÊäÈëÆ·ÅÆÃû..." oninput="loadGatewayModels()">
                                 </div>
                                 <div class="toolbar-spacer"></div>
-                                <a href="gateway-inventory.html" class="btn btn-secondary" style="text-decoration:none;">åº“å­˜ç®¡ç† â†’</a>
-                                <button class="btn btn-primary" onclick="openGwModelModal()">+ æ–°å¢ç½‘å…³å‹å·</button>
+                                <a href="gateway-inventory.html" class="btn btn-secondary" style="text-decoration:none;">¿â´æ¹ÜÀí ¡ú</a>
+                                <button class="btn btn-primary" onclick="openGwModelModal()">+ ĞÂÔöÍø¹ØĞÍºÅ</button>
                             </div>
                             <div class="table-container">
                                 <table class="data-table">
                                     <thead><tr>
-                                        <th>å“ç‰Œ</th><th>å‹å·</th><th>ä¸²å£æ•°</th><th>ç½‘å£æ•°</th>
-                                        <th>æ”¯æŒåè®®</th><th>åº“å­˜/åœ¨åº“</th><th style="text-align:right">æ“ä½œ</th>
+                                        <th>Æ·ÅÆ</th><th>ĞÍºÅ</th><th>´®¿ÚÊı</th><th>Íø¿ÚÊı</th>
+                                        <th>Ö§³ÖĞ­Òé</th><th>¿â´æ/ÔÚ¿â</th><th style="text-align:right">²Ù×÷</th>
                                     </tr></thead>
                                     <tbody id="gwModelTableBody"></tbody>
                                 </table>
@@ -298,27 +298,27 @@
     <div class="modal-overlay" id="catEditModal">
         <div class="modal-content" style="width: 480px;">
             <div class="modal-header">
-                <h3>ç¼–è¾‘è®¾å¤‡ç±»å‹</h3>
-                <button class="btn-icon" onclick="closeModal('catEditModal')">âœ•</button>
+                <h3>±à¼­Éè±¸ÀàĞÍ</h3>
+                <button class="btn-icon" onclick="closeModal('catEditModal')">?</button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="editCatId">
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label>ç±»å‹åç§°</label>
-                    <input id="editCatName" class="form-control" placeholder="ç±»å‹åç§°">
+                    <label>ÀàĞÍÃû³Æ</label>
+                    <input id="editCatName" class="form-control" placeholder="ÀàĞÍÃû³Æ">
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label>ç±»å‹ç¼–ç  (è‹±æ–‡)</label>
-                    <input id="editCatCode" class="form-control" placeholder="ç±»å‹ç¼–ç ">
+                    <label>ÀàĞÍ±àÂë (Ó¢ÎÄ)</label>
+                    <input id="editCatCode" class="form-control" placeholder="ÀàĞÍ±àÂë">
                 </div>
                 <div class="form-group">
-                    <label>è¯´æ˜ (å¯é€‰)</label>
-                    <input id="editCatDesc" class="form-control" placeholder="ç±»å‹è¯´æ˜">
+                    <label>ËµÃ÷ (¿ÉÑ¡)</label>
+                    <input id="editCatDesc" class="form-control" placeholder="ÀàĞÍËµÃ÷">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('catEditModal')">å–æ¶ˆ</button>
-                <button class="btn btn-primary" onclick="saveEditCategory()">ä¿å­˜</button>
+                <button class="btn btn-secondary" onclick="closeModal('catEditModal')">È¡Ïû</button>
+                <button class="btn btn-primary" onclick="saveEditCategory()">±£´æ</button>
             </div>
         </div>
     </div>
@@ -327,45 +327,45 @@
     <div class="modal-overlay" id="brandModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="brandModalTitle">å“ç‰Œ & æ¨¡æ¿é…ç½®</h3>
-                <button class="btn-icon" onclick="closeModal('brandModal')">âœ•</button>
+                <h3 id="brandModalTitle">Æ·ÅÆ & Ä£°åÅäÖÃ</h3>
+                <button class="btn-icon" onclick="closeModal('brandModal')">?</button>
             </div>
             <div class="modal-body">
                 <div class="form-grid cols-2">
                     <div class="form-group">
-                        <label>æ‰€å±ç±»å‹</label>
+                        <label>ËùÊôÀàĞÍ</label>
                         <select id="modalBrandCat" class="form-control"></select>
                     </div>
                     <div class="form-group">
-                        <label>å“ç‰Œåç§°</label>
-                        <input id="modalBrandName" class="form-control" placeholder="å¦‚ï¼šå°ç±³">
+                        <label>Æ·ÅÆÃû³Æ</label>
+                        <input id="modalBrandName" class="form-control" placeholder="Èç£ºĞ¡Ã×">
                     </div>
                 </div>
                 
                 <div style="margin-top: 24px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <label style="font-weight:600; color:var(--text-main);">å‚æ•°æ¨¡æ¿å®šä¹‰ (JSON)</label>
-                        <button class="btn btn-secondary btn-sm" onclick="addFieldRow()">+ æ·»åŠ å­—æ®µ</button>
+                        <label style="font-weight:600; color:var(--text-main);">²ÎÊıÄ£°å¶¨Òå (JSON)</label>
+                        <button class="btn btn-secondary btn-sm" onclick="addFieldRow()">+ Ìí¼Ó×Ö¶Î</button>
                     </div>
                     <div class="field-row-header">
-                        <span>å­—æ®µå (Label)</span>
-                        <span>ç±»å‹ (Type)</span>
-                        <span>é€‰é¡¹ (Options)</span>
+                        <span>×Ö¶ÎÃû (Label)</span>
+                        <span>ÀàĞÍ (Type)</span>
+                        <span>Ñ¡Ïî (Options)</span>
                         <span></span>
                     </div>
                     <div id="templateBuilder" class="field-builder">
                         <!-- Dynamic Rows -->
                     </div>
                     <p style="font-size:12px; color:var(--text-sub); margin-top:12px; background:#f1f5f9; padding:12px; border-radius:4px; line-height: 1.5;">
-                        <strong>ğŸ’¡ é…ç½®å°è´´å£«ï¼š</strong><br>
-                        1. ç³»ç»Ÿå·²é»˜è®¤åŒ…å« <strong>â€œè®¾å¤‡å‹å·â€</strong> å­—æ®µï¼ˆä½œä¸ºå”¯ä¸€æ ‡è¯†ï¼‰ï¼Œ<span style="color:var(--danger)">è¯·å‹¿åœ¨ä¸‹æ–¹é‡å¤æ·»åŠ â€œå‹å·â€å­—æ®µ</span>ã€‚<br>
-                        2. åœ¨æ­¤ä»…éœ€å®šä¹‰è¯¥è®¾å¤‡çš„é¢å¤–å±æ€§ï¼Œå¦‚ï¼šé€šè®¯æ¥å£ã€é€šè®¯åè®®ã€åˆ¶å†·é‡ã€åŠŸç‡ã€å°ºå¯¸ç­‰ã€‚
+                        <strong>?? ÅäÖÃĞ¡ÌùÊ¿£º</strong><br>
+                        1. ÏµÍ³ÒÑÄ¬ÈÏ°üº¬ <strong>¡°Éè±¸ĞÍºÅ¡±</strong> ×Ö¶Î£¨×÷ÎªÎ¨Ò»±êÊ¶£©£¬<span style="color:var(--danger)">ÇëÎğÔÚÏÂ·½ÖØ¸´Ìí¼Ó¡°ĞÍºÅ¡±×Ö¶Î</span>¡£<br>
+                        2. ÔÚ´Ë½öĞè¶¨Òå¸ÃÉè±¸µÄ¶îÍâÊôĞÔ£¬Èç£ºÍ¨Ñ¶½Ó¿Ú¡¢Í¨Ñ¶Ğ­Òé¡¢ÖÆÀäÁ¿¡¢¹¦ÂÊ¡¢³ß´çµÈ¡£
                     </p>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('brandModal')">å–æ¶ˆ</button>
-                <button class="btn btn-primary" onclick="saveBrand()">ä¿å­˜é…ç½®</button>
+                <button class="btn btn-secondary" onclick="closeModal('brandModal')">È¡Ïû</button>
+                <button class="btn btn-primary" onclick="saveBrand()">±£´æÅäÖÃ</button>
             </div>
         </div>
     </div>
@@ -374,30 +374,30 @@
     <div class="modal-overlay" id="modelModal">
         <div class="modal-content" style="width: 600px;">
             <div class="modal-header">
-                <h3 id="modelModalTitle">å½•å…¥å‹å·</h3>
-                <button class="btn-icon" onclick="closeModal('modelModal')">âœ•</button>
+                <h3 id="modelModalTitle">Â¼ÈëĞÍºÅ</h3>
+                <button class="btn-icon" onclick="closeModal('modelModal')">?</button>
             </div>
             <div class="modal-body">
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label>æ‰€å±å“ç‰Œ</label>
+                    <label>ËùÊôÆ·ÅÆ</label>
                     <select id="modalModelBrand" class="form-control" disabled style="background:#f1f5f9;"></select>
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label>è®¾å¤‡å‹å· <span style="color:var(--text-sub); font-weight:400; font-size:12px;">(å¿…å¡«ï¼Œå¦‚ XMS-2000)</span></label>
-                    <input id="modalModelName" class="form-control" placeholder="è¯·è¾“å…¥å”¯ä¸€å‹å·æ ‡è¯†">
+                    <label>Éè±¸ĞÍºÅ <span style="color:var(--text-sub); font-weight:400; font-size:12px;">(±ØÌî£¬Èç XMS-2000)</span></label>
+                    <input id="modalModelName" class="form-control" placeholder="ÇëÊäÈëÎ¨Ò»ĞÍºÅ±êÊ¶">
                 </div>
                 <hr style="border:0; border-top:1px solid var(--line); margin: 20px 0;">
                 <div style="background:#f8fafc; padding:16px; border-radius:8px;">
-                    <label style="font-weight:600; margin-bottom:12px; display:block; color:var(--text-main);">è¯¦ç»†è§„æ ¼å‚æ•°</label>
-                    <p style="font-size:12px; color:var(--text-sub); margin-bottom:16px;">ä»¥ä¸‹å­—æ®µç”±æ‚¨åœ¨â€œå“ç‰Œä¸æ¨¡æ¿â€ä¸­å®šä¹‰ï¼š</p>
+                    <label style="font-weight:600; margin-bottom:12px; display:block; color:var(--text-main);">ÏêÏ¸¹æ¸ñ²ÎÊı</label>
+                    <p style="font-size:12px; color:var(--text-sub); margin-bottom:16px;">ÒÔÏÂ×Ö¶ÎÓÉÄúÔÚ¡°Æ·ÅÆÓëÄ£°å¡±ÖĞ¶¨Òå£º</p>
                     <div id="dynamicFormArea" class="form-grid cols-2">
                         <!-- Dynamic Inputs -->
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('modelModal')">å–æ¶ˆ</button>
-                <button class="btn btn-primary" onclick="saveModel()">ä¿å­˜æ•°æ®</button>
+                <button class="btn btn-secondary" onclick="closeModal('modelModal')">È¡Ïû</button>
+                <button class="btn btn-primary" onclick="saveModel()">±£´æÊı¾İ</button>
             </div>
         </div>
     </div>
@@ -406,40 +406,40 @@
     <div class="modal-overlay" id="gwModelModal">
         <div class="modal-content" style="width: 640px;">
             <div class="modal-header">
-                <h3 id="gwModelModalTitle">æ–°å¢ç½‘å…³å‹å·</h3>
-                <button class="btn-icon" onclick="closeModal('gwModelModal')">âœ•</button>
+                <h3 id="gwModelModalTitle">ĞÂÔöÍø¹ØĞÍºÅ</h3>
+                <button class="btn-icon" onclick="closeModal('gwModelModal')">?</button>
             </div>
             <div class="modal-body">
                 <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
-                        <label>å“ç‰Œ <span style="color:red">*</span></label>
-                        <input id="gwmBrand" class="form-control" placeholder="å¦‚ï¼šç ”åã€æœ‰äºº">
+                        <label>Æ·ÅÆ <span style="color:red">*</span></label>
+                        <input id="gwmBrand" class="form-control" placeholder="Èç£ºÑĞ»ª¡¢ÓĞÈË">
                     </div>
                     <div class="form-group">
-                        <label>å‹å·åç§° <span style="color:red">*</span></label>
-                        <input id="gwmModelName" class="form-control" placeholder="å¦‚ï¼šEKI-1528">
+                        <label>ĞÍºÅÃû³Æ <span style="color:red">*</span></label>
+                        <input id="gwmModelName" class="form-control" placeholder="Èç£ºEKI-1528">
                     </div>
                     <div class="form-group">
-                        <label>ä¸²å£(RS485/COM)æ•°é‡ <span style="color:red">*</span></label>
+                        <label>´®¿Ú(RS485/COM)ÊıÁ¿ <span style="color:red">*</span></label>
                         <input id="gwmSerialPorts" class="form-control" type="number" min="0" value="4">
                     </div>
                     <div class="form-group">
-                        <label>ç½‘å£æ•°é‡</label>
+                        <label>Íø¿ÚÊıÁ¿</label>
                         <input id="gwmEthernetPorts" class="form-control" type="number" min="0" value="1">
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
-                        <label>æ”¯æŒçš„é€šè®¯åè®®ï¼ˆé€—å·åˆ†éš”ï¼‰</label>
-                        <input id="gwmProtocols" class="form-control" placeholder="å¦‚ï¼šModbus-RTU,Modbus-TCP">
+                        <label>Ö§³ÖµÄÍ¨Ñ¶Ğ­Òé£¨¶ººÅ·Ö¸ô£©</label>
+                        <input id="gwmProtocols" class="form-control" placeholder="Èç£ºModbus-RTU,Modbus-TCP">
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
-                        <label>å…¶ä»–è§„æ ¼è¯´æ˜</label>
-                        <textarea id="gwmDescription" class="form-control" style="height:60px; resize:vertical;" placeholder="ä¾›ç”µæ–¹å¼ã€å·¥ä½œæ¸©åº¦èŒƒå›´ç­‰"></textarea>
+                        <label>ÆäËû¹æ¸ñËµÃ÷</label>
+                        <textarea id="gwmDescription" class="form-control" style="height:60px; resize:vertical;" placeholder="¹©µç·½Ê½¡¢¹¤×÷ÎÂ¶È·¶Î§µÈ"></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('gwModelModal')">å–æ¶ˆ</button>
-                <button class="btn btn-primary" onclick="saveGwModel()">ä¿å­˜</button>
+                <button class="btn btn-secondary" onclick="closeModal('gwModelModal')">È¡Ïû</button>
+                <button class="btn btn-primary" onclick="saveGwModel()">±£´æ</button>
             </div>
         </div>
     </div>
@@ -453,7 +453,7 @@
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
             const role = localStorage.getItem('userRole');
-            const roleText = role === 'factory' ? 'ç®¡ç†å‘˜' : 'ç”¨æˆ·';
+            const roleText = role === 'factory' ? '¹ÜÀíÔ±' : 'ÓÃ»§';
             const username = localStorage.getItem('currentUsername') || '';
             const displayEl = document.getElementById('userDisplayName');
             if (displayEl) displayEl.innerText = `${roleText} ${username}`;
@@ -471,13 +471,13 @@
                 renderCategoryTable();
                 updateSelects();
             } catch(e) { 
-                console.error('åŠ è½½è®¾å¤‡ç±»å‹å¤±è´¥:', e);
-                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">åŠ è½½å¤±è´¥: ' + e.message + '</td></tr>';
+                console.error('¼ÓÔØÉè±¸ÀàĞÍÊ§°Ü:', e);
+                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">¼ÓÔØÊ§°Ü: ' + e.message + '</td></tr>';
             }
         }
 
         function chineseToPinyin(str) {
-            const map = {'å†·é£æœº':'air_cooler','æ¸©æ§å™¨':'thermostat','åˆ¶å†·æœºç»„':'unit','ç”µè¡¨':'meter','å†·æŸœ':'freezer','èéœœæ§åˆ¶å™¨':'defrost_controller','æ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨':'temp_sensor','å‹ç¼©æœº':'compressor','è’¸å‘å™¨':'evaporator','å†·å‡å™¨':'condenser','è†¨èƒ€é˜€':'expansion_valve','æ°´æ³µ':'water_pump','é£æœº':'fan','é˜€é—¨':'valve','ä¼ æ„Ÿå™¨':'sensor','æ§åˆ¶å™¨':'controller','å˜é¢‘å™¨':'inverter','åŠ æ¹¿å™¨':'humidifier','é™¤æ¹¿æœº':'dehumidifier'};
+            const map = {'Àä·ç»ú':'air_cooler','ÎÂ¿ØÆ÷':'thermostat','ÖÆÀä»ú×é':'unit','µç±í':'meter','Àä¹ñ':'freezer','ÈÚËª¿ØÖÆÆ÷':'defrost_controller','ÎÂÊª¶È´«¸ĞÆ÷':'temp_sensor','Ñ¹Ëõ»ú':'compressor','Õô·¢Æ÷':'evaporator','ÀäÄıÆ÷':'condenser','ÅòÕÍ·§':'expansion_valve','Ë®±Ã':'water_pump','·ç»ú':'fan','·§ÃÅ':'valve','´«¸ĞÆ÷':'sensor','¿ØÖÆÆ÷':'controller','±äÆµÆ÷':'inverter','¼ÓÊªÆ÷':'humidifier','³ıÊª»ú':'dehumidifier'};
             if (map[str]) return map[str];
             return str.replace(/[\u4e00-\u9fa5]/g, '').replace(/\s+/g, '_').toLowerCase() || 'type_' + Date.now().toString(36);
         }
@@ -496,21 +496,21 @@
             if (auto) {
                 codeInput.readOnly = true;
                 codeInput.style.background = '#f5f5f5';
-                codeInput.placeholder = 'è‡ªåŠ¨ç”Ÿæˆä¸­...';
-                hint.textContent = 'è‡ªåŠ¨';
+                codeInput.placeholder = '×Ô¶¯Éú³ÉÖĞ...';
+                hint.textContent = '×Ô¶¯';
                 onCatNameInput();
             } else {
                 codeInput.readOnly = false;
                 codeInput.style.background = '#fff';
-                codeInput.placeholder = 'å¦‚ï¼štemp_sensor';
-                hint.textContent = 'æ‰‹åŠ¨';
+                codeInput.placeholder = 'Èç£ºtemp_sensor';
+                hint.textContent = 'ÊÖ¶¯';
             }
         }
 
         async function addCategory() {
             const name = document.getElementById('catName').value.trim();
             const code = document.getElementById('catCode').value.trim();
-            if(!name || !code) return alert('è¯·å¡«å†™ç±»å‹åç§°å’Œç¼–ç ');
+            if(!name || !code) return alert('ÇëÌîĞ´ÀàĞÍÃû³ÆºÍ±àÂë');
             
             try {
                 await api.equipment.post('/equipment-library/categories', { name, code });
@@ -518,16 +518,16 @@
                 document.getElementById('catCode').value = '';
                 await loadCategories();
             } catch(e) {
-                alert('æ·»åŠ å¤±è´¥: ' + e.message);
+                alert('Ìí¼ÓÊ§°Ü: ' + e.message);
             }
         }
 
         async function deleteCategory(id) {
-            if(!confirm('ç¡®å®šåˆ é™¤ï¼Ÿå°†çº§è”åˆ é™¤è¯¥ç±»å‹ä¸‹çš„æ‰€æœ‰å“ç‰Œå’Œå‹å·ï¼')) return;
+            if(!confirm('È·¶¨É¾³ı£¿½«¼¶ÁªÉ¾³ı¸ÃÀàĞÍÏÂµÄËùÓĞÆ·ÅÆºÍĞÍºÅ£¡')) return;
             try {
                 await api.equipment.delete('/equipment-library/categories/' + id);
                 await loadCategories();
-            } catch(e) { alert('åˆ é™¤å¤±è´¥: ' + e.message); }
+            } catch(e) { alert('É¾³ıÊ§°Ü: ' + e.message); }
         }
 
         function openEditCategory(id) {
@@ -545,14 +545,14 @@
             const name = document.getElementById('editCatName').value.trim();
             const code = document.getElementById('editCatCode').value.trim();
             const description = document.getElementById('editCatDesc').value.trim();
-            if (!name || !code) return alert('åç§°å’Œç¼–ç ä¸èƒ½ä¸ºç©º');
+            if (!name || !code) return alert('Ãû³ÆºÍ±àÂë²»ÄÜÎª¿Õ');
 
             try {
                 await api.equipment.put('/equipment-library/categories/' + id, { name, code, description: description || null });
                 closeModal('catEditModal');
                 await loadCategories();
             } catch(e) {
-                alert('ä¿å­˜å¤±è´¥: ' + e.message);
+                alert('±£´æÊ§°Ü: ' + e.message);
             }
         }
 
@@ -565,8 +565,8 @@
                     <td><span class="badge">${c.code}</span></td>
                     <td style="color:var(--text-secondary); font-size:13px;">${c.description || '-'}</td>
                     <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary-color)" onclick="openEditCategory(${c.id})">âœ ç¼–è¾‘</button>
-                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteCategory(${c.id})">ğŸ—‘</button>
+                        <button class="btn-icon" style="color:var(--primary-color)" onclick="openEditCategory(${c.id})">? ±à¼­</button>
+                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteCategory(${c.id})">??</button>
                     </td>
                 </tr>
             `).join('');
@@ -581,7 +581,7 @@
                 renderBrandTable();
                 updateModelBrandSelect();
             } catch(e) {
-                console.error('åŠ è½½å“ç‰Œå¤±è´¥:', e);
+                console.error('¼ÓÔØÆ·ÅÆÊ§°Ü:', e);
             }
         }
 
@@ -594,10 +594,10 @@
                 <tr>
                     <td style="font-weight:600">${b.name}</td>
                     <td>${cat ? cat.name : '-'}</td>
-                    <td><span class="badge">${fieldCount} ä¸ªå­—æ®µ</span></td>
+                    <td><span class="badge">${fieldCount} ¸ö×Ö¶Î</span></td>
                     <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary)" onclick="editBrand(${b.id})">âœ ç¼–è¾‘</button>
-                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBrand(${b.id})">ğŸ—‘</button>
+                        <button class="btn-icon" style="color:var(--primary)" onclick="editBrand(${b.id})">? ±à¼­</button>
+                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBrand(${b.id})">??</button>
                     </td>
                 </tr>
             `}).join('');
@@ -605,7 +605,7 @@
 
         function openBrandModal(brand = null) {
             editingBrandId = brand ? brand.id : null;
-            document.getElementById('brandModalTitle').innerText = brand ? 'ç¼–è¾‘å“ç‰Œ & æ¨¡æ¿' : 'æ–°å¢å“ç‰Œ & æ¨¡æ¿';
+            document.getElementById('brandModalTitle').innerText = brand ? '±à¼­Æ·ÅÆ & Ä£°å' : 'ĞÂÔöÆ·ÅÆ & Ä£°å';
             
             // Populate fields
             document.getElementById('modalBrandCat').value = brand ? brand.category_id : '';
@@ -635,13 +635,13 @@
             const div = document.createElement('div');
             div.className = 'field-row';
             div.innerHTML = `
-                <input class="form-control f-label" placeholder="å­—æ®µå (å¦‚: é€šè®¯å£)" value="${data.label || ''}">
+                <input class="form-control f-label" placeholder="×Ö¶ÎÃû (Èç: Í¨Ñ¶¿Ú)" value="${data.label || ''}">
                 <select class="form-control f-type">
-                    <option value="text" ${data.type==='text'?'selected':''}>æ–‡æœ¬</option>
-                    <option value="select" ${data.type==='select'?'selected':''}>ä¸‹æ‹‰</option>
+                    <option value="text" ${data.type==='text'?'selected':''}>ÎÄ±¾</option>
+                    <option value="select" ${data.type==='select'?'selected':''}>ÏÂÀ­</option>
                 </select>
-                <input class="form-control f-opts" placeholder="é€‰é¡¹ (é€—å·åˆ†éš”)" value="${(data.options||[]).join(',')}">
-                <button class="btn-icon" style="color:#94a3b8" onclick="this.parentElement.remove()">âœ•</button>
+                <input class="form-control f-opts" placeholder="Ñ¡Ïî (¶ººÅ·Ö¸ô)" value="${(data.options||[]).join(',')}">
+                <button class="btn-icon" style="color:#94a3b8" onclick="this.parentElement.remove()">?</button>
             `;
             container.appendChild(div);
         }
@@ -666,7 +666,7 @@
                 }
             });
 
-            if(!name || !catId) return alert('è¯·å¡«å†™åç§°å¹¶é€‰æ‹©ç±»å‹');
+            if(!name || !catId) return alert('ÇëÌîĞ´Ãû³Æ²¢Ñ¡ÔñÀàĞÍ');
 
             const payload = { category_id: parseInt(catId), name, spec_template: template };
 
@@ -679,16 +679,16 @@
                 closeModal('brandModal');
                 loadBrands();
             } catch(e) {
-                alert('ä¿å­˜å¤±è´¥: ' + e.message);
+                alert('±£´æÊ§°Ü: ' + e.message);
             }
         }
         
         async function deleteBrand(id) {
-            if(!confirm('åˆ é™¤å“ç‰Œå°†æ¸…ç©ºå…¶ä¸‹æ‰€æœ‰å‹å·æ•°æ®ï¼Œç¡®å®šï¼Ÿ')) return;
+            if(!confirm('É¾³ıÆ·ÅÆ½«Çå¿ÕÆäÏÂËùÓĞĞÍºÅÊı¾İ£¬È·¶¨£¿')) return;
             try {
                 await api.equipment.deleteBrand(id);
                 loadBrands();
-            } catch(e) { alert('åˆ é™¤å¤±è´¥: ' + e.message); }
+            } catch(e) { alert('É¾³ıÊ§°Ü: ' + e.message); }
         }
 
         // --- 3. Model Logic ---
@@ -703,7 +703,7 @@
                 state.models = await api.equipment.getModels(params);
                 renderModelTable();
             } catch(e) {
-                console.error('åŠ è½½å‹å·å¤±è´¥:', e);
+                console.error('¼ÓÔØĞÍºÅÊ§°Ü:', e);
             }
         }
 
@@ -725,7 +725,7 @@
                     <td>${brand ? brand.name : '-'}</td>
                     <td style="color:var(--text-sub); font-size:12px;">${specStr || '-'}</td>
                     <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteModel(${m.id})">ğŸ—‘</button>
+                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteModel(${m.id})">??</button>
                     </td>
                 </tr>
             `}).join('');
@@ -733,7 +733,7 @@
 
         function openModelModal() {
             const brandId = document.getElementById('modelFilterBrand').value;
-            if(!brandId) return alert('è¯·å…ˆåœ¨å·¦ä¸Šè§’é€‰æ‹©ä¸€ä¸ªå“ç‰Œï¼Œä»¥ä¾¿åŠ è½½å¯¹åº”æ¨¡æ¿');
+            if(!brandId) return alert('ÇëÏÈÔÚ×óÉÏ½ÇÑ¡ÔñÒ»¸öÆ·ÅÆ£¬ÒÔ±ã¼ÓÔØ¶ÔÓ¦Ä£°å');
             
             const brand = state.brands.find(b => b.id == brandId);
             document.getElementById('modalModelBrand').innerHTML = `<option value="${brand.id}">${brand.name}</option>`;
@@ -752,13 +752,13 @@
                         const opts = field.options.map(o => `<option value="${o}">${o}</option>`).join('');
                         inputHtml = `<select class="form-control d-input" data-key="${field.key}">${opts}</select>`;
                     } else {
-                        inputHtml = `<input class="form-control d-input" data-key="${field.key}" placeholder="è¯·è¾“å…¥">`;
+                        inputHtml = `<input class="form-control d-input" data-key="${field.key}" placeholder="ÇëÊäÈë">`;
                     }
                     div.innerHTML = `<label>${field.label}</label>${inputHtml}`;
                     container.appendChild(div);
                 });
             } else {
-                container.innerHTML = '<div style="color:#94a3b8; grid-column:span 2; padding: 20px; text-align:center; background:#f8fafc; border-radius:8px;">è¯¥å“ç‰Œæœªå®šä¹‰å‚æ•°æ¨¡æ¿ï¼Œä»…éœ€å¡«å†™æ ‡å‡†å‹å·åç§°å³å¯ã€‚</div>';
+                container.innerHTML = '<div style="color:#94a3b8; grid-column:span 2; padding: 20px; text-align:center; background:#f8fafc; border-radius:8px;">¸ÃÆ·ÅÆÎ´¶¨Òå²ÎÊıÄ£°å£¬½öĞèÌîĞ´±ê×¼ĞÍºÅÃû³Æ¼´¿É¡£</div>';
             }
             
             document.getElementById('modelModal').classList.add('open');
@@ -767,7 +767,7 @@
         async function saveModel() {
             const brandId = document.getElementById('modalModelBrand').value;
             const name = document.getElementById('modalModelName').value;
-            if(!name) return alert('è¯·è¾“å…¥å‹å·åç§°');
+            if(!name) return alert('ÇëÊäÈëĞÍºÅÃû³Æ');
             
             const specs = {};
             document.querySelectorAll('.d-input').forEach(input => {
@@ -783,29 +783,29 @@
                 closeModal('modelModal');
                 loadModels();
             } catch(e) {
-                alert('ä¿å­˜å¤±è´¥: ' + e.message);
+                alert('±£´æÊ§°Ü: ' + e.message);
             }
         }
         
         async function deleteModel(id) {
-            if(!confirm('ç¡®å®šåˆ é™¤ï¼Ÿ')) return;
+            if(!confirm('È·¶¨É¾³ı£¿')) return;
             try {
                 await api.equipment.deleteModel(id);
                 loadModels();
-            } catch(e) { alert('åˆ é™¤å¤±è´¥: ' + e.message); }
+            } catch(e) { alert('É¾³ıÊ§°Ü: ' + e.message); }
         }
 
         // --- Shared ---
         function updateSelects() {
             const opts = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            // ç­›é€‰ä¸‹æ‹‰æ¡†ä¿ç•™â€œå…¨éƒ¨â€
-            document.getElementById('brandFilterCat').innerHTML = '<option value="">å…¨éƒ¨</option>' + opts;
-            // å¼¹çª—ä¸‹æ‹‰æ¡†ä¸éœ€è¦â€œå…¨éƒ¨â€
+            // É¸Ñ¡ÏÂÀ­¿ò±£Áô¡°È«²¿¡±
+            document.getElementById('brandFilterCat').innerHTML = '<option value="">È«²¿</option>' + opts;
+            // µ¯´°ÏÂÀ­¿ò²»ĞèÒª¡°È«²¿¡±
             document.getElementById('modalBrandCat').innerHTML = opts;
         }
         
         function updateModelBrandSelect() {
-            const opts = '<option value="">è¯·é€‰æ‹©å“ç‰Œ...</option>' + state.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            const opts = '<option value="">ÇëÑ¡ÔñÆ·ÅÆ...</option>' + state.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
             document.getElementById('modelFilterBrand').innerHTML = opts;
             if(currentBrandId) document.getElementById('modelFilterBrand').value = currentBrandId;
         }
@@ -840,13 +840,13 @@
                 const params = brandFilter ? { brand: brandFilter } : {};
                 state.gwModels = await api.gatewayLibrary.getModels(params);
                 renderGwModelTable();
-            } catch(e) { console.error('åŠ è½½ç½‘å…³å‹å·å¤±è´¥:', e); }
+            } catch(e) { console.error('¼ÓÔØÍø¹ØĞÍºÅÊ§°Ü:', e); }
         }
 
         function renderGwModelTable() {
             const tbody = document.getElementById('gwModelTableBody');
             if (!state.gwModels || state.gwModels.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:40px;">æš‚æ— ç½‘å…³å‹å·æ•°æ®</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:40px;">ÔİÎŞÍø¹ØĞÍºÅÊı¾İ</td></tr>';
                 return;
             }
             tbody.innerHTML = state.gwModels.map(m => {
@@ -863,8 +863,8 @@
                         / <span style="color:var(--success-color)">${m.in_stock_count || 0}</span>
                     </td>
                     <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary-color)" onclick="editGwModel(${m.id})">âœ</button>
-                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteGwModel(${m.id})">ğŸ—‘</button>
+                        <button class="btn-icon" style="color:var(--primary-color)" onclick="editGwModel(${m.id})">?</button>
+                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteGwModel(${m.id})">??</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -872,7 +872,7 @@
 
         function openGwModelModal(data = null) {
             editingGwModelId = data ? data.id : null;
-            document.getElementById('gwModelModalTitle').innerText = data ? 'ç¼–è¾‘ç½‘å…³å‹å·' : 'æ–°å¢ç½‘å…³å‹å·';
+            document.getElementById('gwModelModalTitle').innerText = data ? '±à¼­Íø¹ØĞÍºÅ' : 'ĞÂÔöÍø¹ØĞÍºÅ';
             document.getElementById('gwmBrand').value = data ? data.brand : '';
             document.getElementById('gwmModelName').value = data ? data.model_name : '';
             document.getElementById('gwmSerialPorts').value = data ? data.serial_port_count : 4;
@@ -895,7 +895,7 @@
             const protocolsStr = document.getElementById('gwmProtocols').value.trim();
             const description = document.getElementById('gwmDescription').value.trim();
 
-            if (!brand || !modelName) return alert('è¯·å¡«å†™å“ç‰Œå’Œå‹å·åç§°');
+            if (!brand || !modelName) return alert('ÇëÌîĞ´Æ·ÅÆºÍĞÍºÅÃû³Æ');
 
             const payload = {
                 brand,
@@ -915,21 +915,21 @@
                 closeModal('gwModelModal');
                 loadGatewayModels();
             } catch(e) {
-                alert('ä¿å­˜å¤±è´¥: ' + e.message);
+                alert('±£´æÊ§°Ü: ' + e.message);
             }
         }
 
         async function deleteGwModel(id) {
-            if (!confirm('åˆ é™¤è¯¥å‹å·å°†åŒæ—¶åˆ é™¤æ‰€æœ‰åœ¨åº“åº“å­˜ï¼Œç¡®å®šï¼Ÿ')) return;
+            if (!confirm('É¾³ı¸ÃĞÍºÅ½«Í¬Ê±É¾³ıËùÓĞÔÚ¿â¿â´æ£¬È·¶¨£¿')) return;
             try {
                 await api.gatewayLibrary.deleteModel(id);
                 loadGatewayModels();
             } catch(e) {
-                alert('åˆ é™¤å¤±è´¥: ' + e.message);
+                alert('É¾³ıÊ§°Ü: ' + e.message);
             }
         }
 
-        // ==================== Excel å¯¼å…¥å¯¼å‡ºå·¥å…· ====================
+        // ==================== Excel µ¼Èëµ¼³ö¹¤¾ß ====================
 
         function readExcelFile(file) {
             return new Promise((resolve, reject) => {
@@ -954,20 +954,20 @@
             XLSX.writeFile(wb, filename);
         }
 
-        // --- Category å¯¼å…¥å¯¼å‡º ---
+        // --- Category µ¼Èëµ¼³ö ---
         function exportCategories() {
-            if (state.categories.length === 0) return alert('æš‚æ— æ•°æ®å¯å¯¼å‡º');
+            if (state.categories.length === 0) return alert('ÔİÎŞÊı¾İ¿Éµ¼³ö');
             const data = state.categories.map(c => ({
-                'ç±»å‹åç§°': c.name,
-                'ç±»å‹ç¼–ç ': c.code,
-                'è¯´æ˜': c.description || ''
+                'ÀàĞÍÃû³Æ': c.name,
+                'ÀàĞÍ±àÂë': c.code,
+                'ËµÃ÷': c.description || ''
             }));
-            downloadExcel(data, ['ç±»å‹åç§°','ç±»å‹ç¼–ç ','è¯´æ˜'], 'è®¾å¤‡ç±»å‹.xlsx');
+            downloadExcel(data, ['ÀàĞÍÃû³Æ','ÀàĞÍ±àÂë','ËµÃ÷'], 'Éè±¸ÀàĞÍ.xlsx');
         }
 
         function downloadCategoryTemplate() {
-            const data = [{ 'ç±»å‹åç§°': 'ç¤ºä¾‹ï¼šæ¸©æ¹¿åº¦ä¼ æ„Ÿå™¨', 'ç±»å‹ç¼–ç ': 'temp_sensor', 'è¯´æ˜': 'å¯é€‰' }];
-            downloadExcel(data, ['ç±»å‹åç§°','ç±»å‹ç¼–ç ','è¯´æ˜'], 'è®¾å¤‡ç±»å‹_å¯¼å…¥æ¨¡æ¿.xlsx');
+            const data = [{ 'ÀàĞÍÃû³Æ': 'Ê¾Àı£ºÎÂÊª¶È´«¸ĞÆ÷', 'ÀàĞÍ±àÂë': 'temp_sensor', 'ËµÃ÷': '¿ÉÑ¡' }];
+            downloadExcel(data, ['ÀàĞÍÃû³Æ','ÀàĞÍ±àÂë','ËµÃ÷'], 'Éè±¸ÀàĞÍ_µ¼ÈëÄ£°å.xlsx');
         }
 
         async function importCategories(event) {
@@ -976,35 +976,35 @@
             event.target.value = '';
             try {
                 const rows = await readExcelFile(file);
-                if (rows.length === 0) return alert('Excel æ–‡ä»¶ä¸ºç©º');
-                const items = rows.filter(r => r['ç±»å‹åç§°'] && r['ç±»å‹ç¼–ç ']).map(r => ({
-                    name: String(r['ç±»å‹åç§°']).trim(),
-                    code: String(r['ç±»å‹ç¼–ç ']).trim(),
-                    description: r['è¯´æ˜'] ? String(r['è¯´æ˜']).trim() : null
+                if (rows.length === 0) return alert('Excel ÎÄ¼şÎª¿Õ');
+                const items = rows.filter(r => r['ÀàĞÍÃû³Æ'] && r['ÀàĞÍ±àÂë']).map(r => ({
+                    name: String(r['ÀàĞÍÃû³Æ']).trim(),
+                    code: String(r['ÀàĞÍ±àÂë']).trim(),
+                    description: r['ËµÃ÷'] ? String(r['ËµÃ÷']).trim() : null
                 }));
-                if (items.length === 0) return alert('æœªæ‰¾åˆ°æœ‰æ•ˆæ•°æ®ï¼Œè¯·ç¡®ä¿ExcelåŒ…å«"ç±»å‹åç§°"å’Œ"ç±»å‹ç¼–ç "åˆ—');
+                if (items.length === 0) return alert('Î´ÕÒµ½ÓĞĞ§Êı¾İ£¬ÇëÈ·±£Excel°üº¬"ÀàĞÍÃû³Æ"ºÍ"ÀàĞÍ±àÂë"ÁĞ');
                 const result = await api.equipment.batchCreateCategories(items);
                 const created = Array.isArray(result) ? result.length : 0;
-                alert('å¯¼å…¥å®Œæˆ: æˆåŠŸæ–°å¢ ' + created + ' æ¡ï¼Œè·³è¿‡å·²å­˜åœ¨ ' + (items.length - created) + ' æ¡');
+                alert('µ¼ÈëÍê³É: ³É¹¦ĞÂÔö ' + created + ' Ìõ£¬Ìø¹ıÒÑ´æÔÚ ' + (items.length - created) + ' Ìõ');
                 await loadCategories();
             } catch(e) {
-                alert('å¯¼å…¥å¤±è´¥: ' + e.message);
+                alert('µ¼ÈëÊ§°Ü: ' + e.message);
             }
         }
 
-        // --- Brand å¯¼å…¥å¯¼å‡º ---
+        // --- Brand µ¼Èëµ¼³ö ---
         function exportBrands() {
-            if (state.brands.length === 0) return alert('æš‚æ— æ•°æ®å¯å¯¼å‡º');
+            if (state.brands.length === 0) return alert('ÔİÎŞÊı¾İ¿Éµ¼³ö');
             const data = state.brands.map(b => {
                 const cat = state.categories.find(c => c.id === b.category_id);
                 return {
-                    'å“ç‰Œåç§°': b.name,
-                    'æ‰€å±ç±»å‹': cat ? cat.name : '',
-                    'æ‰€å±ç±»å‹ç¼–ç ': cat ? cat.code : '',
-                    'æ¨¡æ¿å­—æ®µ(JSON)': b.spec_template ? JSON.stringify(b.spec_template) : ''
+                    'Æ·ÅÆÃû³Æ': b.name,
+                    'ËùÊôÀàĞÍ': cat ? cat.name : '',
+                    'ËùÊôÀàĞÍ±àÂë': cat ? cat.code : '',
+                    'Ä£°å×Ö¶Î(JSON)': b.spec_template ? JSON.stringify(b.spec_template) : ''
                 };
             });
-            downloadExcel(data, ['å“ç‰Œåç§°','æ‰€å±ç±»å‹','æ‰€å±ç±»å‹ç¼–ç ','æ¨¡æ¿å­—æ®µ(JSON)'], 'è®¾å¤‡å“ç‰Œ.xlsx');
+            downloadExcel(data, ['Æ·ÅÆÃû³Æ','ËùÊôÀàĞÍ','ËùÊôÀàĞÍ±àÂë','Ä£°å×Ö¶Î(JSON)'], 'Éè±¸Æ·ÅÆ.xlsx');
         }
 
         async function importBrands(event) {
@@ -1013,42 +1013,42 @@
             event.target.value = '';
             try {
                 const rows = await readExcelFile(file);
-                if (rows.length === 0) return alert('Excel æ–‡ä»¶ä¸ºç©º');
+                if (rows.length === 0) return alert('Excel ÎÄ¼şÎª¿Õ');
                 const catMap = {};
                 state.categories.forEach(c => { catMap[c.name] = c.id; catMap[c.code] = c.id; });
                 const items = [];
                 rows.forEach(r => {
-                    const name = String(r['å“ç‰Œåç§°'] || '').trim();
-                    const catKey = String(r['æ‰€å±ç±»å‹ç¼–ç '] || r['æ‰€å±ç±»å‹'] || '').trim();
+                    const name = String(r['Æ·ÅÆÃû³Æ'] || '').trim();
+                    const catKey = String(r['ËùÊôÀàĞÍ±àÂë'] || r['ËùÊôÀàĞÍ'] || '').trim();
                     const catId = catMap[catKey];
                     if (!name || !catId) return;
                     let tpl = null;
-                    const tplStr = r['æ¨¡æ¿å­—æ®µ(JSON)'] || '';
+                    const tplStr = r['Ä£°å×Ö¶Î(JSON)'] || '';
                     if (tplStr) { try { tpl = JSON.parse(tplStr); } catch(e) {} }
                     items.push({ name, category_id: catId, spec_template: tpl });
                 });
-                if (items.length === 0) return alert('æœªæ‰¾åˆ°æœ‰æ•ˆæ•°æ®ï¼Œè¯·ç¡®ä¿åŒ…å«"å“ç‰Œåç§°"å’Œ"æ‰€å±ç±»å‹/æ‰€å±ç±»å‹ç¼–ç "åˆ—');
+                if (items.length === 0) return alert('Î´ÕÒµ½ÓĞĞ§Êı¾İ£¬ÇëÈ·±£°üº¬"Æ·ÅÆÃû³Æ"ºÍ"ËùÊôÀàĞÍ/ËùÊôÀàĞÍ±àÂë"ÁĞ');
                 const result = await api.equipment.batchCreateBrands(items);
                 const created = Array.isArray(result) ? result.length : 0;
-                alert('å¯¼å…¥å®Œæˆ: æˆåŠŸæ–°å¢ ' + created + ' æ¡');
+                alert('µ¼ÈëÍê³É: ³É¹¦ĞÂÔö ' + created + ' Ìõ');
                 await loadBrands();
             } catch(e) {
-                alert('å¯¼å…¥å¤±è´¥: ' + e.message);
+                alert('µ¼ÈëÊ§°Ü: ' + e.message);
             }
         }
 
-        // --- Model å¯¼å…¥å¯¼å‡º ---
+        // --- Model µ¼Èëµ¼³ö ---
         function exportModels() {
-            if (state.models.length === 0) return alert('æš‚æ— æ•°æ®å¯å¯¼å‡º');
+            if (state.models.length === 0) return alert('ÔİÎŞÊı¾İ¿Éµ¼³ö');
             const data = state.models.map(m => {
                 const brand = state.brands.find(b => b.id === m.brand_id);
                 return {
-                    'å‹å·åç§°': m.model_name,
-                    'æ‰€å±å“ç‰Œ': brand ? brand.name : '',
-                    'è§„æ ¼å‚æ•°(JSON)': m.specifications ? JSON.stringify(m.specifications) : ''
+                    'ĞÍºÅÃû³Æ': m.model_name,
+                    'ËùÊôÆ·ÅÆ': brand ? brand.name : '',
+                    '¹æ¸ñ²ÎÊı(JSON)': m.specifications ? JSON.stringify(m.specifications) : ''
                 };
             });
-            downloadExcel(data, ['å‹å·åç§°','æ‰€å±å“ç‰Œ','è§„æ ¼å‚æ•°(JSON)'], 'è®¾å¤‡å‹å·.xlsx');
+            downloadExcel(data, ['ĞÍºÅÃû³Æ','ËùÊôÆ·ÅÆ','¹æ¸ñ²ÎÊı(JSON)'], 'Éè±¸ĞÍºÅ.xlsx');
         }
 
         async function importModels(event) {
@@ -1057,27 +1057,27 @@
             event.target.value = '';
             try {
                 const rows = await readExcelFile(file);
-                if (rows.length === 0) return alert('Excel æ–‡ä»¶ä¸ºç©º');
+                if (rows.length === 0) return alert('Excel ÎÄ¼şÎª¿Õ');
                 const brandMap = {};
                 state.brands.forEach(b => { brandMap[b.name] = b.id; });
                 const items = [];
                 rows.forEach(r => {
-                    const modelName = String(r['å‹å·åç§°'] || '').trim();
-                    const brandName = String(r['æ‰€å±å“ç‰Œ'] || '').trim();
+                    const modelName = String(r['ĞÍºÅÃû³Æ'] || '').trim();
+                    const brandName = String(r['ËùÊôÆ·ÅÆ'] || '').trim();
                     const brandId = brandMap[brandName];
                     if (!modelName || !brandId) return;
                     let specs = null;
-                    const specStr = r['è§„æ ¼å‚æ•°(JSON)'] || '';
+                    const specStr = r['¹æ¸ñ²ÎÊı(JSON)'] || '';
                     if (specStr) { try { specs = JSON.parse(specStr); } catch(e) {} }
                     items.push({ model_name: modelName, brand_id: brandId, specifications: specs });
                 });
-                if (items.length === 0) return alert('æœªæ‰¾åˆ°æœ‰æ•ˆæ•°æ®ï¼Œè¯·ç¡®ä¿åŒ…å«"å‹å·åç§°"å’Œ"æ‰€å±å“ç‰Œ"åˆ—');
+                if (items.length === 0) return alert('Î´ÕÒµ½ÓĞĞ§Êı¾İ£¬ÇëÈ·±£°üº¬"ĞÍºÅÃû³Æ"ºÍ"ËùÊôÆ·ÅÆ"ÁĞ');
                 const result = await api.equipment.batchCreateModels(items);
                 const created = Array.isArray(result) ? result.length : 0;
-                alert('å¯¼å…¥å®Œæˆ: æˆåŠŸæ–°å¢ ' + created + ' æ¡');
+                alert('µ¼ÈëÍê³É: ³É¹¦ĞÂÔö ' + created + ' Ìõ');
                 await loadModels();
             } catch(e) {
-                alert('å¯¼å…¥å¤±è´¥: ' + e.message);
+                alert('µ¼ÈëÊ§°Ü: ' + e.message);
             }
         }
     </script>

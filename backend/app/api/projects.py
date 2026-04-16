@@ -384,6 +384,51 @@ async def update_project(
     return project
 
 
+@router.patch("/batch-update")
+async def batch_update_projects(
+    payload: schemas.ProjectBatchUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """批量更新指定字段（end_customer / business_type / city）。
+
+    仅更新调用者有权限的项目；不存在或越权的项目会跳过并在返回体中列出。
+    """
+    role = normalize_role(current_user.role)
+    update_fields = payload.model_dump(exclude_unset=True)
+    update_fields.pop("project_ids", None)
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="至少需要指定一个要更新的字段")
+
+    updated_ids: list[int] = []
+    skipped: list[dict] = []
+
+    projects = db.query(Project).filter(Project.id.in_(payload.project_ids)).all()
+    found_ids = {p.id for p in projects}
+    for pid in payload.project_ids:
+        if pid not in found_ids:
+            skipped.append({"id": pid, "reason": "项目不存在"})
+
+    for project in projects:
+        # 权限：非 admin 只能改自己创建的项目
+        if role != "admin" and project.created_by != current_user.id:
+            skipped.append({"id": project.id, "reason": "无权限"})
+            continue
+        for key, value in update_fields.items():
+            setattr(project, key, value)
+        updated_ids.append(project.id)
+
+    if updated_ids:
+        db.commit()
+
+    return {
+        "updated_count": len(updated_ids),
+        "updated_ids": updated_ids,
+        "skipped": skipped,
+        "fields": list(update_fields.keys()),
+    }
+
+
 @router.delete("/{project_id}")
 async def delete_project(
     project_id: int,
@@ -404,22 +449,38 @@ async def delete_project(
     return {"message": "项目删除成功"}
 
 
+_DEVICE_TYPE_PREFIX_MAP = {
+    "air_cooler": "AC",
+    "thermostat": "TC",
+    "unit": "UN",
+    "meter": "PM",
+    "freezer": "FR",
+    "defrost_controller": "DF",
+    "cabinet": "CB",
+    "cooling_tower": "CT",
+}
+
+
+def _device_type_value(device_type) -> str:
+    return getattr(device_type, "value", device_type) or ""
+
+
 def _generate_device_no_for_copy(project_id: int, device_type, db: Session) -> str:
-    """复制项目时生成设备编号（与 devices.py 中逻辑一致）"""
-    from ..models.device import DeviceType
-    prefix_map = {
-        DeviceType.AIR_COOLER: "AC",
-        DeviceType.THERMOSTAT: "TC",
-        DeviceType.UNIT: "UN",
-        DeviceType.METER: "PM",
-        DeviceType.FREEZER: "FR",
-        DeviceType.DEFROST_CONTROLLER: "DF",
-    }
-    prefix = prefix_map.get(device_type, "DEV")
+    """复制项目时生成设备编号（单次查询，保留用于非批量场景）"""
+    dt_val = _device_type_value(device_type)
+    prefix = _DEVICE_TYPE_PREFIX_MAP.get(dt_val, "DEV")
     count = db.query(Device).filter(
         and_(Device.project_id == project_id, Device.device_type == device_type)
     ).count()
     return f"{prefix}-{str(project_id).zfill(3)}-{str(count + 1).zfill(3)}"
+
+
+def _next_device_no(project_id: int, device_type, seq_map: dict) -> str:
+    """基于内存序列 map 生成下一个编号，避免 O(N²) 查询。seq_map 以 device_type.value 为 key。"""
+    dt_val = _device_type_value(device_type)
+    prefix = _DEVICE_TYPE_PREFIX_MAP.get(dt_val, "DEV")
+    seq_map[dt_val] = seq_map.get(dt_val, 0) + 1
+    return f"{prefix}-{str(project_id).zfill(3)}-{str(seq_map[dt_val]).zfill(3)}"
 
 
 def _generate_gateway_no_for_copy(project_id: int, db: Session) -> str:
@@ -508,12 +569,14 @@ async def copy_project(
 
     # ── 2. 复制网关，记录 old_id -> new_id 映射 ──
     gateway_id_map: dict[int, int] = {}
+    gateway_seq = 0
     if copy_gateways:
         original_gateways = db.query(Gateway).filter(Gateway.project_id == project_id).all()
         for old_gw in original_gateways:
+            gateway_seq += 1
             new_gw = Gateway(
                 project_id=new_project.id,
-                gateway_no=_generate_gateway_no_for_copy(new_project.id, db),
+                gateway_no=f"GW-{str(new_project.id).zfill(3)}-{str(gateway_seq).zfill(3)}",
                 brand=old_gw.brand,
                 model=old_gw.model,
                 total_ports=old_gw.total_ports,
@@ -531,7 +594,10 @@ async def copy_project(
             gateway_id_map[old_gw.id] = new_gw.id
 
     # ── 3. 复制设备，记录 old_id -> new_id 映射 ──
+    # 注意：cabinet_id 指向另一台设备（电控柜），需要先复制所有设备再回填
     device_id_map: dict[int, int] = {}
+    old_cabinet_by_new_id: dict[int, int] = {}
+    device_no_seq: dict[str, int] = {}
     if copy_devices:
         original_devices = db.query(Device).filter(Device.project_id == project_id).all()
         for old_dev in original_devices:
@@ -541,7 +607,7 @@ async def copy_project(
             new_dev = Device(
                 project_id=new_project.id,
                 cold_room_id=new_cold_room_id,
-                device_no=_generate_device_no_for_copy(new_project.id, old_dev.device_type, db),
+                device_no=_next_device_no(new_project.id, old_dev.device_type, device_no_seq),
                 device_type=old_dev.device_type,
                 brand=old_dev.brand,
                 model=old_dev.model,
@@ -554,12 +620,26 @@ async def copy_project(
                 gateway_id=new_gateway_id,
                 gateway_port=old_dev.gateway_port,
                 rs485_address=old_dev.rs485_address,
+                # 新增字段（与 device 模型保持一致）
+                meter_area=old_dev.meter_area,
+                # cabinet_id 延后回填，避免指向旧项目的柜子
+                cabinet_id=None,
                 specifications=old_dev.specifications,
                 remarks=old_dev.remarks,
             )
             db.add(new_dev)
             db.flush()
             device_id_map[old_dev.id] = new_dev.id
+            if old_dev.cabinet_id:
+                old_cabinet_by_new_id[new_dev.id] = old_dev.cabinet_id
+
+        # 第二遍：根据 device_id_map 回填 cabinet_id（指向本项目内的新柜子）
+        for new_dev_id, old_cabinet_id in old_cabinet_by_new_id.items():
+            new_cabinet_id = device_id_map.get(old_cabinet_id)
+            if new_cabinet_id:
+                db.query(Device).filter(Device.id == new_dev_id).update(
+                    {Device.cabinet_id: new_cabinet_id}
+                )
 
     # ── 4. 复制设备关系 ──
     if copy_relations and copy_devices:

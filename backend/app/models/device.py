@@ -16,6 +16,8 @@ class DeviceType(str, enum.Enum):
     METER = "meter"  # 电表
     FREEZER = "freezer"  # 冷柜
     DEFROST_CONTROLLER = "defrost_controller"  # 智能融霜控制器
+    CABINET = "cabinet"  # 电控柜
+    COOLING_TOWER = "cooling_tower"  # 冷却塔
 
 
 class Device(Base):
@@ -51,6 +53,10 @@ class Device(Base):
     gateway_port = Column(Integer, comment="网关端口号")
     rs485_address = Column(String(10), comment="RS485地址")
     
+    # 电控柜/电表扩展
+    cabinet_id = Column(Integer, ForeignKey("devices.id"), nullable=True, comment="所属电控柜设备ID")
+    meter_area = Column(String(50), nullable=True, comment="电表所属区域")
+
     # 其他参数
     specifications = Column(Text, comment="规格参数（JSON格式）")
     remarks = Column(Text, comment="备注")

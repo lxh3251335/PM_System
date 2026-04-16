@@ -1,13 +1,13 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ç½‘å…³é…ç½® - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
+    <title>Íø¹ØÅäÖÃ - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260417"></script>
     <style>
         .container {
             max-width: 1200px;
@@ -317,141 +317,141 @@
 </head>
 <body>
     <div class="container">
-        <!-- æ­¥éª¤æŒ‡ç¤ºå™¨ -->
+        <!-- ²½ÖèÖ¸Ê¾Æ÷ -->
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(6);</script>
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
-        <!-- é¡¹ç›®ä¿¡æ¯ -->
+        <!-- ÏîÄ¿ĞÅÏ¢ -->
         <div class="project-info-card">
-            <h3>ğŸ“¦ å½“å‰é¡¹ç›®</h3>
+            <h3>?? µ±Ç°ÏîÄ¿</h3>
             <div class="project-info-grid" id="projectInfo"></div>
         </div>
 
-        <!-- é¡µé¢æ ‡é¢˜ -->
+        <!-- Ò³Ãæ±êÌâ -->
         <div class="page-header">
-            <h1>ç½‘å…³é…ç½®</h1>
-            <p>ä¸ºé¡¹ç›®é…ç½®ç½‘å…³è®¾å¤‡å’Œç‰©è”ç½‘å¡ä¿¡æ¯ï¼Œç”¨äºè¿œç¨‹é€šè®¯å’Œæ•°æ®é‡‡é›†ã€‚RS485ç«¯å£å’Œç½‘å£ç«¯å£æ•°æ ¹æ®å“ç‰Œå‹å·è‡ªåŠ¨è®¾ç½®ã€‚</p>
+            <h1>Íø¹ØÅäÖÃ</h1>
+            <p>ÎªÏîÄ¿ÅäÖÃÍø¹ØÉè±¸ºÍÎïÁªÍø¿¨ĞÅÏ¢£¬ÓÃÓÚÔ¶³ÌÍ¨Ñ¶ºÍÊı¾İ²É¼¯¡£RS485¶Ë¿ÚºÍÍø¿Ú¶Ë¿ÚÊı¸ù¾İÆ·ÅÆĞÍºÅ×Ô¶¯ÉèÖÃ¡£</p>
         </div>
 
-        <!-- ä»åº“å­˜é€‰æ‹© -->
+        <!-- ´Ó¿â´æÑ¡Ôñ -->
         <div class="form-card" id="inventorySelectCard" style="display:none;">
-            <h3 style="margin: 0 0 20px 0; color: #52c41a;">ä»åº“å­˜é€‰æ‹©ç½‘å…³</h3>
-            <p style="color:#595959;margin-bottom:16px;font-size:14px;">ç®¡ç†å‘˜å·²é¢„å½•å…¥çš„ç½‘å…³åº“å­˜ï¼Œé€‰æ‹©åç›´æ¥åˆ†é…åˆ°å½“å‰é¡¹ç›®ã€‚</p>
+            <h3 style="margin: 0 0 20px 0; color: #52c41a;">´Ó¿â´æÑ¡ÔñÍø¹Ø</h3>
+            <p style="color:#595959;margin-bottom:16px;font-size:14px;">¹ÜÀíÔ±ÒÑÔ¤Â¼ÈëµÄÍø¹Ø¿â´æ£¬Ñ¡ÔñºóÖ±½Ó·ÖÅäµ½µ±Ç°ÏîÄ¿¡£</p>
             <div style="display:flex; gap:16px; margin-bottom:16px; flex-wrap:wrap;">
                 <div class="form-group" style="width:220px;">
-                    <label>ç­›é€‰å‹å·</label>
+                    <label>É¸Ñ¡ĞÍºÅ</label>
                     <select id="invModelFilter" class="form-control" onchange="loadAvailableInventory()" style="padding:8px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;">
-                        <option value="">å…¨éƒ¨</option>
+                        <option value="">È«²¿</option>
                     </select>
                 </div>
             </div>
             <div id="inventoryList" style="max-height:300px;overflow-y:auto;"></div>
         </div>
 
-        <!-- ç½‘å…³è¡¨å•ï¼ˆæ‰‹åŠ¨æ·»åŠ ï¼‰ -->
+        <!-- Íø¹Ø±íµ¥£¨ÊÖ¶¯Ìí¼Ó£© -->
         <div class="form-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; color: var(--primary-color);">æ·»åŠ ç½‘å…³</h3>
-                <button type="button" class="btn btn-secondary" onclick="toggleInventorySelect()" id="toggleInvBtn" style="font-size:13px;">ä»åº“å­˜é€‰æ‹© â†“</button>
+                <h3 style="margin:0; color: var(--primary-color);">Ìí¼ÓÍø¹Ø</h3>
+                <button type="button" class="btn btn-secondary" onclick="toggleInventorySelect()" id="toggleInvBtn" style="font-size:13px;">´Ó¿â´æÑ¡Ôñ ¡ı</button>
             </div>
             <form id="gatewayForm">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>ç½‘å…³å“ç‰Œ <span class="required">*</span></label>
+                        <label>Íø¹ØÆ·ÅÆ <span class="required">*</span></label>
                         <select name="brand" id="brandSelect" required>
-                            <option value="">è¯·é€‰æ‹©ç½‘å…³å“ç‰Œ</option>
+                            <option value="">ÇëÑ¡ÔñÍø¹ØÆ·ÅÆ</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>ç½‘å…³å‹å· <span class="required">*</span></label>
+                        <label>Íø¹ØĞÍºÅ <span class="required">*</span></label>
                         <select name="model" id="modelSelect" required>
-                            <option value="">è¯·å…ˆé€‰æ‹©å“ç‰Œ</option>
+                            <option value="">ÇëÏÈÑ¡ÔñÆ·ÅÆ</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>RS485ç«¯å£æ•°</label>
+                        <label>RS485¶Ë¿ÚÊı</label>
                         <input type="text" id="rs485Ports" name="rs485_ports" readonly style="background: #f5f5f5;">
-                        <div class="form-help">æ ¹æ®å“ç‰Œå’Œå‹å·è‡ªåŠ¨å¡«å……</div>
+                        <div class="form-help">¸ù¾İÆ·ÅÆºÍĞÍºÅ×Ô¶¯Ìî³ä</div>
                     </div>
                     <div class="form-group">
-                        <label>ç½‘å£ç«¯å£æ•°</label>
+                        <label>Íø¿Ú¶Ë¿ÚÊı</label>
                         <input type="text" id="ethPorts" name="eth_ports" readonly style="background: #f5f5f5;">
-                        <div class="form-help">æ ¹æ®å“ç‰Œå’Œå‹å·è‡ªåŠ¨å¡«å……</div>
+                        <div class="form-help">¸ù¾İÆ·ÅÆºÍĞÍºÅ×Ô¶¯Ìî³ä</div>
                     </div>
                     <div class="form-group">
-                        <label>ç‰©è”ç½‘å¡å·</label>
-                        <input type="text" name="iot_card_no" placeholder="è¯·è¾“å…¥ç‰©è”ç½‘å¡å·">
-                        <div class="form-help">ç”¨äº4G/5Gç½‘ç»œé€šè®¯</div>
+                        <label>ÎïÁªÍø¿¨ºÅ</label>
+                        <input type="text" name="iot_card_no" placeholder="ÇëÊäÈëÎïÁªÍø¿¨ºÅ">
+                        <div class="form-help">ÓÃÓÚ4G/5GÍøÂçÍ¨Ñ¶</div>
                     </div>
                     <div class="form-group">
-                        <label>è¿è¥å•†</label>
+                        <label>ÔËÓªÉÌ</label>
                         <select name="sim_operator">
-                            <option value="">è¯·é€‰æ‹©è¿è¥å•†</option>
-                            <option value="ä¸­å›½ç§»åŠ¨">ä¸­å›½ç§»åŠ¨</option>
-                            <option value="ä¸­å›½è”é€š">ä¸­å›½è”é€š</option>
-                            <option value="ä¸­å›½ç”µä¿¡">ä¸­å›½ç”µä¿¡</option>
+                            <option value="">ÇëÑ¡ÔñÔËÓªÉÌ</option>
+                            <option value="ÖĞ¹úÒÆ¶¯">ÖĞ¹úÒÆ¶¯</option>
+                            <option value="ÖĞ¹úÁªÍ¨">ÖĞ¹úÁªÍ¨</option>
+                            <option value="ÖĞ¹úµçĞÅ">ÖĞ¹úµçĞÅ</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>ICCID</label>
-                        <input type="text" name="sim_iccid" placeholder="è¯·è¾“å…¥ICCIDï¼ˆå¯é€‰ï¼‰">
-                        <div class="form-help">ç‰©è”ç½‘å¡å”¯ä¸€è¯†åˆ«å·</div>
+                        <input type="text" name="sim_iccid" placeholder="ÇëÊäÈëICCID£¨¿ÉÑ¡£©">
+                        <div class="form-help">ÎïÁªÍø¿¨Î¨Ò»Ê¶±ğºÅ</div>
                     </div>
                     <div class="form-group">
-                        <label>IPåœ°å€</label>
-                        <input type="text" name="ip_address" placeholder="ä¾‹å¦‚ï¼š192.168.1.100">
+                        <label>IPµØÖ·</label>
+                        <input type="text" name="ip_address" placeholder="ÀıÈç£º192.168.1.100">
                     </div>
                     <div class="form-group">
-                        <label>MACåœ°å€</label>
-                        <input type="text" name="mac_address" placeholder="ä¾‹å¦‚ï¼š00:11:22:33:44:55">
+                        <label>MACµØÖ·</label>
+                        <input type="text" name="mac_address" placeholder="ÀıÈç£º00:11:22:33:44:55">
                     </div>
                     <div class="form-group">
-                        <label>ç½‘å…³SNå·</label>
-                        <input type="text" name="serial_no" id="serialNoInput" placeholder="è¯·è¾“å…¥ç½‘å…³åºåˆ—å·">
-                        <div class="form-help">ç½‘å…³è®¾å¤‡å”¯ä¸€åºåˆ—å·ï¼Œä»åº“å­˜é€‰æ‹©æ—¶è‡ªåŠ¨å¡«å……</div>
+                        <label>Íø¹ØSNºÅ</label>
+                        <input type="text" name="serial_no" id="serialNoInput" placeholder="ÇëÊäÈëÍø¹ØĞòÁĞºÅ">
+                        <div class="form-help">Íø¹ØÉè±¸Î¨Ò»ĞòÁĞºÅ£¬´Ó¿â´æÑ¡ÔñÊ±×Ô¶¯Ìî³ä</div>
                     </div>
                 </div>
                 <div style="margin-top: 24px;">
-                    <button type="submit" class="btn btn-primary">æ·»åŠ ç½‘å…³</button>
-                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('gatewayForm').reset()" style="margin-left: 12px;">é‡ç½®</button>
+                    <button type="submit" class="btn btn-primary">Ìí¼ÓÍø¹Ø</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('gatewayForm').reset()" style="margin-left: 12px;">ÖØÖÃ</button>
                 </div>
             </form>
         </div>
 
-        <!-- å·²æ·»åŠ çš„ç½‘å…³ -->
+        <!-- ÒÑÌí¼ÓµÄÍø¹Ø -->
         <div class="form-card">
-            <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">å·²æ·»åŠ çš„ç½‘å…³ <span style="font-weight: normal; color: var(--text-secondary);" id="gatewayCount">(0ä¸ª)</span></h3>
+            <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">ÒÑÌí¼ÓµÄÍø¹Ø <span style="font-weight: normal; color: var(--text-secondary);" id="gatewayCount">(0¸ö)</span></h3>
             <div id="gatewayList">
                 <p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">
-                    æš‚æ— ç½‘å…³ï¼Œè¯·æ·»åŠ ç¬¬ä¸€ä¸ªç½‘å…³
+                    ÔİÎŞÍø¹Ø£¬ÇëÌí¼ÓµÚÒ»¸öÍø¹Ø
                 </p>
             </div>
         </div>
 
-        <!-- æ“ä½œæ  -->
+        <!-- ²Ù×÷À¸ -->
         <div class="action-bar">
             <div class="action-bar-left">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='device-relations.html'">â† è¿”å›ä¸Šä¸€æ­¥</button>
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'" title="è¿”å›é¡¹ç›®ç®¡ç† - é¡¹ç›®åˆ—è¡¨">è¿”å›é¡¹ç›®åˆ—è¡¨</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='device-relations.html'">¡û ·µ»ØÉÏÒ»²½</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'" title="·µ»ØÏîÄ¿¹ÜÀí - ÏîÄ¿ÁĞ±í">·µ»ØÏîÄ¿ÁĞ±í</button>
             </div>
-            <button type="button" class="btn btn-success" onclick="completeProject()">å®Œæˆç½‘å…³é…ç½®ï¼Œç»§ç»­é€šè®¯é…ç½® â†’</button>
+            <button type="button" class="btn btn-success" onclick="completeProject()">Íê³ÉÍø¹ØÅäÖÃ£¬¼ÌĞøÍ¨Ñ¶ÅäÖÃ ¡ú</button>
         </div>
     </div>
 
     <script>
         requireAuth();
-        // æƒé™æ£€æŸ¥ï¼šæ­¥éª¤5~7ä»…ç®¡ç†å‘˜å¯æ“ä½œ
+        // È¨ÏŞ¼ì²é£º²½Öè5~7½ö¹ÜÀíÔ±¿É²Ù×÷
         (function checkAdminOnly() {
             const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
             const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
             if (normalizedRole !== 'admin') {
                 document.body.innerHTML = `
                     <div style="text-align:center;padding:120px 20px;font-family:sans-serif;">
-                        <h2 style="color:#e74c3c;margin-bottom:16px;">æ— æƒè®¿é—®</h2>
-                        <p style="color:#666;font-size:16px;">ç½‘å…³é…ç½®ã€é€šè®¯é…ç½®ç”±ç®¡ç†å‘˜å®Œæˆï¼Œå®¢æˆ·æ— éœ€æ“ä½œæ­¤æ­¥éª¤ã€‚</p>
-                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">è¿”å›é¡¹ç›®åˆ—è¡¨</button>
+                        <h2 style="color:#e74c3c;margin-bottom:16px;">ÎŞÈ¨·ÃÎÊ</h2>
+                        <p style="color:#666;font-size:16px;">Íø¹ØÅäÖÃ¡¢Í¨Ñ¶ÅäÖÃÓÉ¹ÜÀíÔ±Íê³É£¬¿Í»§ÎŞĞè²Ù×÷´Ë²½Öè¡£</p>
+                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">·µ»ØÏîÄ¿ÁĞ±í</button>
                     </div>`;
                 throw new Error('ACCESS_DENIED');
             }
@@ -471,19 +471,19 @@
 
         function renderProjectInfoCard() {
             document.getElementById('projectInfo').innerHTML = `
-            <div><strong>é¡¹ç›®ç¼–å·ï¼š</strong>${project.project_no || '-'}</div>
-            <div><strong>é¡¹ç›®åç§°ï¼š</strong>${project.name || '-'}</div>
-            <div><strong>æœ€ç»ˆç”¨æˆ·ï¼š</strong>${project.end_customer || '-'}</div>
-            <div><strong>å†·åº“æ•°é‡ï¼š</strong>${coldRooms.length}ä¸ª</div>
-            <div><strong>è®¾å¤‡æ•°é‡ï¼š</strong>${devices.length}å°</div>
+            <div><strong>ÏîÄ¿±àºÅ£º</strong>${project.project_no || '-'}</div>
+            <div><strong>ÏîÄ¿Ãû³Æ£º</strong>${project.name || '-'}</div>
+            <div><strong>×îÖÕÓÃ»§£º</strong>${project.end_customer || '-'}</div>
+            <div><strong>Àä¿âÊıÁ¿£º</strong>${coldRooms.length}¸ö</div>
+            <div><strong>Éè±¸ÊıÁ¿£º</strong>${devices.length}Ì¨</div>
         `;
         }
 
         renderProjectInfoCard();
 
-        /** åç«¯ Gateway -> é¡µé¢å±•ç¤ºç»“æ„ */
+        /** ºó¶Ë Gateway -> Ò³ÃæÕ¹Ê¾½á¹¹ */
         function mapServerGatewayToUi(g) {
-            const ports = g.total_ports != null ? String(g.total_ports) + 'å£' : '-';
+            const ports = g.total_ports != null ? String(g.total_ports) + '¿Ú' : '-';
             return {
                 id: g.id,
                 project_id: g.project_id,
@@ -526,7 +526,7 @@
                         return;
                     }
                 } catch (e) {
-                    console.warn('ä»æœåŠ¡å™¨åŠ è½½ç½‘å…³å¤±è´¥:', e.message);
+                    console.warn('´Ó·şÎñÆ÷¼ÓÔØÍø¹ØÊ§°Ü:', e.message);
                 }
             }
             var raw = JSON.parse(localStorage.getItem('gateways_' + gwProjectId) || '[]');
@@ -549,19 +549,19 @@
                     localStorage.setItem('currentProject', JSON.stringify(project));
                     renderProjectInfoCard();
                 } catch (e) {
-                    console.warn('åŠ è½½é¡¹ç›®ä¿¡æ¯å¤±è´¥:', e.message);
+                    console.warn('¼ÓÔØÏîÄ¿ĞÅÏ¢Ê§°Ü:', e.message);
                 }
             }
         }
 
-        // ä»ç½‘å…³å‹å·åº“åŠ¨æ€åŠ è½½å“ç‰Œå’Œå‹å·
+        // ´ÓÍø¹ØĞÍºÅ¿â¶¯Ì¬¼ÓÔØÆ·ÅÆºÍĞÍºÅ
         let gwModelLibrary = [];
 
         async function loadGwModelLibrary() {
             try {
                 gwModelLibrary = await api.gatewayLibrary.getModels();
             } catch(e) {
-                console.warn('åŠ è½½ç½‘å…³å‹å·åº“å¤±è´¥ï¼Œå°†ä½¿ç”¨æœ¬åœ°å…œåº•:', e.message);
+                console.warn('¼ÓÔØÍø¹ØĞÍºÅ¿âÊ§°Ü£¬½«Ê¹ÓÃ±¾µØ¶µµ×:', e.message);
                 gwModelLibrary = [];
             }
 
@@ -569,17 +569,17 @@
             const brands = [...new Set(gwModelLibrary.map(m => m.brand))];
             
             if (brands.length > 0) {
-                brandSelect.innerHTML = '<option value="">è¯·é€‰æ‹©ç½‘å…³å“ç‰Œ</option>' +
+                brandSelect.innerHTML = '<option value="">ÇëÑ¡ÔñÍø¹ØÆ·ÅÆ</option>' +
                     brands.map(b => `<option value="${b}">${b}</option>`).join('');
             } else {
-                brandSelect.innerHTML = '<option value="">è¯·é€‰æ‹©ç½‘å…³å“ç‰Œ</option>' +
-                    '<option value="åä¸º">åä¸º</option><option value="ä¸­å…´">ä¸­å…´</option>' +
-                    '<option value="è¥¿é—¨å­">è¥¿é—¨å­</option><option value="ç ”å">ç ”å</option>';
+                brandSelect.innerHTML = '<option value="">ÇëÑ¡ÔñÍø¹ØÆ·ÅÆ</option>' +
+                    '<option value="»ªÎª">»ªÎª</option><option value="ÖĞĞË">ÖĞĞË</option>' +
+                    '<option value="Î÷ÃÅ×Ó">Î÷ÃÅ×Ó</option><option value="ÑĞ»ª">ÑĞ»ª</option>';
             }
 
-            // åº“å­˜é€‰æ‹©çš„å‹å·ä¸‹æ‹‰
+            // ¿â´æÑ¡ÔñµÄĞÍºÅÏÂÀ­
             const invFilter = document.getElementById('invModelFilter');
-            invFilter.innerHTML = '<option value="">å…¨éƒ¨</option>' +
+            invFilter.innerHTML = '<option value="">È«²¿</option>' +
                 gwModelLibrary.map(m => `<option value="${m.id}">${m.brand} ${m.model_name}</option>`).join('');
         }
 
@@ -593,11 +593,11 @@
 
             const filtered = gwModelLibrary.filter(m => m.brand === brand);
             if (filtered.length > 0) {
-                modelSelect.innerHTML = '<option value="">è¯·é€‰æ‹©ç½‘å…³å‹å·</option>' +
-                    filtered.map(m => `<option value="${m.model_name}" data-gw-id="${m.id}" data-serial="${m.serial_port_count}" data-eth="${m.ethernet_port_count}">${m.model_name} (RS485:${m.serial_port_count}å£ ç½‘å£:${m.ethernet_port_count}å£)</option>`).join('');
+                modelSelect.innerHTML = '<option value="">ÇëÑ¡ÔñÍø¹ØĞÍºÅ</option>' +
+                    filtered.map(m => `<option value="${m.model_name}" data-gw-id="${m.id}" data-serial="${m.serial_port_count}" data-eth="${m.ethernet_port_count}">${m.model_name} (RS485:${m.serial_port_count}¿Ú Íø¿Ú:${m.ethernet_port_count}¿Ú)</option>`).join('');
                 modelSelect.disabled = false;
             } else {
-                modelSelect.innerHTML = '<option value="">è¯¥å“ç‰Œæ— å‹å·æ•°æ®</option>';
+                modelSelect.innerHTML = '<option value="">¸ÃÆ·ÅÆÎŞĞÍºÅÊı¾İ</option>';
                 modelSelect.disabled = true;
             }
         });
@@ -607,22 +607,22 @@
             const rs485Input = document.getElementById('rs485Ports');
             const ethInput = document.getElementById('ethPorts');
             if (selected && selected.dataset.serial) {
-                rs485Input.value = selected.dataset.serial + 'å£';
-                ethInput.value = selected.dataset.eth + 'å£';
+                rs485Input.value = selected.dataset.serial + '¿Ú';
+                ethInput.value = selected.dataset.eth + '¿Ú';
             } else {
                 rs485Input.value = '';
                 ethInput.value = '';
             }
         });
 
-        // åº“å­˜é€‰æ‹©åŠŸèƒ½
+        // ¿â´æÑ¡Ôñ¹¦ÄÜ
         let availableInventory = [];
 
         function toggleInventorySelect() {
             const card = document.getElementById('inventorySelectCard');
             const isVisible = card.style.display !== 'none';
             card.style.display = isVisible ? 'none' : 'block';
-            document.getElementById('toggleInvBtn').textContent = isVisible ? 'ä»åº“å­˜é€‰æ‹© â†“' : 'æ”¶èµ·åº“å­˜ â†‘';
+            document.getElementById('toggleInvBtn').textContent = isVisible ? '´Ó¿â´æÑ¡Ôñ ¡ı' : 'ÊÕÆğ¿â´æ ¡ü';
             if (!isVisible) loadAvailableInventory();
         }
 
@@ -633,21 +633,21 @@
                 availableInventory = await api.gatewayLibrary.getAvailableInventory(params);
                 renderAvailableInventory();
             } catch(e) {
-                console.warn('åŠ è½½åº“å­˜å¤±è´¥:', e.message);
-                document.getElementById('inventoryList').innerHTML = '<p style="color:#999;text-align:center;padding:20px;">æ— æ³•åŠ è½½åº“å­˜æ•°æ®</p>';
+                console.warn('¼ÓÔØ¿â´æÊ§°Ü:', e.message);
+                document.getElementById('inventoryList').innerHTML = '<p style="color:#999;text-align:center;padding:20px;">ÎŞ·¨¼ÓÔØ¿â´æÊı¾İ</p>';
             }
         }
 
         function renderAvailableInventory() {
             const container = document.getElementById('inventoryList');
             if (!availableInventory.length) {
-                container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">æš‚æ— å¯ç”¨åº“å­˜</p>';
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">ÔİÎŞ¿ÉÓÃ¿â´æ</p>';
                 return;
             }
             container.innerHTML = availableInventory.map(item => {
                 const gm = item.gateway_model;
-                const label = gm ? `${gm.brand} ${gm.model_name}` : 'æœªçŸ¥å‹å·';
-                const ports = gm ? `${gm.serial_port_count}ä¸²å£/${gm.ethernet_port_count}ç½‘å£` : '';
+                const label = gm ? `${gm.brand} ${gm.model_name}` : 'Î´ÖªĞÍºÅ';
+                const ports = gm ? `${gm.serial_port_count}´®¿Ú/${gm.ethernet_port_count}Íø¿Ú` : '';
                 return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:8px;background:#fafafa;">
                     <div>
                         <strong style="font-family:monospace;">${item.serial_no}</strong>
@@ -655,13 +655,13 @@
                         <span style="color:#999;margin-left:8px;font-size:12px;">${ports}</span>
                         ${item.sim_card_no ? '<span style="color:#999;margin-left:8px;font-size:12px;">SIM:' + item.sim_card_no + '</span>' : ''}
                     </div>
-                    <button class="btn btn-primary" style="padding:4px 16px;font-size:13px;height:28px;" onclick="selectFromInventory(${item.id})">é€‰æ‹©</button>
+                    <button class="btn btn-primary" style="padding:4px 16px;font-size:13px;height:28px;" onclick="selectFromInventory(${item.id})">Ñ¡Ôñ</button>
                 </div>`;
             }).join('');
         }
 
         async function selectFromInventory(itemId) {
-            if (!gwProjectId) return alert('è¯·å…ˆç¡®ä¿é¡¹ç›®ä¿¡æ¯å­˜åœ¨');
+            if (!gwProjectId) return alert('ÇëÏÈÈ·±£ÏîÄ¿ĞÅÏ¢´æÔÚ');
             const item = availableInventory.find(i => i.id === itemId);
             if (!item) return;
             const gm = item.gateway_model;
@@ -669,7 +669,7 @@
             try {
                 await api.gatewayLibrary.allocateToProject(itemId, parseInt(gwProjectId));
             } catch(e) {
-                alert('åˆ†é…å¤±è´¥: ' + e.message);
+                alert('·ÖÅäÊ§°Ü: ' + e.message);
                 return;
             }
 
@@ -682,8 +682,8 @@
                 gateway_no: gatewayNo,
                 brand: gm ? gm.brand : '-',
                 model: gm ? gm.model_name : '-',
-                rs485_ports: gm ? gm.serial_port_count + 'å£' : '-',
-                eth_ports: gm ? gm.ethernet_port_count + 'å£' : '-',
+                rs485_ports: gm ? gm.serial_port_count + '¿Ú' : '-',
+                eth_ports: gm ? gm.ethernet_port_count + '¿Ú' : '-',
                 iot_card_no: item.sim_card_no || '',
                 sim_operator: item.sim_operator || '',
                 sim_iccid: item.sim_iccid || '',
@@ -717,7 +717,7 @@
                         gateway.gateway_no = created.gateway_no || gateway.gateway_no;
                     }
                     persistGatewaysProjectCache();
-                } catch(e) { console.warn('åŒæ­¥åˆ°åç«¯å¤±è´¥:', e.message); }
+                } catch(e) { console.warn('Í¬²½µ½ºó¶ËÊ§°Ü:', e.message); }
             }
 
             renderGateways();
@@ -749,7 +749,7 @@
                             mac_address: formData.get('mac_address') || null
                         });
                     } catch (err) {
-                        alert('ä¿å­˜å¤±è´¥ï¼š' + (err.message || 'æœªçŸ¥é”™è¯¯'));
+                        alert('±£´æÊ§°Ü£º' + (err.message || 'Î´Öª´íÎó'));
                         return;
                     }
                 }
@@ -770,7 +770,7 @@
                 }
                 editingGatewayId = null;
                 const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.textContent = 'æ·»åŠ ç½‘å…³';
+                submitBtn.textContent = 'Ìí¼ÓÍø¹Ø';
                 submitBtn.style.background = '';
             } else {
                 const gatewayCount = gateways.length;
@@ -815,7 +815,7 @@
                             gateway.id = result.id;
                             gateway.gateway_no = result.gateway_no;
                         }
-                    } catch(e) { console.warn('APIç½‘å…³ä¿å­˜å¤±è´¥:', e.message); }
+                    } catch(e) { console.warn('APIÍø¹Ø±£´æÊ§°Ü:', e.message); }
                 }
             }
 
@@ -848,61 +848,61 @@
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
             const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.textContent = 'ä¿å­˜ä¿®æ”¹';
+            submitBtn.textContent = '±£´æĞŞ¸Ä';
             submitBtn.style.background = '#faad14';
         }
 
-        // æ¸²æŸ“ç½‘å…³åˆ—è¡¨
+        // äÖÈ¾Íø¹ØÁĞ±í
         function renderGateways() {
             const listDiv = document.getElementById('gatewayList');
             const countSpan = document.getElementById('gatewayCount');
             
-            countSpan.textContent = `(${gateways.length}ä¸ª)`;
+            countSpan.textContent = `(${gateways.length}¸ö)`;
             
             if (gateways.length === 0) {
-                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">æš‚æ— ç½‘å…³ï¼Œè¯·æ·»åŠ ç¬¬ä¸€ä¸ªç½‘å…³</p>';
+                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">ÔİÎŞÍø¹Ø£¬ÇëÌí¼ÓµÚÒ»¸öÍø¹Ø</p>';
             } else {
                 listDiv.innerHTML = gateways.map(gateway => `
                     <div class="gateway-item">
                         <div class="gateway-item-header">
                             <div class="gateway-item-title">${gateway.gateway_no} - ${gateway.brand} ${gateway.model}</div>
                             <div class="gateway-item-actions">
-                                <button onclick="editGateway(${gateway.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">ç¼–è¾‘</button>
-                                <button onclick="deleteGateway(${gateway.id})" class="delete">åˆ é™¤</button>
+                                <button onclick="editGateway(${gateway.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">±à¼­</button>
+                                <button onclick="deleteGateway(${gateway.id})" class="delete">É¾³ı</button>
                             </div>
                         </div>
                         <div class="gateway-info">
                             ${gateway.serial_no ? `
                                 <div class="gateway-info-item">
-                                    <div class="gateway-info-label">SNå·</div>
+                                    <div class="gateway-info-label">SNºÅ</div>
                                     <div class="gateway-info-value" style="font-family:monospace;">${gateway.serial_no}</div>
                                 </div>
                             ` : ''}
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">RS485ç«¯å£æ•°</div>
+                                <div class="gateway-info-label">RS485¶Ë¿ÚÊı</div>
                                 <div class="gateway-info-value">${gateway.rs485_ports || '-'}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">ç½‘å£ç«¯å£æ•°</div>
+                                <div class="gateway-info-label">Íø¿Ú¶Ë¿ÚÊı</div>
                                 <div class="gateway-info-value">${gateway.eth_ports || '-'}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">ç‰©è”ç½‘å¡å·</div>
+                                <div class="gateway-info-label">ÎïÁªÍø¿¨ºÅ</div>
                                 <div class="gateway-info-value">${gateway.iot_card_no}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">è¿è¥å•†</div>
+                                <div class="gateway-info-label">ÔËÓªÉÌ</div>
                                 <div class="gateway-info-value">${gateway.sim_operator || '-'}</div>
                             </div>
                             ${gateway.ip_address ? `
                                 <div class="gateway-info-item">
-                                    <div class="gateway-info-label">IPåœ°å€</div>
+                                    <div class="gateway-info-label">IPµØÖ·</div>
                                     <div class="gateway-info-value">${gateway.ip_address}</div>
                                 </div>
                             ` : ''}
                             ${gateway.mac_address ? `
                                 <div class="gateway-info-item">
-                                    <div class="gateway-info-label">MACåœ°å€</div>
+                                    <div class="gateway-info-label">MACµØÖ·</div>
                                     <div class="gateway-info-value">${gateway.mac_address}</div>
                                 </div>
                             ` : ''}
@@ -918,14 +918,14 @@
             }
         }
 
-        // åˆ é™¤ç½‘å…³ï¼ˆç”Ÿäº§ç¯å¢ƒåŒæ­¥åˆ é™¤åç«¯ï¼‰
+        // É¾³ıÍø¹Ø£¨Éú²ú»·¾³Í¬²½É¾³ıºó¶Ë£©
         async function deleteGateway(id) {
-            if (!confirm('ç¡®å®šè¦åˆ é™¤è¿™ä¸ªç½‘å…³å—ï¼Ÿ')) return;
+            if (!confirm('È·¶¨ÒªÉ¾³ıÕâ¸öÍø¹ØÂğ£¿')) return;
             if (isProductionMode()) {
                 try {
                     await api.gateways.deleteGateway(id);
                 } catch (e) {
-                    alert('åˆ é™¤å¤±è´¥ï¼š' + (e.message || 'æœªçŸ¥é”™è¯¯'));
+                    alert('É¾³ıÊ§°Ü£º' + (e.message || 'Î´Öª´íÎó'));
                     return;
                 }
             }
@@ -939,17 +939,17 @@
             renderGateways();
         }
 
-        // ç»§ç»­åˆ°é€šè®¯é…ç½®
+        // ¼ÌĞøµ½Í¨Ñ¶ÅäÖÃ
         function completeProject() {
             if (gateways.length === 0) {
-                if (!confirm('è¿˜æ²¡æœ‰æ·»åŠ ç½‘å…³ï¼Œç¡®å®šè¦ç»§ç»­å—ï¼Ÿ\n\nå»ºè®®è‡³å°‘æ·»åŠ ä¸€ä¸ªç½‘å…³ä»¥ä¾¿è¿›è¡Œé€šè®¯é…ç½®ã€‚')) {
+                if (!confirm('»¹Ã»ÓĞÌí¼ÓÍø¹Ø£¬È·¶¨Òª¼ÌĞøÂğ£¿\n\n½¨ÒéÖÁÉÙÌí¼ÓÒ»¸öÍø¹ØÒÔ±ã½øĞĞÍ¨Ñ¶ÅäÖÃ¡£')) {
                     return;
                 }
             }
             window.location.href = 'communication-setup.html';
         }
 
-        // åˆå§‹åŒ–ï¼šé¡¹ç›®ä¿¡æ¯ã€å‹å·åº“ã€ç½‘å…³åˆ—è¡¨ï¼ˆç”Ÿäº§ç¯å¢ƒä» API æŒ‰é¡¹ç›®åŠ è½½ï¼‰
+        // ³õÊ¼»¯£ºÏîÄ¿ĞÅÏ¢¡¢ĞÍºÅ¿â¡¢Íø¹ØÁĞ±í£¨Éú²ú»·¾³´Ó API °´ÏîÄ¿¼ÓÔØ£©
         (async function bootstrapGatewaySetup() {
             await ensureProjectMeta();
             await loadGwModelLibrary();

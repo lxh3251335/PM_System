@@ -7,7 +7,7 @@
     <title>设备登记 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260418b"></script>
     <style>
         .container {
             max-width: 1400px;
@@ -505,7 +505,7 @@
             const name = (cat.name || '').trim();
             if (/电控柜/.test(name)) return 'cabinet';
             if (/冷却塔/.test(name)) return 'cooling_tower';
-            if (/温控器/.test(name)) return 'thermostat';
+            if (/温控器|温度控制/.test(name)) return 'thermostat';
             if (/电表/.test(name)) return 'meter';
             if (/冷风机/.test(name)) return 'air_cooler';
             if (/机组|制冷/.test(name)) return 'unit';
@@ -537,15 +537,24 @@
 
         const CODE_TO_DEVICE_TYPE = {
             'temp-controller': 'thermostat',
+            'temp_controller': 'thermostat',
+            'temperature_controller': 'thermostat',
+            'temp-control': 'thermostat',
             'air_cooler': 'air_cooler',
+            'air-cooler': 'air_cooler',
             'refrigeration_unit': 'unit',
+            'refrigeration-unit': 'unit',
             'electric_meter': 'meter',
+            'electric-meter': 'meter',
+            'power_meter': 'meter',
             'freezer': 'freezer',
             'defrost_controller': 'defrost_controller',
+            'defrost-controller': 'defrost_controller',
             'thermostat': 'thermostat',
             'unit': 'unit',
             'meter': 'meter',
             'cooling_tower': 'cooling_tower',
+            'cooling-tower': 'cooling_tower',
             'cabinet': 'cabinet'
         };
 
@@ -616,59 +625,54 @@
             if (currentCategory) renderDeviceList();
         }
 
+        function _apiDeviceToLocal(d) {
+            var catCodeMap = {};
+            categories.forEach(function(c) { catCodeMap[c.code] = c.id; });
+            var catCode = d.device_type || '';
+            var categoryId = catCodeMap[catCode] || null;
+            if (categoryId == null) {
+                var dtNorm = resolveDeviceType(catCode) || catCode;
+                var hit = categories.find(function(c) { return resolveCategoryType(c) === dtNorm; });
+                if (hit) categoryId = hit.id;
+            }
+            var room = coldRooms.find(function(rm) { return String(rm.id) === String(d.cold_room_id); });
+            var specs = d.specifications;
+            if (typeof specs === 'string' && specs) {
+                try { specs = JSON.parse(specs); } catch (e) { specs = {}; }
+            } else if (!specs) {
+                specs = {};
+            }
+            return {
+                id: d.id,
+                categoryId: categoryId,
+                type: d.device_type,
+                device_type: d.device_type,
+                device_no: d.device_no,
+                cold_room_id: d.cold_room_id ? String(d.cold_room_id) : '',
+                cold_room_name: room ? room.name : '',
+                brand: d.brand || '-',
+                model: d.model || '-',
+                comm_port_type: d.comm_port_type || null,
+                comm_protocol: d.comm_protocol || null,
+                cabinet_id: d.cabinet_id || null,
+                meter_area: d.meter_area || null,
+                specifications: specs,
+                created_at: d.created_at || new Date().toISOString()
+            };
+        }
+
         async function mergeApiDevices() {
             if (!projectId) return;
             try {
                 var apiDevices = await api.devices.getDevices({ project_id: projectId });
-                if (!Array.isArray(apiDevices) || apiDevices.length === 0) return;
-
-                var localIdSet = {};
-                devices.forEach(function(d) { localIdSet[d.id] = true; });
-
-                var catCodeMap = {};
-                categories.forEach(function(c) { catCodeMap[c.code] = c.id; });
-
-                var added = 0;
-                apiDevices.forEach(function(d) {
-                    if (localIdSet[d.id]) return;
-                    var catCode = d.device_type || '';
-                    var categoryId = catCodeMap[catCode] || null;
-                    if (categoryId == null) {
-                        var dtNorm = resolveDeviceType(catCode) || catCode;
-                        var hit = categories.find(function(c) { return resolveCategoryType(c) === dtNorm; });
-                        if (hit) categoryId = hit.id;
-                    }
-                    var room = coldRooms.find(function(rm) { return String(rm.id) === String(d.cold_room_id); });
-                    var specs = d.specifications;
-                    if (typeof specs === 'string' && specs) {
-                        try { specs = JSON.parse(specs); } catch (e) { specs = {}; }
-                    } else if (!specs) {
-                        specs = {};
-                    }
-                    devices.push({
-                        id: d.id,
-                        categoryId: categoryId,
-                        type: d.device_type,
-                        device_type: d.device_type,
-                        device_no: d.device_no,
-                        cold_room_id: d.cold_room_id ? String(d.cold_room_id) : '',
-                        cold_room_name: room ? room.name : '',
-                        brand: d.brand || '-',
-                        model: d.model || '-',
-                        comm_port_type: d.comm_port_type || null,
-                        comm_protocol: d.comm_protocol || null,
-                        specifications: specs,
-                        created_at: d.created_at || new Date().toISOString()
-                    });
-                    added++;
-                });
-
-                if (added > 0) {
-                    saveDevicesToStorage();
-                    console.log('[Merge] ' + added + ' API devices merged into local storage');
-                }
+                if (!Array.isArray(apiDevices)) return;
+                // 以后端为唯一数据源：完全替换本地缓存
+                // 避免"本机加了设备但未写入后端"的幽灵数据在多端显示不一致
+                devices = apiDevices.map(_apiDeviceToLocal);
+                saveDevicesToStorage();
+                console.log('[Sync] Loaded ' + devices.length + ' devices from backend API');
             } catch (e) {
-                console.warn('API设备合并失败:', e.message);
+                console.warn('API设备同步失败（保留本地缓存用于离线浏览）:', e.message);
             }
         }
 
@@ -1640,14 +1644,18 @@
                 const existingCount = devices.filter(d => d.categoryId === currentCategory.id).length;
                 const deviceNo = `${prefix}-001-${String(existingCount + 1).padStart(3, '0')}`;
 
-                let savedId = Date.now() + i;
+                let savedId;
                 try {
                     const result = await api.devices.createDevice(projectId, apiPayload);
-                    if (result && result.id) {
-                        savedId = result.id;
+                    if (!result || !result.id) {
+                        api.projects.showError('新增设备失败：后端未返回设备ID，请检查服务状态');
+                        return;
                     }
+                    savedId = result.id;
                 } catch (err) {
-                    console.warn('API save failed, using local only:', err.message);
+                    api.projects.showError('新增设备失败：' + (err && err.message ? err.message : err)
+                        + '（设备未保存到服务器，请检查登录状态与网络后重试）');
+                    return;
                 }
 
                 devices.push({
@@ -1779,7 +1787,9 @@
                     apiCopied = true;
                 }
             } catch (err) {
-                console.warn('API复制失败，使用本地复制:', err.message);
+                api.projects.showError('复制设备失败：' + (err && err.message ? err.message : err)
+                    + '（设备未写入服务器，请稍后重试）');
+                return;
             }
 
             if (!apiCopied) {

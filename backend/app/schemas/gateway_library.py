@@ -9,6 +9,8 @@ from datetime import datetime
 # ========== 网关型号 ==========
 
 class GatewayModelBase(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     brand: str = Field(..., description="品牌")
     model_name: str = Field(..., description="型号名称")
     serial_port_count: int = Field(0, description="串口数量")
@@ -21,6 +23,8 @@ class GatewayModelCreate(GatewayModelBase):
     pass
 
 class GatewayModelUpdate(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     brand: Optional[str] = None
     model_name: Optional[str] = None
     serial_port_count: Optional[int] = None
@@ -36,6 +40,7 @@ class GatewayModelOut(GatewayModelBase):
 
     class Config:
         from_attributes = True
+        protected_namespaces = ()
 
 class GatewayModelWithStats(GatewayModelOut):
     """附带库存统计"""

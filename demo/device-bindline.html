@@ -1,13 +1,13 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>è®¾å¤‡å…³ç³»è¿çº¿ - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
+    <title>Éè±¸¹ØÏµÁ¬Ïß - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260417"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .container { max-width: 1600px; margin: 40px auto; padding: 0 20px; }
@@ -136,28 +136,28 @@
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <div class="project-info-card">
-            <h3>&#x1f4e6; å½“å‰é¡¹ç›®</h3>
+            <h3>&#x1f4e6; µ±Ç°ÏîÄ¿</h3>
             <div class="project-info-grid" id="projectInfo"></div>
         </div>
 
         <div class="page-header">
-            <h1>è®¾å¤‡å…³ç³»è¿çº¿</h1>
-            <p>ä»è®¾å¤‡å¡ç‰‡çš„è¾“å‡ºç«¯å£æ‹–æ‹½åˆ°ç›®æ ‡è®¾å¤‡çš„è¾“å…¥ç«¯å£ï¼Œå»ºç«‹å…³è”å…³ç³»ã€‚å³é”®è¿çº¿å¯åˆ é™¤ã€‚</p>
+            <h1>Éè±¸¹ØÏµÁ¬Ïß</h1>
+            <p>´ÓÉè±¸¿¨Æ¬µÄÊä³ö¶Ë¿ÚÍÏ×§µ½Ä¿±êÉè±¸µÄÊäÈë¶Ë¿Ú£¬½¨Á¢¹ØÁª¹ØÏµ¡£ÓÒ¼üÁ¬Ïß¿ÉÉ¾³ı¡£</p>
         </div>
 
         <div class="toolbar">
-            <button class="btn btn-sm btn-danger" onclick="clearAllConnections()">æ¸…ç©ºè¿çº¿</button>
-            <button class="btn btn-sm btn-primary" onclick="exportToExcel()">å¯¼å‡ºExcel</button>
-            <button class="btn btn-sm btn-secondary" onclick="importFromExcel()" style="position:relative;">å¯¼å…¥Excel<input type="file" id="importFileInput" accept=".xlsx,.xls" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="handleImportFile(this)"></button>
-            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" id="btnConnList">æŸ¥çœ‹å…³ç³»åˆ—è¡¨</button>
-            <button class="btn btn-sm btn-secondary" onclick="switchToOldMode()">åˆ‡æ¢åˆ°è¡¨å•æ¨¡å¼</button>
+            <button class="btn btn-sm btn-danger" onclick="clearAllConnections()">Çå¿ÕÁ¬Ïß</button>
+            <button class="btn btn-sm btn-primary" onclick="exportToExcel()">µ¼³öExcel</button>
+            <button class="btn btn-sm btn-secondary" onclick="importFromExcel()" style="position:relative;">µ¼ÈëExcel<input type="file" id="importFileInput" accept=".xlsx,.xls" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="handleImportFile(this)"></button>
+            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" id="btnConnList">²é¿´¹ØÏµÁĞ±í</button>
+            <button class="btn btn-sm btn-secondary" onclick="switchToOldMode()">ÇĞ»»µ½±íµ¥Ä£Ê½</button>
             <div class="legend">
-                <div class="legend-item"><div class="legend-dot" style="background:#1890ff"></div>æ¸©æ§å™¨</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#13c2c2"></div>å†·é£æœº</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#fa8c16"></div>åˆ¶å†·æœºç»„</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#52c41a"></div>å†·å´å¡”</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#faad14"></div>ç”µè¡¨</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#8c8c8c"></div>ç”µæ§æŸœ</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#1890ff"></div>ÎÂ¿ØÆ÷</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#13c2c2"></div>Àä·ç»ú</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#fa8c16"></div>ÖÆÀä»ú×é</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#52c41a"></div>ÀäÈ´Ëş</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#faad14"></div>µç±í</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#8c8c8c"></div>µç¿Ø¹ñ</div>
             </div>
         </div>
 
@@ -171,38 +171,38 @@
         </div>
 
         <div class="action-bar">
-            <button class="btn btn-secondary" onclick="window.location.href='device-register.html'">&#x2190; è¿”å›ä¸Šä¸€æ­¥</button>
+            <button class="btn btn-secondary" onclick="window.location.href='device-register.html'">&#x2190; ·µ»ØÉÏÒ»²½</button>
             <div style="display:flex; gap:12px;">
-                <button class="btn btn-primary" onclick="saveConnections()">ä¿å­˜è¿çº¿</button>
-                <button class="btn btn-success" onclick="continueToSubmit()">å®Œæˆé…ç½®ï¼Œæäº¤å®¡æ ¸ &#x2192;</button>
+                <button class="btn btn-primary" onclick="saveConnections()">±£´æÁ¬Ïß</button>
+                <button class="btn btn-success" onclick="continueToSubmit()">Íê³ÉÅäÖÃ£¬Ìá½»ÉóºË &#x2192;</button>
             </div>
         </div>
     </div>
 
     <div class="context-menu" id="contextMenu">
         <div class="menu-item" id="ctxConnInfo" style="color:#8c95a6;font-size:11px;cursor:default;padding:6px 16px 2px;"></div>
-        <div class="menu-item edit" onclick="editSelectedConnection()">&#x270E; ç¼–è¾‘æ­¤è¿çº¿</div>
-        <div class="menu-item danger" onclick="deleteSelectedConnection()">&#x2716; åˆ é™¤æ­¤è¿çº¿</div>
+        <div class="menu-item edit" onclick="editSelectedConnection()">&#x270E; ±à¼­´ËÁ¬Ïß</div>
+        <div class="menu-item danger" onclick="deleteSelectedConnection()">&#x2716; É¾³ı´ËÁ¬Ïß</div>
     </div>
 
     <div class="modal-overlay" id="editConnModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>ç¼–è¾‘è®¾å¤‡è¿çº¿</h3>
+                <h3>±à¼­Éè±¸Á¬Ïß</h3>
                 <button class="modal-close" onclick="closeEditModal()">&times;</button>
             </div>
             <div class="modal-body" id="editConnBody"></div>
             <div class="modal-footer">
-                <button class="btn btn-sm btn-secondary" onclick="closeEditModal()">å–æ¶ˆ</button>
-                <button class="btn btn-sm btn-primary" onclick="saveEditedConnection()">ä¿å­˜ä¿®æ”¹</button>
+                <button class="btn btn-sm btn-secondary" onclick="closeEditModal()">È¡Ïû</button>
+                <button class="btn btn-sm btn-primary" onclick="saveEditedConnection()">±£´æĞŞ¸Ä</button>
             </div>
         </div>
     </div>
 
     <div id="connListPanel" style="display:none; background:white; border:1px solid #e0e7ef; border-radius:10px; padding:16px; margin-top:16px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h3 style="margin:0; font-size:15px; color:#1a1a2e;">å·²å»ºç«‹çš„è®¾å¤‡å…³ç³»</h3>
-            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" style="padding:4px 12px; font-size:12px;">æ”¶èµ·</button>
+            <h3 style="margin:0; font-size:15px; color:#1a1a2e;">ÒÑ½¨Á¢µÄÉè±¸¹ØÏµ</h3>
+            <button class="btn btn-sm btn-secondary" onclick="toggleConnList()" style="padding:4px 12px; font-size:12px;">ÊÕÆğ</button>
         </div>
         <div id="connListBody"></div>
     </div>
@@ -211,9 +211,9 @@
         requireAuth();
 
         const DEVICE_TYPE_CN = {
-            'thermostat': 'æ¸©æ§å™¨', 'air_cooler': 'å†·é£æœº', 'unit': 'åˆ¶å†·æœºç»„',
-            'meter': 'ç”µè¡¨', 'cooling_tower': 'å†·å´å¡”', 'cabinet': 'ç”µæ§æŸœ',
-            'freezer': 'å†·æŸœ', 'defrost_controller': 'èéœœæ§åˆ¶å™¨'
+            'thermostat': 'ÎÂ¿ØÆ÷', 'air_cooler': 'Àä·ç»ú', 'unit': 'ÖÆÀä»ú×é',
+            'meter': 'µç±í', 'cooling_tower': 'ÀäÈ´Ëş', 'cabinet': 'µç¿Ø¹ñ',
+            'freezer': 'Àä¹ñ', 'defrost_controller': 'ÈÚËª¿ØÖÆÆ÷'
         };
         const TYPE_ICONS = {
             'thermostat': '\u{1f321}', 'air_cooler': '\u2744', 'unit': '\u{1f527}',
@@ -267,13 +267,13 @@
             if (/^FR-/.test(no)) return 'freezer';
             if (/^DF-/.test(no)) return 'defrost_controller';
             var all = ((d.cold_room_name || '') + ' ' + (d.brand || '') + ' ' + (d.model || '')).toLowerCase();
-            if (/ç”µæ§æŸœ|cabinet/.test(all)) return 'cabinet';
-            if (/æ¸©æ§å™¨|thermostat/.test(all)) return 'thermostat';
-            if (/å†·é£æœº|air.?cooler/.test(all)) return 'air_cooler';
-            if (/æœºç»„|unit|åˆ¶å†·/.test(all)) return 'unit';
-            if (/ç”µè¡¨|meter/.test(all)) return 'meter';
-            if (/å†·å´å¡”|tower/.test(all)) return 'cooling_tower';
-            if (/å†·æŸœ|freezer/.test(all)) return 'freezer';
+            if (/µç¿Ø¹ñ|cabinet/.test(all)) return 'cabinet';
+            if (/ÎÂ¿ØÆ÷|thermostat/.test(all)) return 'thermostat';
+            if (/Àä·ç»ú|air.?cooler/.test(all)) return 'air_cooler';
+            if (/»ú×é|unit|ÖÆÀä/.test(all)) return 'unit';
+            if (/µç±í|meter/.test(all)) return 'meter';
+            if (/ÀäÈ´Ëş|tower/.test(all)) return 'cooling_tower';
+            if (/Àä¹ñ|freezer/.test(all)) return 'freezer';
             return dt || 'unknown';
         }
 
@@ -298,11 +298,11 @@
         }
 
         async function initPage() {
-            if (!projectId) { alert('æœªæ‰¾åˆ°é¡¹ç›®ID'); window.location.href = 'project-list.html'; return; }
+            if (!projectId) { alert('Î´ÕÒµ½ÏîÄ¿ID'); window.location.href = 'project-list.html'; return; }
 
             let roomsData = [], devicesData = [];
-            try { roomsData = await api.projects.getColdRooms(projectId); } catch(e) { console.warn('APIå†·åº“:', e.message); }
-            try { devicesData = await api.devices.getDevices({ project_id: projectId }); } catch(e) { console.warn('APIè®¾å¤‡:', e.message); }
+            try { roomsData = await api.projects.getColdRooms(projectId); } catch(e) { console.warn('APIÀä¿â:', e.message); }
+            try { devicesData = await api.devices.getDevices({ project_id: projectId }); } catch(e) { console.warn('APIÉè±¸:', e.message); }
 
             const localRoomsAll = JSON.parse(localStorage.getItem('coldRooms') || '[]');
             const localRooms = localRoomsAll.filter(r => String(r.project_id) === String(projectId));
@@ -328,11 +328,11 @@
             generateCabinetConnections();
 
             document.getElementById('projectInfo').innerHTML = `
-                <div><strong>é¡¹ç›®ç¼–å·ï¼š</strong>${project.project_no || '-'}</div>
-                <div><strong>é¡¹ç›®åç§°ï¼š</strong>${project.name || '-'}</div>
-                <div><strong>æœ€ç»ˆç”¨æˆ·ï¼š</strong>${project.end_customer || '-'}</div>
-                <div><strong>å†·åº“æ•°é‡ï¼š</strong>${coldRooms.length}ä¸ª</div>
-                <div><strong>è®¾å¤‡æ•°é‡ï¼š</strong>${devices.length}å°</div>
+                <div><strong>ÏîÄ¿±àºÅ£º</strong>${project.project_no || '-'}</div>
+                <div><strong>ÏîÄ¿Ãû³Æ£º</strong>${project.name || '-'}</div>
+                <div><strong>×îÖÕÓÃ»§£º</strong>${project.end_customer || '-'}</div>
+                <div><strong>Àä¿âÊıÁ¿£º</strong>${coldRooms.length}¸ö</div>
+                <div><strong>Éè±¸ÊıÁ¿£º</strong>${devices.length}Ì¨</div>
             `;
 
             renderCanvas();
@@ -344,8 +344,8 @@
             devices.forEach(d => { types[d._dt] = (types[d._dt] || 0) + 1; });
             var autoConns = connections.filter(function(c) { return c._auto; }).length;
             var manualConns = connections.length - autoConns;
-            let html = `<div class="stat">è®¾å¤‡æ€»æ•°: <b>${devices.length}</b></div><div class="stat">è¿çº¿: <b>${connections.length}</b>`;
-            if (autoConns > 0) html += ` <span style="color:#8c95a6; font-size:11px;">(è‡ªåŠ¨${autoConns}æ¡)</span>`;
+            let html = `<div class="stat">Éè±¸×ÜÊı: <b>${devices.length}</b></div><div class="stat">Á¬Ïß: <b>${connections.length}</b>`;
+            if (autoConns > 0) html += ` <span style="color:#8c95a6; font-size:11px;">(×Ô¶¯${autoConns}Ìõ)</span>`;
             html += `</div>`;
             var typeOrder = ['cabinet', 'thermostat', 'air_cooler', 'unit', 'meter', 'cooling_tower'];
             typeOrder.forEach(function(t) {
@@ -363,9 +363,9 @@
             if (devices.length === 0) {
                 document.getElementById('zonesContainer').innerHTML = `
                     <div class="empty-state">
-                        <h3>æš‚æ— è®¾å¤‡</h3>
-                        <p>è¯·å…ˆåœ¨"è®¾å¤‡ç™»è®°"é¡µé¢æ·»åŠ è®¾å¤‡åå†é…ç½®å…³ç³»</p>
-                        <a href="device-register.html" class="btn btn-primary btn-sm" style="display:inline-block; margin-top:12px; text-decoration:none;">å‰å¾€è®¾å¤‡ç™»è®°</a>
+                        <h3>ÔİÎŞÉè±¸</h3>
+                        <p>ÇëÏÈÔÚ"Éè±¸µÇ¼Ç"Ò³ÃæÌí¼ÓÉè±¸ºóÔÙÅäÖÃ¹ØÏµ</p>
+                        <a href="device-register.html" class="btn btn-primary btn-sm" style="display:inline-block; margin-top:12px; text-decoration:none;">Ç°ÍùÉè±¸µÇ¼Ç</a>
                     </div>`;
                 return;
             }
@@ -373,21 +373,21 @@
             const groups = groupDevices();
             let html = '';
 
-            var flowLabels = {'cabinet':'ç”µæ§æŸœ','thermostat':'æ¸©æ§å™¨','air_cooler':'å†·é£æœº','unit':'åˆ¶å†·æœºç»„','cooling_tower':'å†·å´å¡”','meter':'ç”µè¡¨','freezer':'å†·æŸœ','defrost_controller':'èéœœæ§åˆ¶å™¨'};
+            var flowLabels = {'cabinet':'µç¿Ø¹ñ','thermostat':'ÎÂ¿ØÆ÷','air_cooler':'Àä·ç»ú','unit':'ÖÆÀä»ú×é','cooling_tower':'ÀäÈ´Ëş','meter':'µç±í','freezer':'Àä¹ñ','defrost_controller':'ÈÚËª¿ØÖÆÆ÷'};
 
             var flowColumns = [
-                { types: ['cabinet'], label: 'ç”µæ§æŸœ' },
-                { types: ['thermostat', 'meter'], label: 'æ¸©æ§å™¨ / ç”µè¡¨' },
-                { types: ['air_cooler'], label: 'å†·é£æœº' },
-                { types: ['unit'], label: 'åˆ¶å†·æœºç»„' },
-                { types: ['cooling_tower'], label: 'å†·å´å¡”' }
+                { types: ['cabinet'], label: 'µç¿Ø¹ñ' },
+                { types: ['thermostat', 'meter'], label: 'ÎÂ¿ØÆ÷ / µç±í' },
+                { types: ['air_cooler'], label: 'Àä·ç»ú' },
+                { types: ['unit'], label: 'ÖÆÀä»ú×é' },
+                { types: ['cooling_tower'], label: 'ÀäÈ´Ëş' }
             ];
             var allFlowTypes = [];
             flowColumns.forEach(function(col) { col.types.forEach(function(t) { allFlowTypes.push(t); }); });
 
             groups.forEach(g => {
                 html += `<div class="zone" style="border-color:${g.color}30; border-left: 4px solid ${g.color};">`;
-                html += `<div class="zone-title">${g.icon} ${g.name}<span class="badge">${g.devices.length}å°</span></div>`;
+                html += `<div class="zone-title">${g.icon} ${g.name}<span class="badge">${g.devices.length}Ì¨</span></div>`;
 
                 var byType = {};
                 g.devices.forEach(d => { var t = d._dt; if (!byType[t]) byType[t] = []; byType[t].push(d); });
@@ -450,7 +450,7 @@
         function addToRoom(roomMap, roomId, device) {
             var room = coldRooms.find(function(r) { return String(r.id) === String(roomId); });
             var key = room ? String(room.id) : String(roomId);
-            if (!roomMap[key]) roomMap[key] = { name: room ? room.name : 'å†·åº“' + key, id: key, devices: [], color: '#1890ff', icon: '\u{1f3e0}' };
+            if (!roomMap[key]) roomMap[key] = { name: room ? room.name : 'Àä¿â' + key, id: key, devices: [], color: '#1890ff', icon: '\u{1f3e0}' };
             if (!roomMap[key].devices.some(function(e) { return String(e.id) === String(device.id); })) {
                 roomMap[key].devices.push(device);
             }
@@ -490,8 +490,8 @@
             });
 
             const groups = Object.values(roomMap);
-            if (towerDevices.length > 0) groups.push({ name: 'å†·å´å¡”åŒºåŸŸ', id: 'tower', devices: towerDevices, color: '#52c41a', icon: '\u{1f3d7}' });
-            if (publicDevices.length > 0) groups.push({ name: 'å…¬å…±åŒºåŸŸ', id: 'public', devices: publicDevices, color: '#8c8c8c', icon: '\u{1f4e6}' });
+            if (towerDevices.length > 0) groups.push({ name: 'ÀäÈ´ËşÇøÓò', id: 'tower', devices: towerDevices, color: '#52c41a', icon: '\u{1f3d7}' });
+            if (publicDevices.length > 0) groups.push({ name: '¹«¹²ÇøÓò', id: 'public', devices: publicDevices, color: '#8c8c8c', icon: '\u{1f4e6}' });
 
             return groups;
         }
@@ -515,8 +515,8 @@
                     <div class="card-body">
                         <div class="card-brand">${brand} ${model}</div>
                     </div>
-                    ${canOut ? `<div class="port port-out" data-device="${d.id}" data-dir="out" title="æ‹–æ‹½è¿çº¿åˆ°ç›®æ ‡è®¾å¤‡"></div>` : ''}
-                    ${canReceive ? `<div class="port port-in" data-device="${d.id}" data-dir="in" title="æ¥æ”¶è¿çº¿"></div>` : ''}
+                    ${canOut ? `<div class="port port-out" data-device="${d.id}" data-dir="out" title="ÍÏ×§Á¬Ïßµ½Ä¿±êÉè±¸"></div>` : ''}
+                    ${canReceive ? `<div class="port port-in" data-device="${d.id}" data-dir="in" title="½ÓÊÕÁ¬Ïß"></div>` : ''}
                 </div>`;
         }
 
@@ -740,7 +740,7 @@
             });
 
             var html = '<div class="edit-field">';
-            html += '<label>æºè®¾å¤‡ï¼ˆè¾“å‡ºç«¯ï¼‰</label>';
+            html += '<label>Ô´Éè±¸£¨Êä³ö¶Ë£©</label>';
             html += '<select id="editConnFrom">';
             sourceOptions.forEach(function(d) {
                 var label = (DEVICE_TYPE_CN[d._dt] || d._dt) + ' ' + (d.device_no || '-') + ' - ' + (d.brand || '') + ' ' + (d.model || '');
@@ -748,13 +748,13 @@
                 html += '<option value="' + d.id + '"' + sel + '>' + label + '</option>';
             });
             html += '</select>';
-            if (fromDev) html += '<div class="current-val">å½“å‰: ' + getDeviceLabel(conn.from) + '</div>';
+            if (fromDev) html += '<div class="current-val">µ±Ç°: ' + getDeviceLabel(conn.from) + '</div>';
             html += '</div>';
 
             html += '<div class="edit-arrow">&#x2B07;</div>';
 
             html += '<div class="edit-field">';
-            html += '<label>ç›®æ ‡è®¾å¤‡ï¼ˆè¾“å…¥ç«¯ï¼‰</label>';
+            html += '<label>Ä¿±êÉè±¸£¨ÊäÈë¶Ë£©</label>';
             html += '<select id="editConnTo">';
             targetOptions.forEach(function(d) {
                 var label = (DEVICE_TYPE_CN[d._dt] || d._dt) + ' ' + (d.device_no || '-') + ' - ' + (d.brand || '') + ' ' + (d.model || '');
@@ -762,7 +762,7 @@
                 html += '<option value="' + d.id + '"' + sel + '>' + label + '</option>';
             });
             html += '</select>';
-            if (toDev) html += '<div class="current-val">å½“å‰: ' + getDeviceLabel(conn.to) + '</div>';
+            if (toDev) html += '<div class="current-val">µ±Ç°: ' + getDeviceLabel(conn.to) + '</div>';
             html += '</div>';
 
             document.getElementById('editConnBody').innerHTML = html;
@@ -799,13 +799,13 @@
             var newFrom = document.getElementById('editConnFrom').value;
             var newTo = document.getElementById('editConnTo').value;
 
-            if (!newFrom || !newTo) { alert('è¯·é€‰æ‹©æºè®¾å¤‡å’Œç›®æ ‡è®¾å¤‡'); return; }
-            if (String(newFrom) === String(newTo)) { alert('æºè®¾å¤‡å’Œç›®æ ‡è®¾å¤‡ä¸èƒ½ç›¸åŒ'); return; }
+            if (!newFrom || !newTo) { alert('ÇëÑ¡ÔñÔ´Éè±¸ºÍÄ¿±êÉè±¸'); return; }
+            if (String(newFrom) === String(newTo)) { alert('Ô´Éè±¸ºÍÄ¿±êÉè±¸²»ÄÜÏàÍ¬'); return; }
 
             var duplicate = connections.some(function(c, i) {
                 return i !== editingConnIdx && String(c.from) === String(newFrom) && String(c.to) === String(newTo);
             });
-            if (duplicate) { alert('è¯¥è¿çº¿å…³ç³»å·²å­˜åœ¨'); return; }
+            if (duplicate) { alert('¸ÃÁ¬Ïß¹ØÏµÒÑ´æÔÚ'); return; }
 
             connections[editingConnIdx] = { from: newFrom, to: newTo };
             saveConnections();
@@ -813,11 +813,11 @@
             renderStats();
             renderConnList();
             closeEditModal();
-            api.projects.showSuccess('è¿çº¿å·²æ›´æ–°');
+            api.projects.showSuccess('Á¬ÏßÒÑ¸üĞÂ');
         }
 
         function deleteConnection(idx) {
-            if (!confirm('ç¡®å®šåˆ é™¤æ­¤è¿çº¿ï¼Ÿ')) return;
+            if (!confirm('È·¶¨É¾³ı´ËÁ¬Ïß£¿')) return;
             connections.splice(idx, 1);
             saveConnections();
             drawConnections();
@@ -827,7 +827,7 @@
 
         function getDeviceLabel(id) {
             var d = devices.find(function(dev) { return String(dev.id) === String(id); });
-            if (!d) return 'æœªçŸ¥è®¾å¤‡';
+            if (!d) return 'Î´ÖªÉè±¸';
             var typeName = DEVICE_TYPE_CN[d._dt] || d._dt;
             return typeName + ' ' + (d.device_no || '-');
         }
@@ -837,10 +837,10 @@
             if (panel.style.display === 'none') {
                 panel.style.display = 'block';
                 renderConnList();
-                document.getElementById('btnConnList').textContent = 'éšè—å…³ç³»åˆ—è¡¨';
+                document.getElementById('btnConnList').textContent = 'Òş²Ø¹ØÏµÁĞ±í';
             } else {
                 panel.style.display = 'none';
-                document.getElementById('btnConnList').textContent = 'æŸ¥çœ‹å…³ç³»åˆ—è¡¨';
+                document.getElementById('btnConnList').textContent = '²é¿´¹ØÏµÁĞ±í';
             }
         }
 
@@ -848,30 +848,30 @@
             var body = document.getElementById('connListBody');
             if (!body) return;
             if (connections.length === 0) {
-                body.innerHTML = '<div style="text-align:center; color:#8c95a6; padding:20px; font-size:13px;">æš‚æ— è¿çº¿å…³ç³»ï¼Œè¯·ä»å·¦ä¾§ç«¯å£æ‹–æ‹½åˆ°å³ä¾§ç«¯å£å»ºç«‹å…³ç³»</div>';
+                body.innerHTML = '<div style="text-align:center; color:#8c95a6; padding:20px; font-size:13px;">ÔİÎŞÁ¬Ïß¹ØÏµ£¬Çë´Ó×ó²à¶Ë¿ÚÍÏ×§µ½ÓÒ²à¶Ë¿Ú½¨Á¢¹ØÏµ</div>';
                 return;
             }
             var html = '<table style="width:100%; border-collapse:collapse; font-size:13px;">';
             html += '<thead><tr style="background:#f8fafc; color:#8c95a6; font-size:11px; text-transform:uppercase;">';
-            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">åºå·</th>';
-            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">æºè®¾å¤‡</th>';
-            html += '<th style="padding:8px 12px; text-align:center; font-weight:600;">å…³ç³»</th>';
-            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">ç›®æ ‡è®¾å¤‡</th>';
-            html += '<th style="padding:8px 12px; text-align:center; font-weight:600; width:120px;">æ“ä½œ</th>';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">ĞòºÅ</th>';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">Ô´Éè±¸</th>';
+            html += '<th style="padding:8px 12px; text-align:center; font-weight:600;">¹ØÏµ</th>';
+            html += '<th style="padding:8px 12px; text-align:left; font-weight:600;">Ä¿±êÉè±¸</th>';
+            html += '<th style="padding:8px 12px; text-align:center; font-weight:600; width:120px;">²Ù×÷</th>';
             html += '</tr></thead><tbody>';
             connections.forEach(function(conn, i) {
                 var fromLabel = getDeviceLabel(conn.from);
                 var toLabel = getDeviceLabel(conn.to);
                 var color = getConnectionColor(conn);
-                var autoTag = conn._auto ? ' <span style="font-size:10px; background:#f0f4f8; color:#8c95a6; padding:1px 6px; border-radius:3px;">è‡ªåŠ¨</span>' : '';
+                var autoTag = conn._auto ? ' <span style="font-size:10px; background:#f0f4f8; color:#8c95a6; padding:1px 6px; border-radius:3px;">×Ô¶¯</span>' : '';
                 html += '<tr style="border-bottom:1px solid #f0f4f8;">';
                 html += '<td style="padding:8px 12px; color:#8c95a6;">' + (i + 1) + autoTag + '</td>';
                 html += '<td style="padding:8px 12px; font-weight:500; color:#1a1a2e;">' + fromLabel + '</td>';
                 html += '<td style="padding:8px 12px; text-align:center;"><span style="color:' + color + '; font-size:16px;">&#x2192;</span></td>';
                 html += '<td style="padding:8px 12px; font-weight:500; color:#1a1a2e;">' + toLabel + '</td>';
                 html += '<td style="padding:8px 12px; text-align:center; white-space:nowrap;">';
-                html += '<button onclick="editConnection(' + i + ')" style="background:none; border:1px solid #91d5ff; color:#1890ff; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer; margin-right:4px;">ç¼–è¾‘</button>';
-                html += '<button onclick="deleteConnection(' + i + ')" style="background:none; border:1px solid #ffa39e; color:#ff4d4f; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer;">åˆ é™¤</button>';
+                html += '<button onclick="editConnection(' + i + ')" style="background:none; border:1px solid #91d5ff; color:#1890ff; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer; margin-right:4px;">±à¼­</button>';
+                html += '<button onclick="deleteConnection(' + i + ')" style="background:none; border:1px solid #ffa39e; color:#ff4d4f; padding:2px 10px; border-radius:4px; font-size:11px; cursor:pointer;">É¾³ı</button>';
                 html += '</td>';
                 html += '</tr>';
             });
@@ -883,7 +883,7 @@
             var menu = document.getElementById('contextMenu');
             if (selectedConn !== null && connections[selectedConn]) {
                 var conn = connections[selectedConn];
-                var info = getDeviceLabel(conn.from) + ' â†’ ' + getDeviceLabel(conn.to);
+                var info = getDeviceLabel(conn.from) + ' ¡ú ' + getDeviceLabel(conn.to);
                 document.getElementById('ctxConnInfo').textContent = info;
             } else {
                 document.getElementById('ctxConnInfo').textContent = '';
@@ -899,7 +899,7 @@
         }
 
         function clearAllConnections() {
-            if (!confirm('ç¡®å®šæ¸…ç©ºæ‰€æœ‰è¿çº¿ï¼Ÿ')) return;
+            if (!confirm('È·¶¨Çå¿ÕËùÓĞÁ¬Ïß£¿')) return;
             connections = [];
             saveConnections();
             drawConnections();
@@ -920,10 +920,10 @@
                     var wb = XLSX.read(e.target.result, { type: 'array' });
                     var ws = wb.Sheets[wb.SheetNames[0]];
                     var rows = XLSX.utils.sheet_to_json(ws);
-                    if (!rows || rows.length === 0) { alert('Excelæ–‡ä»¶ä¸ºç©ºæˆ–æ ¼å¼ä¸æ­£ç¡®'); return; }
+                    if (!rows || rows.length === 0) { alert('ExcelÎÄ¼şÎª¿Õ»ò¸ñÊ½²»ÕıÈ·'); return; }
                     processImportedRows(rows);
                 } catch (err) {
-                    alert('è¯»å–Excelå¤±è´¥: ' + err.message);
+                    alert('¶ÁÈ¡ExcelÊ§°Ü: ' + err.message);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -942,12 +942,12 @@
             var notFound = [];
 
             rows.forEach(function(row, rowIdx) {
-                var cabinetNo = String(row['ç”µæ§æŸœ'] || '').trim();
-                var tcNo = String(row['æ¸©æ§å™¨ç¼–å·'] || '').trim();
-                var meterNo = String(row['ç”µè¡¨ç¼–å·'] || '').trim();
-                var acNo = String(row['å†·é£æœºç¼–å·'] || '').trim();
-                var unitNo = String(row['æœºç»„ç¼–å·'] || '').trim();
-                var towerNo = String(row['å†·å´å¡”ç¼–å·'] || '').trim();
+                var cabinetNo = String(row['µç¿Ø¹ñ'] || '').trim();
+                var tcNo = String(row['ÎÂ¿ØÆ÷±àºÅ'] || '').trim();
+                var meterNo = String(row['µç±í±àºÅ'] || '').trim();
+                var acNo = String(row['Àä·ç»ú±àºÅ'] || '').trim();
+                var unitNo = String(row['»ú×é±àºÅ'] || '').trim();
+                var towerNo = String(row['ÀäÈ´Ëş±àºÅ'] || '').trim();
 
                 var cabinetDev = findDeviceByNo(cabinetNo);
                 var tcDev = findDeviceByNo(tcNo);
@@ -964,13 +964,13 @@
                 if (unitDev && towerDev) pairs.push([unitDev, towerDev]);
 
                 var missing = [];
-                if (cabinetNo && !cabinetDev) missing.push('ç”µæ§æŸœ:' + cabinetNo);
-                if (tcNo && !tcDev) missing.push('æ¸©æ§å™¨:' + tcNo);
-                if (meterNo && !meterDev) missing.push('ç”µè¡¨:' + meterNo);
-                if (acNo && !acDev) missing.push('å†·é£æœº:' + acNo);
-                if (unitNo && !unitDev) missing.push('æœºç»„:' + unitNo);
-                if (towerNo && !towerDev) missing.push('å†·å´å¡”:' + towerNo);
-                if (missing.length > 0) notFound.push('ç¬¬' + (rowIdx + 2) + 'è¡Œ: ' + missing.join(', '));
+                if (cabinetNo && !cabinetDev) missing.push('µç¿Ø¹ñ:' + cabinetNo);
+                if (tcNo && !tcDev) missing.push('ÎÂ¿ØÆ÷:' + tcNo);
+                if (meterNo && !meterDev) missing.push('µç±í:' + meterNo);
+                if (acNo && !acDev) missing.push('Àä·ç»ú:' + acNo);
+                if (unitNo && !unitDev) missing.push('»ú×é:' + unitNo);
+                if (towerNo && !towerDev) missing.push('ÀäÈ´Ëş:' + towerNo);
+                if (missing.length > 0) notFound.push('µÚ' + (rowIdx + 2) + 'ĞĞ: ' + missing.join(', '));
 
                 pairs.forEach(function(pair) {
                     var fromId = String(pair[0].id);
@@ -992,11 +992,11 @@
                 renderConnList();
             }
 
-            var msg = 'å¯¼å…¥å®Œæˆ: æ–°å¢ ' + added + ' æ¡è¿çº¿';
-            if (skipped > 0) msg += ', è·³è¿‡ ' + skipped + ' æ¡(å·²å­˜åœ¨)';
+            var msg = 'µ¼ÈëÍê³É: ĞÂÔö ' + added + ' ÌõÁ¬Ïß';
+            if (skipped > 0) msg += ', Ìø¹ı ' + skipped + ' Ìõ(ÒÑ´æÔÚ)';
             if (notFound.length > 0) {
-                msg += '\n\nä»¥ä¸‹è®¾å¤‡æœªæ‰¾åˆ°:\n' + notFound.slice(0, 10).join('\n');
-                if (notFound.length > 10) msg += '\n...ç­‰å…± ' + notFound.length + ' å¤„';
+                msg += '\n\nÒÔÏÂÉè±¸Î´ÕÒµ½:\n' + notFound.slice(0, 10).join('\n');
+                if (notFound.length > 10) msg += '\n...µÈ¹² ' + notFound.length + ' ´¦';
             }
             alert(msg);
         }
@@ -1006,7 +1006,7 @@
         }
 
         function exportToExcel() {
-            if (connections.length === 0) { alert('æš‚æ— è¿çº¿æ•°æ®å¯å¯¼å‡º'); return; }
+            if (connections.length === 0) { alert('ÔİÎŞÁ¬ÏßÊı¾İ¿Éµ¼³ö'); return; }
 
             const adjOut = {};
             const adjIn = {};
@@ -1058,7 +1058,7 @@
 
             const grouped = {};
             rows.forEach(r => {
-                const key = r['å†·åº“åç§°'] || 'å…¬å…±';
+                const key = r['Àä¿âÃû³Æ'] || '¹«¹²';
                 if (!grouped[key]) grouped[key] = [];
                 grouped[key].push(r);
             });
@@ -1068,17 +1068,17 @@
             Object.entries(grouped).forEach(([roomName, rlist]) => {
                 const meters = devices.filter(d => d._dt === 'meter' && d.cold_room_name && d.cold_room_name.includes(roomName));
                 rlist.forEach((r, idx) => {
-                    r['åºå·'] = seq++;
+                    r['ĞòºÅ'] = seq++;
                     if (idx === 0 && meters.length > 0) {
-                        r['ç”µè¡¨ç¼–å·'] = meters.map(m => m.device_no).join(', ');
-                        r['ç”µè¡¨å“ç‰Œ'] = meters.map(m => m.brand).join(', ');
-                        r['ç”µè¡¨å‹å·'] = meters.map(m => m.model).join(', ');
+                        r['µç±í±àºÅ'] = meters.map(m => m.device_no).join(', ');
+                        r['µç±íÆ·ÅÆ'] = meters.map(m => m.brand).join(', ');
+                        r['µç±íĞÍºÅ'] = meters.map(m => m.model).join(', ');
                     }
                     finalRows.push(r);
                 });
             });
 
-            const headers = ['åºå·', 'å†·åº“åç§°', 'ç”µæ§æŸœ', 'ç”µè¡¨ç¼–å·', 'ç”µè¡¨å“ç‰Œ', 'ç”µè¡¨å‹å·', 'æ¸©æ§å™¨ç¼–å·', 'æ¸©æ§å™¨å“ç‰Œ', 'æ¸©æ§å™¨å‹å·', 'å†·é£æœºç¼–å·', 'å†·é£æœºå“ç‰Œ', 'å†·é£æœºå‹å·', 'æœºç»„ç¼–å·', 'æœºç»„å“ç‰Œ', 'æœºç»„å‹å·', 'å†·å´å¡”ç¼–å·', 'å†·å´å¡”å“ç‰Œ', 'å†·å´å¡”å‹å·'];
+            const headers = ['ĞòºÅ', 'Àä¿âÃû³Æ', 'µç¿Ø¹ñ', 'µç±í±àºÅ', 'µç±íÆ·ÅÆ', 'µç±íĞÍºÅ', 'ÎÂ¿ØÆ÷±àºÅ', 'ÎÂ¿ØÆ÷Æ·ÅÆ', 'ÎÂ¿ØÆ÷ĞÍºÅ', 'Àä·ç»ú±àºÅ', 'Àä·ç»úÆ·ÅÆ', 'Àä·ç»úĞÍºÅ', '»ú×é±àºÅ', '»ú×éÆ·ÅÆ', '»ú×éĞÍºÅ', 'ÀäÈ´Ëş±àºÅ', 'ÀäÈ´ËşÆ·ÅÆ', 'ÀäÈ´ËşĞÍºÅ'];
 
             const wsData = [headers];
             finalRows.forEach(r => {
@@ -1088,27 +1088,27 @@
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             ws['!cols'] = headers.map(() => ({ wch: 14 }));
-            XLSX.utils.book_append_sheet(wb, ws, 'ç”µæ§ä¿¡æ¯');
-            XLSX.writeFile(wb, `${project.name || 'é¡¹ç›®'}_è®¾å¤‡å…³ç³»è¡¨.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, 'µç¿ØĞÅÏ¢');
+            XLSX.writeFile(wb, `${project.name || 'ÏîÄ¿'}_Éè±¸¹ØÏµ±í.xlsx`);
         }
 
         function buildRow(tc, ac, unit, tower) {
             const room = tc ? (tc.cold_room_name || '-') : (ac ? (ac.cold_room_name || '-') : '-');
             const cabinetDev = tc && tc.cabinet_id ? devices.find(d => String(d.id) === String(tc.cabinet_id)) : null;
             return {
-                'å†·åº“åç§°': room,
-                'ç”µæ§æŸœ': cabinetDev ? cabinetDev.device_no : (tc ? (tc.cold_room_name + 'ç”µæ§æŸœ') : ''),
-                'ç”µè¡¨ç¼–å·': '', 'ç”µè¡¨å“ç‰Œ': '', 'ç”µè¡¨å‹å·': '',
-                'æ¸©æ§å™¨ç¼–å·': tc ? tc.device_no : '', 'æ¸©æ§å™¨å“ç‰Œ': tc ? tc.brand : '', 'æ¸©æ§å™¨å‹å·': tc ? tc.model : '',
-                'å†·é£æœºç¼–å·': ac ? ac.device_no : '', 'å†·é£æœºå“ç‰Œ': ac ? ac.brand : '', 'å†·é£æœºå‹å·': ac ? ac.model : '',
-                'æœºç»„ç¼–å·': unit ? unit.device_no : '', 'æœºç»„å“ç‰Œ': unit ? unit.brand : '', 'æœºç»„å‹å·': unit ? unit.model : '',
-                'å†·å´å¡”ç¼–å·': tower ? tower.device_no : '', 'å†·å´å¡”å“ç‰Œ': tower ? tower.brand : '', 'å†·å´å¡”å‹å·': tower ? tower.model : ''
+                'Àä¿âÃû³Æ': room,
+                'µç¿Ø¹ñ': cabinetDev ? cabinetDev.device_no : (tc ? (tc.cold_room_name + 'µç¿Ø¹ñ') : ''),
+                'µç±í±àºÅ': '', 'µç±íÆ·ÅÆ': '', 'µç±íĞÍºÅ': '',
+                'ÎÂ¿ØÆ÷±àºÅ': tc ? tc.device_no : '', 'ÎÂ¿ØÆ÷Æ·ÅÆ': tc ? tc.brand : '', 'ÎÂ¿ØÆ÷ĞÍºÅ': tc ? tc.model : '',
+                'Àä·ç»ú±àºÅ': ac ? ac.device_no : '', 'Àä·ç»úÆ·ÅÆ': ac ? ac.brand : '', 'Àä·ç»úĞÍºÅ': ac ? ac.model : '',
+                '»ú×é±àºÅ': unit ? unit.device_no : '', '»ú×éÆ·ÅÆ': unit ? unit.brand : '', '»ú×éĞÍºÅ': unit ? unit.model : '',
+                'ÀäÈ´Ëş±àºÅ': tower ? tower.device_no : '', 'ÀäÈ´ËşÆ·ÅÆ': tower ? tower.brand : '', 'ÀäÈ´ËşĞÍºÅ': tower ? tower.model : ''
             };
         }
 
         function continueToSubmit() {
             if (connections.length === 0) {
-                if (!confirm('è¿˜æ²¡æœ‰é…ç½®ä»»ä½•è®¾å¤‡å…³ç³»ï¼Œç¡®å®šè¦ç»§ç»­å—ï¼Ÿ')) return;
+                if (!confirm('»¹Ã»ÓĞÅäÖÃÈÎºÎÉè±¸¹ØÏµ£¬È·¶¨Òª¼ÌĞøÂğ£¿')) return;
             }
 
             const legacyRelations = connections.map(c => {

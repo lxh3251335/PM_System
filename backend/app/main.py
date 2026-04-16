@@ -25,6 +25,8 @@ def _migrate_add_columns() -> None:
             ("gateways", "serial_no", "VARCHAR(100)"),
             ("projects", "config_attachment_original_name", "VARCHAR(255)"),
             ("projects", "config_attachment_updated_at", "DATETIME"),
+            ("devices", "cabinet_id", "INTEGER"),
+            ("devices", "meter_area", "VARCHAR(50)"),
         ]
         for table, col, col_type in migrations:
             if table in insp.get_table_names():

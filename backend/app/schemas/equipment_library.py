@@ -58,6 +58,8 @@ class EquipmentBrand(EquipmentBrandBase):
 # ========== 设备型号 (Model) ==========
 
 class EquipmentModelBase(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     brand_id: int = Field(..., description="品牌ID")
     model_name: str = Field(..., description="型号名称")
     specifications: Optional[Dict[str, Any]] = Field(None, description="规格参数值(JSON dict)")
@@ -67,6 +69,8 @@ class EquipmentModelCreate(EquipmentModelBase):
     pass
 
 class EquipmentModelUpdate(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     model_name: Optional[str] = None
     specifications: Optional[Dict[str, Any]] = None
     description: Optional[str] = None
@@ -75,9 +79,10 @@ class EquipmentModel(EquipmentModelBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
+        protected_namespaces = ()
 
 class EquipmentModelWithBrand(EquipmentModel):
     brand: EquipmentBrand

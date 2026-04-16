@@ -532,7 +532,7 @@
         };
 
         const NORMALIZE_TYPE = {
-            'temp-controller': 'thermostat', 'thermostat': 'thermostat',
+            'temp-controller': 'thermostat', 'thermostat': 'thermostat', 'temperature_controller': 'thermostat', 'temp_controller': 'thermostat',
             'air_cooler': 'air_cooler', 'air-cooler': 'air_cooler',
             'refrigeration_unit': 'unit', 'unit': 'unit',
             'electric_meter': 'meter', 'meter': 'meter', 'electric-meter': 'meter',
@@ -692,7 +692,7 @@
             if (localDevices.length === 0) return {};
 
             var codeNormalize = {
-                'temp-controller': 'thermostat', 'thermostat': 'thermostat',
+                'temp-controller': 'thermostat', 'thermostat': 'thermostat', 'temperature_controller': 'thermostat', 'temp_controller': 'thermostat',
                 'air_cooler': 'air_cooler', 'air-cooler': 'air_cooler',
                 'refrigeration_unit': 'unit', 'unit': 'unit',
                 'electric_meter': 'meter', 'meter': 'meter', 'electric-meter': 'meter',

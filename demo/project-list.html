@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <title>项目列表 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260331c"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260418a"></script>
     <style>
         /* 统计卡片样式 */
         .stats-grid {
@@ -284,6 +284,7 @@
                         
                         <button class="btn-primary" onclick="filterProjects()">搜索</button>
                         <button class="btn-success" onclick="showCreateDialog()">+ 新建项目</button>
+                        <button type="button" class="btn-secondary" id="btnBatchEdit" onclick="openBatchEditDialog()" disabled style="opacity:0.6;">批量修改 <span id="batchSelectedCount">(0)</span></button>
                     </div>
                 </div>
 
@@ -293,6 +294,7 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th style="width:40px;text-align:center;"><input type="checkbox" id="batchSelectAll" onclick="onBatchSelectAll(this)" title="全选/全不选" /></th>
                                     <th>项目编号</th>
                                     <th class="sortable-th" onclick="toggleSort()">登记时间 <span class="sort-arrow" id="sortArrow">&#9650;&#9660;</span></th>
                                     <th>项目名称</th>
@@ -399,7 +401,7 @@
             if (filteredProjects.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="10" style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                        <td colspan="11" style="text-align: center; padding: 60px 20px; color: var(--text-secondary);">
                             <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
                             <div style="font-size: 16px; margin-bottom: 8px;">暂无项目数据</div>
                             <div style="font-size: 14px;">点击右上角"新建项目"创建第一个项目</div>
@@ -414,8 +416,10 @@
                 const attTitle = hasAtt
                     ? ('已上传配置：' + (project.config_attachment_original_name || 'Excel'))
                     : '未上传配置 Excel';
+                const _checked = batchSelectedIds.has(project.id) ? 'checked' : '';
                 return `
-                <tr>
+                <tr data-batch-row="true">
+                    <td style="text-align:center;"><input type="checkbox" class="batch-row-checkbox" data-pid="${project.id}" onclick="onBatchRowToggle(this)" ${_checked} /></td>
                     <td>${project.project_no || 'P' + String(project.id).padStart(6, '0')}</td>
                     <td>${formatDate(project.created_at) || '-'}</td>
                     <td>
@@ -449,6 +453,8 @@
 
             var countEl = document.getElementById('recordCount');
             if (countEl) countEl.textContent = '共 ' + filteredProjects.length + ' 条记录';
+        
+            if (typeof updateBatchUI === 'function') updateBatchUI();
         }
 
         // 更新统计数据
@@ -863,7 +869,221 @@
             } catch(e) { console.warn('加载企业列表失败:', e.message); }
         }
         loadCompanyFilter();
+
+        /* === BATCH EDIT START === */
+        var batchSelectedIds = new Set();
+
+        function _syncBatchSelectedWithFiltered() {
+            // 清理已不在筛选结果里的选中项，避免隐藏项被误提交
+            var visible = new Set((filteredProjects || []).map(function(p){ return p.id; }));
+            batchSelectedIds.forEach(function(id){ if (!visible.has(id)) batchSelectedIds.delete(id); });
+        }
+
+        function updateBatchUI() {
+            _syncBatchSelectedWithFiltered();
+            var cnt = batchSelectedIds.size;
+            var badge = document.getElementById('batchSelectedCount');
+            if (badge) badge.textContent = '(' + cnt + ')';
+            var btn = document.getElementById('btnBatchEdit');
+            if (btn) {
+                btn.disabled = cnt === 0;
+                btn.style.opacity = cnt === 0 ? '0.6' : '1';
+            }
+            var selAll = document.getElementById('batchSelectAll');
+            if (selAll) {
+                var total = (filteredProjects || []).length;
+                selAll.checked = total > 0 && cnt === total;
+                selAll.indeterminate = cnt > 0 && cnt < total;
+            }
+        }
+
+        function onBatchSelectAll(el) {
+            if (el.checked) {
+                (filteredProjects || []).forEach(function(p){ batchSelectedIds.add(p.id); });
+            } else {
+                batchSelectedIds.clear();
+            }
+            document.querySelectorAll('.batch-row-checkbox').forEach(function(cb){
+                var pid = parseInt(cb.getAttribute('data-pid'));
+                cb.checked = batchSelectedIds.has(pid);
+            });
+            updateBatchUI();
+        }
+
+        function onBatchRowToggle(cb) {
+            var pid = parseInt(cb.getAttribute('data-pid'));
+            if (!pid) return;
+            if (cb.checked) batchSelectedIds.add(pid); else batchSelectedIds.delete(pid);
+            updateBatchUI();
+        }
+
+        function onBatchFieldToggle(checkboxEl, inputId) {
+            var input = document.getElementById(inputId);
+            if (!input) return;
+            input.disabled = !checkboxEl.checked;
+            if (checkboxEl.checked) {
+                input.focus();
+            } else {
+                input.value = '';
+            }
+        }
+
+        function openBatchEditDialog() {
+            if (batchSelectedIds.size === 0) {
+                if (window.api && api.projects && api.projects.showError) {
+                    api.projects.showError('请先至少勾选一个项目');
+                } else {
+                    alert('请先至少勾选一个项目');
+                }
+                return;
+            }
+            document.getElementById('batchEditSelectedCount').textContent = batchSelectedIds.size;
+            ['batchFieldEndCustomer','batchFieldBusinessType','batchFieldCity'].forEach(function(id){
+                var el = document.getElementById(id); if (el) el.checked = false;
+            });
+            ['batchValueEndCustomer','batchValueBusinessType','batchValueCity'].forEach(function(id){
+                var el = document.getElementById(id);
+                if (el) { el.value = ''; el.disabled = true; }
+            });
+            document.getElementById('batchEditDialog').style.display = 'flex';
+        }
+
+        function closeBatchEditDialog() {
+            document.getElementById('batchEditDialog').style.display = 'none';
+        }
+
+        async function submitBatchEdit() {
+            var ids = Array.from(batchSelectedIds);
+            if (ids.length === 0) { closeBatchEditDialog(); return; }
+
+            var payload = {};
+            if (document.getElementById('batchFieldEndCustomer').checked) {
+                var v = (document.getElementById('batchValueEndCustomer').value || '').trim();
+                if (!v) { alert('终端客户不能为空'); return; }
+                payload.end_customer = v;
+            }
+            if (document.getElementById('batchFieldBusinessType').checked) {
+                var vb = (document.getElementById('batchValueBusinessType').value || '').trim();
+                if (!vb) { alert('请选择业务类型'); return; }
+                payload.business_type = vb;
+            }
+            if (document.getElementById('batchFieldCity').checked) {
+                var vc = (document.getElementById('batchValueCity').value || '').trim();
+                if (!vc) { alert('城市不能为空'); return; }
+                payload.city = vc;
+            }
+            if (Object.keys(payload).length === 0) {
+                alert('请至少勾选一个要修改的字段');
+                return;
+            }
+
+            if (!confirm('将对已选中的 ' + ids.length + ' 个项目进行批量修改，是否继续？')) return;
+
+            var btn = document.getElementById('batchEditSubmitBtn');
+            if (btn) { btn.disabled = true; btn.textContent = '修改中...'; }
+            try {
+                if (!isProductionMode()) {
+                    // 演示模式：直接本地覆盖
+                    allProjects.forEach(function(p){
+                        if (batchSelectedIds.has(p.id)) Object.assign(p, payload);
+                    });
+                    saveDemoProjects && saveDemoProjects();
+                    if (api && api.projects && api.projects.showSuccess) {
+                        api.projects.showSuccess('批量修改成功（演示模式）：共 ' + ids.length + ' 个项目');
+                    }
+                } else {
+                    var resp = await api.projects.batchUpdateProjects(ids, payload);
+                    var updated = (resp && resp.updated_count) || 0;
+                    var skipped = (resp && resp.skipped) || [];
+                    if (skipped.length > 0 && api.projects.showError) {
+                        api.projects.showError('部分项目未更新：' + skipped.map(function(s){ return '#' + s.id + '(' + s.reason + ')'; }).join('、'));
+                    } else if (api.projects.showSuccess) {
+                        api.projects.showSuccess('批量修改成功：共 ' + updated + ' 个项目已更新');
+                    }
+                }
+                closeBatchEditDialog();
+                batchSelectedIds.clear();
+                await loadProjects();
+            } catch (err) {
+                if (api && api.projects && api.projects.showError) {
+                    api.projects.showError('批量修改失败：' + (err && err.message ? err.message : err));
+                } else {
+                    alert('批量修改失败：' + (err && err.message ? err.message : err));
+                }
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = '确认修改'; }
+            }
+        }
+
+        // 点击遮罩区域关闭弹窗
+        document.addEventListener('click', function(e){
+            var dlg = document.getElementById('batchEditDialog');
+            if (dlg && e.target === dlg) closeBatchEditDialog();
+        });
+        /* === BATCH EDIT END === */
+
     </script>
+
+    <!-- 批量修改项目弹窗 -->
+    <div id="batchEditDialog" class="batch-edit-mask" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
+        <div class="batch-edit-dialog" style="background:white;border-radius:8px;width:520px;max-width:92vw;max-height:90vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+            <div style="padding:18px 22px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:16px;font-weight:600;">批量修改项目</div>
+                <button type="button" onclick="closeBatchEditDialog()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#8c8c8c;">×</button>
+            </div>
+            <div style="padding:18px 22px;">
+                <div style="background:#e6f7ff;border:1px solid #91d5ff;color:#0050b3;padding:8px 12px;border-radius:4px;font-size:13px;margin-bottom:14px;">
+                    当前已选中 <strong><span id="batchEditSelectedCount">0</span></strong> 个项目。仅勾选需要覆盖的字段，未勾选字段保持原值不变。
+                </div>
+
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="batchFieldEndCustomer" onchange="onBatchFieldToggle(this,'batchValueEndCustomer')" />
+                        <span>修改<strong>终端客户 / 企业名称</strong></span>
+                    </label>
+                    <input type="text" id="batchValueEndCustomer" class="form-control" placeholder="请输入新的终端客户名称" disabled style="margin-top:6px;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="batchFieldBusinessType" onchange="onBatchFieldToggle(this,'batchValueBusinessType')" />
+                        <span>修改<strong>业务类型</strong></span>
+                    </label>
+                    <select id="batchValueBusinessType" class="form-control" disabled style="margin-top:6px;">
+                        <option value="">-- 请选择业务类型 --</option>
+                        <optgroup label="冷库">
+                            <option value="冷库新建">冷库新建</option>
+                            <option value="冷库改造">冷库改造</option>
+                            <option value="冷库扩建">冷库扩建</option>
+                        </optgroup>
+                        <optgroup label="前置仓/生鲜">
+                            <option value="前置仓">前置仓</option>
+                            <option value="生鲜">生鲜</option>
+                            <option value="商超">商超</option>
+                        </optgroup>
+                        <optgroup label="新建">
+                            <option value="新建">新建</option>
+                            <option value="改造">改造</option>
+                            <option value="扩建">扩建</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:14px;">
+                    <label style="display:flex;align-items:center;gap:8px;">
+                        <input type="checkbox" id="batchFieldCity" onchange="onBatchFieldToggle(this,'batchValueCity')" />
+                        <span>修改<strong>城市</strong></span>
+                    </label>
+                    <input type="text" id="batchValueCity" class="form-control" placeholder="请输入新的城市名称" disabled style="margin-top:6px;" />
+                </div>
+            </div>
+            <div style="padding:14px 22px;border-top:1px solid #e8e8e8;display:flex;justify-content:flex-end;gap:10px;">
+                <button type="button" class="btn-secondary" onclick="closeBatchEditDialog()">取消</button>
+                <button type="button" class="btn-primary" id="batchEditSubmitBtn" onclick="submitBatchEdit()">确认修改</button>
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/nav.js"></script>
     <script src="assets/js/config-home-fab.js?v=20260329"></script>
 </body>

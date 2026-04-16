@@ -1,13 +1,13 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ä¸šåŠ¡ç±»å‹é…ç½® - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
+    <title>ÒµÎñÀàĞÍÅäÖÃ - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260413"></script>
+    <script src="assets/js/api.js?v=20260417"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .page-container { max-width: 1320px; margin: 24px auto; width: calc(100% - 32px); }
@@ -34,88 +34,88 @@
     <div class="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">ğŸ“¦</div>
-                <span class="brand-name">å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</span>
+                <div class="logo">??</div>
+                <span class="brand-name">Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</span>
             </div>
             <nav class="sidebar-nav">
                 <a href="project-list.html" class="nav-item">
-                    <span class="nav-icon">ğŸ“‹</span>
-                    <span>é¡¹ç›®ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÏîÄ¿¹ÜÀí</span>
                 </a>
                 <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">ğŸ”§</span>
-                    <span>è®¾å¤‡ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>Éè±¸¹ÜÀí</span>
                 </a>
                 <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">ğŸ“¡</span>
-                    <span>ç½‘å…³é…ç½®</span>
+                    <span class="nav-icon">??</span>
+                    <span>Íø¹ØÅäÖÃ</span>
                 </a>
                 <a href="business-options.html" class="nav-item active" id="navBusinessOptions">
-                    <span class="nav-icon">âš™ï¸</span>
-                    <span>ä¸šåŠ¡ç±»å‹é…ç½®</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÒµÎñÀàĞÍÅäÖÃ</span>
                 </a>
                 <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
-                    <span class="nav-icon">ğŸ§©</span>
-                    <span>è®¾å¤‡é…ç½®ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>Éè±¸ÅäÖÃ¹ÜÀí</span>
                 </a>
                 <a href="user-management.html" class="nav-item" id="navUserManagement">
-                    <span class="nav-icon">ğŸ‘¥</span>
-                    <span>ç”¨æˆ·ç®¡ç†</span>
+                    <span class="nav-icon">??</span>
+                    <span>ÓÃ»§¹ÜÀí</span>
                 </a>
                 <a href="index.html" class="nav-item">
-                    <span class="nav-icon">ğŸ </span>
-                    <span>äº§å“é—¨æˆ·</span>
+                    <span class="nav-icon">??</span>
+                    <span>²úÆ·ÃÅ»§</span>
                 </a>
             </nav>
         </aside>
 
         <main class="main-content" id="mainContent">
             <header class="top-bar">
-                <h1>ä¸šåŠ¡ç±»å‹é…ç½®</h1>
+                <h1>ÒµÎñÀàĞÍÅäÖÃ</h1>
                 <div class="user-menu">
-                    <span class="user-name" id="userDisplayName">ğŸ‘¤ å®¢æˆ·</span>
-                    <button class="btn-logout" onclick="window.location.href='index.html'">é€€å‡º</button>
+                    <span class="user-name" id="userDisplayName">?? ¿Í»§</span>
+                    <button class="btn-logout" onclick="window.location.href='index.html'">ÍË³ö</button>
                 </div>
             </header>
 
             <div class="content-wrapper page-container">
                 <div class="top">
-                    <div class="role-tag" id="roleHint">å½“å‰è§’è‰²ï¼šå®¢æˆ·</div>
+                    <div class="role-tag" id="roleHint">µ±Ç°½ÇÉ«£º¿Í»§</div>
                 </div>
 
                 <div id="noAccessTip" class="no-access" style="display: none;">
-                    å½“å‰è´¦å·ä¸æ˜¯ç®¡ç†å‘˜ï¼Œä»…å¯æŸ¥çœ‹é…ç½®ï¼Œä¸èƒ½æ–°å¢ã€‚
+                    µ±Ç°ÕËºÅ²»ÊÇ¹ÜÀíÔ±£¬½ö¿É²é¿´ÅäÖÃ£¬²»ÄÜĞÂÔö¡£
                 </div>
 
                 <div class="card">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>æœ€ç»ˆç”¨æˆ·</label>
-                            <input type="text" id="endCustomerInput" placeholder="ä¾‹å¦‚ï¼šç›’é©¬">
+                            <label>×îÖÕÓÃ»§</label>
+                            <input type="text" id="endCustomerInput" placeholder="ÀıÈç£ººĞÂí">
                         </div>
                         <div class="form-group">
-                            <label>ä¸šåŠ¡ç±»å‹</label>
-                            <input type="text" id="businessTypeInput" placeholder="ä¾‹å¦‚ï¼šå‰ç½®ä»“">
+                            <label>ÒµÎñÀàĞÍ</label>
+                            <input type="text" id="businessTypeInput" placeholder="ÀıÈç£ºÇ°ÖÃ²Ö">
                         </div>
-                        <button class="btn-primary" id="addBtn">æ–°å¢é…ç½®</button>
+                        <button class="btn-primary" id="addBtn">ĞÂÔöÅäÖÃ</button>
                     </div>
                     <div style="display:flex; gap:8px; margin-top:12px; margin-bottom:8px; flex-wrap:wrap;">
-                        <button class="btn-primary" id="exportBtn" onclick="exportBusinessOptions()" style="padding:6px 14px; font-size:13px; background:#1890ff; border:none; color:white; border-radius:4px; cursor:pointer;">ğŸ“¥ å¯¼å‡ºExcel</button>
-                        <button class="btn-primary" id="importBtn" onclick="document.getElementById('boImportFile').click()" style="padding:6px 14px; font-size:13px; background:#52c41a; border:none; color:white; border-radius:4px; cursor:pointer;">ğŸ“¤ ä»Excelå¯¼å…¥</button>
+                        <button class="btn-primary" id="exportBtn" onclick="exportBusinessOptions()" style="padding:6px 14px; font-size:13px; background:#1890ff; border:none; color:white; border-radius:4px; cursor:pointer;">?? µ¼³öExcel</button>
+                        <button class="btn-primary" id="importBtn" onclick="document.getElementById('boImportFile').click()" style="padding:6px 14px; font-size:13px; background:#52c41a; border:none; color:white; border-radius:4px; cursor:pointer;">?? ´ÓExcelµ¼Èë</button>
                         <input type="file" id="boImportFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importBusinessOptions(event)">
-                        <button onclick="downloadBOTemplate()" style="padding:6px 14px; font-size:13px; background:white; border:1px solid #d9d9d9; border-radius:4px; cursor:pointer;">ğŸ“‹ ä¸‹è½½æ¨¡æ¿</button>
+                        <button onclick="downloadBOTemplate()" style="padding:6px 14px; font-size:13px; background:white; border:1px solid #d9d9d9; border-radius:4px; cursor:pointer;">?? ÏÂÔØÄ£°å</button>
                     </div>
-                    <div class="hint">ç®¡ç†å‘˜æ–°å¢åï¼Œå®¢æˆ·åœ¨æ–°å»ºé¡¹ç›®é¡µå°†å¯é€‰æ‹©å¯¹åº”å…³ç³»ã€‚æ”¯æŒExcelæ‰¹é‡å¯¼å…¥ã€‚</div>
+                    <div class="hint">¹ÜÀíÔ±ĞÂÔöºó£¬¿Í»§ÔÚĞÂ½¨ÏîÄ¿Ò³½«¿ÉÑ¡Ôñ¶ÔÓ¦¹ØÏµ¡£Ö§³ÖExcelÅúÁ¿µ¼Èë¡£</div>
                 </div>
 
                 <div class="card">
-                    <h3 style="margin-bottom: 12px;">å·²é…ç½®åˆ—è¡¨</h3>
+                    <h3 style="margin-bottom: 12px;">ÒÑÅäÖÃÁĞ±í</h3>
                     <div class="filter-row">
                         <select id="endCustomerFilter">
-                            <option value="">å…¨éƒ¨æœ€ç»ˆç”¨æˆ·</option>
+                            <option value="">È«²¿×îÖÕÓÃ»§</option>
                         </select>
-                        <button class="btn-primary" id="filterBtn">ç­›é€‰</button>
-                        <button class="btn-cancel" id="resetFilterBtn">é‡ç½®</button>
+                        <button class="btn-primary" id="filterBtn">É¸Ñ¡</button>
+                        <button class="btn-cancel" id="resetFilterBtn">ÖØÖÃ</button>
                     </div>
                     <div id="listContainer" class="table-wrapper"></div>
                 </div>
@@ -130,12 +130,12 @@
         let currentList = [];
 
         function initUserContext() {
-            const roleText = role === 'admin' ? 'ç®¡ç†å‘˜' : 'å®¢æˆ·';
+            const roleText = role === 'admin' ? '¹ÜÀíÔ±' : '¿Í»§';
             const userDisplay = document.getElementById('userDisplayName');
             if (userDisplay) {
                 userDisplay.textContent = `${roleText}${username ? ' - ' + username : ''}`;
             }
-            document.getElementById('roleHint').textContent = `å½“å‰è§’è‰²ï¼š${roleText}`;
+            document.getElementById('roleHint').textContent = `µ±Ç°½ÇÉ«£º${roleText}`;
 
             if (role !== 'admin') {
                 document.getElementById('noAccessTip').style.display = '';
@@ -153,7 +153,7 @@
             const filter = document.getElementById('endCustomerFilter');
             const selected = filter.value;
             const customers = Array.from(new Set((list || []).map(item => item.end_customer))).sort();
-            filter.innerHTML = '<option value="">å…¨éƒ¨æœ€ç»ˆç”¨æˆ·</option>';
+            filter.innerHTML = '<option value="">È«²¿×îÖÕÓÃ»§</option>';
             customers.forEach(customer => {
                 const option = document.createElement('option');
                 option.value = customer;
@@ -168,7 +168,7 @@
         function renderTable(list) {
             const container = document.getElementById('listContainer');
             if (!list || list.length === 0) {
-                container.innerHTML = '<div class="empty">æš‚æ— é…ç½®ï¼Œè¯·ç®¡ç†å‘˜å…ˆæ–°å¢</div>';
+                container.innerHTML = '<div class="empty">ÔİÎŞÅäÖÃ£¬Çë¹ÜÀíÔ±ÏÈĞÂÔö</div>';
                 return;
             }
 
@@ -176,11 +176,11 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>åºå·</th>
-                            <th>æœ€ç»ˆç”¨æˆ·</th>
-                            <th>ä¸šåŠ¡ç±»å‹</th>
-                            <th>åˆ›å»ºæ—¶é—´</th>
-                            <th>æ“ä½œ</th>
+                            <th>ĞòºÅ</th>
+                            <th>×îÖÕÓÃ»§</th>
+                            <th>ÒµÎñÀàĞÍ</th>
+                            <th>´´½¨Ê±¼ä</th>
+                            <th>²Ù×÷</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -192,8 +192,8 @@
                                 <td>${item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}</td>
                                 <td>
                                     ${role === 'admin' ? `
-                                        <span class="action-link" onclick="editOption(${item.id})">ä¿®æ”¹</span>
-                                        <span class="action-link danger" onclick="deleteOption(${item.id})">åˆ é™¤</span>
+                                        <span class="action-link" onclick="editOption(${item.id})">ĞŞ¸Ä</span>
+                                        <span class="action-link danger" onclick="deleteOption(${item.id})">É¾³ı</span>
                                     ` : '-'}
                                 </td>
                             </tr>
@@ -214,7 +214,7 @@
                 renderFilterOptions(currentList);
                 renderTable(currentList);
             } catch (error) {
-                container.innerHTML = `<div class="empty">åŠ è½½å¤±è´¥ï¼š${error.message}</div>`;
+                container.innerHTML = `<div class="empty">¼ÓÔØÊ§°Ü£º${error.message}</div>`;
             }
         }
 
@@ -224,7 +224,7 @@
             const businessType = document.getElementById('businessTypeInput').value.trim();
 
             if (!endCustomer || !businessType) {
-                api.projects.showError('è¯·è¾“å…¥æœ€ç»ˆç”¨æˆ·å’Œä¸šåŠ¡ç±»å‹');
+                api.projects.showError('ÇëÊäÈë×îÖÕÓÃ»§ºÍÒµÎñÀàĞÍ');
                 return;
             }
 
@@ -233,7 +233,7 @@
                     end_customer: endCustomer,
                     business_type: businessType
                 }, role);
-                api.projects.showSuccess('æ–°å¢æˆåŠŸ');
+                api.projects.showSuccess('ĞÂÔö³É¹¦');
                 document.getElementById('endCustomerInput').value = '';
                 document.getElementById('businessTypeInput').value = '';
                 await loadOptions();
@@ -247,15 +247,15 @@
             const item = currentList.find(row => row.id === id);
             if (!item) return;
 
-            const endCustomer = prompt('è¯·è¾“å…¥æœ€ç»ˆç”¨æˆ·ï¼š', item.end_customer || '');
+            const endCustomer = prompt('ÇëÊäÈë×îÖÕÓÃ»§£º', item.end_customer || '');
             if (endCustomer === null) return;
-            const businessType = prompt('è¯·è¾“å…¥ä¸šåŠ¡ç±»å‹ï¼š', item.business_type || '');
+            const businessType = prompt('ÇëÊäÈëÒµÎñÀàĞÍ£º', item.business_type || '');
             if (businessType === null) return;
 
             const endCustomerValue = endCustomer.trim();
             const businessTypeValue = businessType.trim();
             if (!endCustomerValue || !businessTypeValue) {
-                api.projects.showError('æœ€ç»ˆç”¨æˆ·å’Œä¸šåŠ¡ç±»å‹ä¸èƒ½ä¸ºç©º');
+                api.projects.showError('×îÖÕÓÃ»§ºÍÒµÎñÀàĞÍ²»ÄÜÎª¿Õ');
                 return;
             }
 
@@ -264,7 +264,7 @@
                     end_customer: endCustomerValue,
                     business_type: businessTypeValue
                 }, role);
-                api.projects.showSuccess('ä¿®æ”¹æˆåŠŸ');
+                api.projects.showSuccess('ĞŞ¸Ä³É¹¦');
                 await loadOptions();
             } catch (error) {
                 api.projects.showError(error.message);
@@ -273,19 +273,19 @@
 
         async function deleteOption(id) {
             if (role !== 'admin') return;
-            const confirmed = confirm('ç¡®å®šåˆ é™¤è¿™æ¡é…ç½®å—ï¼Ÿ');
+            const confirmed = confirm('È·¶¨É¾³ıÕâÌõÅäÖÃÂğ£¿');
             if (!confirmed) return;
 
             try {
                 await api.projects.deleteBusinessOption(id, role);
-                api.projects.showSuccess('åˆ é™¤æˆåŠŸ');
+                api.projects.showSuccess('É¾³ı³É¹¦');
                 await loadOptions();
             } catch (error) {
                 api.projects.showError(error.message);
             }
         }
 
-        // ========== Excel å¯¼å…¥å¯¼å‡º ==========
+        // ========== Excel µ¼Èëµ¼³ö ==========
         function readExcelFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -310,44 +310,44 @@
         }
 
         function exportBusinessOptions() {
-            if (!currentList || currentList.length === 0) return alert('æš‚æ— æ•°æ®å¯å¯¼å‡º');
+            if (!currentList || currentList.length === 0) return alert('ÔİÎŞÊı¾İ¿Éµ¼³ö');
             const data = currentList.map(item => ({
-                'æœ€ç»ˆç”¨æˆ·': item.end_customer || '',
-                'ä¸šåŠ¡ç±»å‹': item.business_type || ''
+                '×îÖÕÓÃ»§': item.end_customer || '',
+                'ÒµÎñÀàĞÍ': item.business_type || ''
             }));
-            downloadExcel(data, ['æœ€ç»ˆç”¨æˆ·','ä¸šåŠ¡ç±»å‹'], 'ä¸šåŠ¡ç±»å‹é…ç½®.xlsx');
+            downloadExcel(data, ['×îÖÕÓÃ»§','ÒµÎñÀàĞÍ'], 'ÒµÎñÀàĞÍÅäÖÃ.xlsx');
         }
 
         function downloadBOTemplate() {
             const data = [
-                { 'æœ€ç»ˆç”¨æˆ·': 'ç›’é©¬', 'ä¸šåŠ¡ç±»å‹': 'å‰ç½®ä»“' },
-                { 'æœ€ç»ˆç”¨æˆ·': 'ç›’é©¬', 'ä¸šåŠ¡ç±»å‹': 'ç‰©æµä¸­å¿ƒ' },
-                { 'æœ€ç»ˆç”¨æˆ·': 'æ°¸è¾‰', 'ä¸šåŠ¡ç±»å‹': 'é—¨åº—' }
+                { '×îÖÕÓÃ»§': 'ºĞÂí', 'ÒµÎñÀàĞÍ': 'Ç°ÖÃ²Ö' },
+                { '×îÖÕÓÃ»§': 'ºĞÂí', 'ÒµÎñÀàĞÍ': 'ÎïÁ÷ÖĞĞÄ' },
+                { '×îÖÕÓÃ»§': 'ÓÀ»Ô', 'ÒµÎñÀàĞÍ': 'ÃÅµê' }
             ];
-            downloadExcel(data, ['æœ€ç»ˆç”¨æˆ·','ä¸šåŠ¡ç±»å‹'], 'ä¸šåŠ¡ç±»å‹é…ç½®_å¯¼å…¥æ¨¡æ¿.xlsx');
+            downloadExcel(data, ['×îÖÕÓÃ»§','ÒµÎñÀàĞÍ'], 'ÒµÎñÀàĞÍÅäÖÃ_µ¼ÈëÄ£°å.xlsx');
         }
 
         async function importBusinessOptions(event) {
-            if (role !== 'admin') return alert('ä»…ç®¡ç†å‘˜å¯æ‰§è¡Œå¯¼å…¥æ“ä½œ');
+            if (role !== 'admin') return alert('½ö¹ÜÀíÔ±¿ÉÖ´ĞĞµ¼Èë²Ù×÷');
             const file = event.target.files[0];
             if (!file) return;
             event.target.value = '';
             try {
                 const rows = await readExcelFile(file);
-                if (rows.length === 0) return alert('Excel æ–‡ä»¶ä¸ºç©º');
+                if (rows.length === 0) return alert('Excel ÎÄ¼şÎª¿Õ');
                 const items = rows
-                    .filter(r => r['æœ€ç»ˆç”¨æˆ·'] && r['ä¸šåŠ¡ç±»å‹'])
+                    .filter(r => r['×îÖÕÓÃ»§'] && r['ÒµÎñÀàĞÍ'])
                     .map(r => ({
-                        end_customer: String(r['æœ€ç»ˆç”¨æˆ·']).trim(),
-                        business_type: String(r['ä¸šåŠ¡ç±»å‹']).trim()
+                        end_customer: String(r['×îÖÕÓÃ»§']).trim(),
+                        business_type: String(r['ÒµÎñÀàĞÍ']).trim()
                     }));
-                if (items.length === 0) return alert('æœªæ‰¾åˆ°æœ‰æ•ˆæ•°æ®ï¼Œè¯·ç¡®ä¿ExcelåŒ…å«"æœ€ç»ˆç”¨æˆ·"å’Œ"ä¸šåŠ¡ç±»å‹"åˆ—');
+                if (items.length === 0) return alert('Î´ÕÒµ½ÓĞĞ§Êı¾İ£¬ÇëÈ·±£Excel°üº¬"×îÖÕÓÃ»§"ºÍ"ÒµÎñÀàĞÍ"ÁĞ');
                 const result = await api.projects.batchCreateBusinessOptions(items);
                 const created = Array.isArray(result) ? result.length : 0;
-                alert('å¯¼å…¥å®Œæˆ: æˆåŠŸæ–°å¢ ' + created + ' æ¡ï¼Œè·³è¿‡å·²å­˜åœ¨ ' + (items.length - created) + ' æ¡');
+                alert('µ¼ÈëÍê³É: ³É¹¦ĞÂÔö ' + created + ' Ìõ£¬Ìø¹ıÒÑ´æÔÚ ' + (items.length - created) + ' Ìõ');
                 await loadOptions();
             } catch(e) {
-                alert('å¯¼å…¥å¤±è´¥: ' + e.message);
+                alert('µ¼ÈëÊ§°Ü: ' + e.message);
             }
         }
 
