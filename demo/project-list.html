@@ -468,17 +468,6 @@
                         <!-- 业务类型/项目类型筛选 -->
                         <select class="filter-select" id="filterBusinessType">
                             <option value="">全部业务类型</option>
-                            <optgroup label="盒马">
-                                <option value="前置仓">前置仓</option>
-                                <option value="超盒算">超盒算</option>
-                                <option value="盒马奥莱店">盒马奥莱店</option>
-                                <option value="盒马鲜生店">盒马鲜生店</option>
-                            </optgroup>
-                            <optgroup label="其他">
-                                <option value="新建">新建</option>
-                                <option value="改造">改造</option>
-                                <option value="扩建">扩建</option>
-                            </optgroup>
                         </select>
                         
                         <select class="filter-select" id="filterStatus">
@@ -1078,6 +1067,62 @@
         }
         loadCompanyFilter();
 
+        // 从 /projects/business-options 动态加载业务类型筛选
+        async function loadBusinessTypeFilter() {
+            var sel = document.getElementById('filterBusinessType');
+            if (!sel) return;
+            try {
+                var options = [];
+                if (api && api.projects && api.projects.getBusinessOptions) {
+                    options = await api.projects.getBusinessOptions();
+                }
+                if (!Array.isArray(options)) options = [];
+                _renderBusinessTypeSelect(sel, options, '全部业务类型', '');
+            } catch (e) {
+                console.warn('加载业务类型筛选失败，保留默认选项：', e && e.message);
+            }
+        }
+
+        // 通用渲染：把 business-options 列表按 end_customer 分组渲染到 select
+        function _renderBusinessTypeSelect(sel, options, placeholder, emptyValue) {
+            if (!sel) return;
+            // 按终端客户分组
+            var groups = {};
+            options.forEach(function(o){
+                var ec = (o.end_customer || '其他').trim() || '其他';
+                var bt = (o.business_type || '').trim();
+                if (!bt) return;
+                if (!groups[ec]) groups[ec] = {};
+                groups[ec][bt] = 1;
+            });
+            var html = '<option value="' + emptyValue + '">' + placeholder + '</option>';
+            var grpNames = Object.keys(groups).sort(function(a,b){ return a.localeCompare(b,'zh'); });
+            grpNames.forEach(function(g){
+                html += '<optgroup label="' + _escAttrSafe(g) + '">';
+                var bts = Object.keys(groups[g]).sort(function(a,b){ return a.localeCompare(b,'zh'); });
+                bts.forEach(function(bt){
+                    html += '<option value="' + _escAttrSafe(bt) + '">' + _escHtmlSafe(bt) + '</option>';
+                });
+                html += '</optgroup>';
+            });
+            if (grpNames.length === 0) {
+                html += '<option value="" disabled>（请在"业务类型配置"中先录入）</option>';
+            }
+            sel.innerHTML = html;
+        }
+
+        function _escHtmlSafe(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+        function _escAttrSafe(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+        }
+
+        loadBusinessTypeFilter();
+
+
         /* === BATCH EDIT START === */
         var batchSelectedIds = new Set();
 
@@ -1199,31 +1244,32 @@
             if (cityDL) {
                 cityDL.innerHTML = cityList.map(function(v){ return '<option value="' + _escAttr(v) + '"></option>'; }).join('');
             }
-            // 业务类型：按终端客户分组
+            // 业务类型：优先从 "业务类型配置" 接口拉取（与页面顶部筛选保持一致）
             var sel = document.getElementById('batchValueBusinessType');
             if (sel) {
-                var groups = {};
-                projects.forEach(function(p){
-                    var bt = (p.business_type || '').trim();
-                    if (!bt) return;
-                    var grp = (p.end_customer || '其他').trim() || '其他';
-                    if (!groups[grp]) groups[grp] = {};
-                    groups[grp][bt] = 1;
-                });
-                var html = '<option value="">-- 请选择业务类型 --</option>';
-                var grpNames = Object.keys(groups).sort(function(a,b){ return a.localeCompare(b,'zh'); });
-                grpNames.forEach(function(g){
-                    html += '<optgroup label="' + _escAttr(g) + '">';
-                    var bts = Object.keys(groups[g]).sort(function(a,b){ return a.localeCompare(b,'zh'); });
-                    bts.forEach(function(bt){
-                        html += '<option value="' + _escAttr(bt) + '">' + _escHtml(bt) + '</option>';
-                    });
-                    html += '</optgroup>';
-                });
-                if (grpNames.length === 0) {
-                    html += '<option value="" disabled>（暂无已录入的业务类型）</option>';
-                }
-                sel.innerHTML = html;
+                // 先给一个 loading，避免闪烁
+                sel.innerHTML = '<option value="">-- 加载中 --</option>';
+                (async function(){
+                    var opts = [];
+                    try {
+                        if (api && api.projects && api.projects.getBusinessOptions) {
+                            opts = await api.projects.getBusinessOptions();
+                        }
+                    } catch (e) { console.warn('拉取业务类型配置失败：', e && e.message); }
+                    if (!Array.isArray(opts) || opts.length === 0) {
+                        // 回退：从已录入项目中收集，避免空下拉
+                        var seen = {};
+                        opts = [];
+                        projects.forEach(function(p){
+                            var bt = (p.business_type || '').trim();
+                            if (!bt) return;
+                            var key = (p.end_customer || '其他') + '|' + bt;
+                            if (seen[key]) return; seen[key] = 1;
+                            opts.push({ end_customer: p.end_customer || '其他', business_type: bt });
+                        });
+                    }
+                    _renderBusinessTypeSelect(sel, opts, '-- 请选择业务类型 --', '');
+                })();
             }
             // 企业名称
             var companySel = document.getElementById('batchValueCompany');
