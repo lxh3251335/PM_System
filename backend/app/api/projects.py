@@ -390,15 +390,38 @@ async def batch_update_projects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """批量更新指定字段（end_customer / business_type / city）。
+    """批量更新指定字段（end_customer / business_type / city / creator_company）。
 
     仅更新调用者有权限的项目；不存在或越权的项目会跳过并在返回体中列出。
+    creator_company 会被转换成 created_by：查找该企业下第一个用户作为目标创建人，
+    并且这一操作仅允许 admin 调用（普通用户不能迁移项目归属）。
     """
     role = normalize_role(current_user.role)
     update_fields = payload.model_dump(exclude_unset=True)
     update_fields.pop("project_ids", None)
     if not update_fields:
         raise HTTPException(status_code=400, detail="至少需要指定一个要更新的字段")
+
+    # 处理 creator_company -> created_by 的转换（仅 admin 允许）
+    target_created_by: Optional[int] = None
+    if "creator_company" in update_fields:
+        company_name = (update_fields.pop("creator_company") or "").strip()
+        if not company_name:
+            raise HTTPException(status_code=400, detail="企业名称不能为空")
+        if role != "admin":
+            raise HTTPException(status_code=403, detail="仅管理员可批量修改企业名称")
+        target_user = (
+            db.query(User)
+            .filter(User.company_name == company_name)
+            .order_by(User.id.asc())
+            .first()
+        )
+        if not target_user:
+            raise HTTPException(
+                status_code=400,
+                detail=f"未找到归属于企业「{company_name}」的用户，请先在用户管理中创建该企业下的账号",
+            )
+        target_created_by = target_user.id
 
     updated_ids: list[int] = []
     skipped: list[dict] = []
@@ -416,16 +439,21 @@ async def batch_update_projects(
             continue
         for key, value in update_fields.items():
             setattr(project, key, value)
+        if target_created_by is not None:
+            project.created_by = target_created_by
         updated_ids.append(project.id)
 
     if updated_ids:
         db.commit()
 
+    applied_fields = list(update_fields.keys())
+    if target_created_by is not None:
+        applied_fields.append("creator_company")
     return {
         "updated_count": len(updated_ids),
         "updated_ids": updated_ids,
         "skipped": skipped,
-        "fields": list(update_fields.keys()),
+        "fields": applied_fields,
     }
 
 

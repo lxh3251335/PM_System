@@ -197,12 +197,40 @@
         let filteredInventory = [];
         let editingItemId = null;
         let allocatingItemId = null;
+        let projectNameMap = {};
+
+        function _escHtml(s) {
+            if (s == null) return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             requireAuth();
             await loadGwModels();
+            await loadProjectNameMap();
             await loadInventory();
         });
+
+        async function loadProjectNameMap() {
+            try {
+                const projects = await api.projects.getProjects();
+                const list = Array.isArray(projects) ? projects : (projects && projects.items) || [];
+                projectNameMap = {};
+                list.forEach(function(p) {
+                    if (p && p.id != null) {
+                        projectNameMap[p.id] = p.project_name || p.name || ('项目#' + p.id);
+                    }
+                });
+            } catch (e) {
+                console.warn('加载项目名称映射失败，回退到显示项目编号:', e.message);
+                projectNameMap = {};
+            }
+        }
 
         async function loadGwModels() {
             try {
@@ -288,7 +316,7 @@
                     <td style="font-family:monospace;">${item.mac_address || '-'}</td>
                     <td>${item.ip_address || '-'}</td>
                     <td><span class="status-tag status-${item.status}">${statusLabel}</span></td>
-                    <td>${item.project_id ? '项目#' + item.project_id : '-'}</td>
+                    <td>${item.project_id ? (_escHtml(projectNameMap[item.project_id] || ('项目#' + item.project_id))) : '-'}</td>
                     <td style="text-align:right">${actions}</td>
                 </tr>`;
             }).join('');

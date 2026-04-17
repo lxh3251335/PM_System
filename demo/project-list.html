@@ -173,6 +173,213 @@
         .info-icon:hover {
             color: var(--info-color);
         }
+
+        /* ===== 批量修改按钮：紫色系次级操作，视觉统一 ===== */
+        .btn-batch-edit {
+            background: #6366f1 !important;
+            color: #fff !important;
+            box-shadow: 0 2px 6px rgba(99,102,241,0.25);
+            transition: all .2s ease;
+        }
+        .btn-batch-edit:hover:not(:disabled) {
+            background: #4f46e5 !important;
+            box-shadow: 0 4px 10px rgba(99,102,241,0.35);
+            transform: translateY(-1px);
+        }
+        .btn-batch-edit:disabled {
+            background: #c7cbd1 !important;
+            color: #fff !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-batch-edit #batchSelectedCount {
+            margin-left: 4px;
+            padding: 0 6px;
+            background: rgba(255,255,255,0.22);
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        /* ===== 批量修改弹窗：正规大气的卡片式设计 ===== */
+        .batch-edit-mask {
+            backdrop-filter: blur(3px);
+            animation: bem-fade 0.18s ease;
+        }
+        @keyframes bem-fade { from { opacity: 0; } to { opacity: 1; } }
+        .batch-edit-card {
+            width: 520px;
+            max-width: 92vw;
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: bem-pop 0.22s cubic-bezier(.2,.8,.3,1.2);
+        }
+        @keyframes bem-pop {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .batch-edit-header {
+            padding: 18px 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .batch-edit-header .bem-title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .batch-edit-header .bem-subtitle {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+        .batch-edit-header .bem-close {
+            width: 32px; height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            transition: background .18s;
+        }
+        .batch-edit-header .bem-close:hover { background: rgba(255,255,255,0.3); }
+        .batch-edit-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .batch-edit-tip {
+            padding: 10px 14px;
+            background: #f0f5ff;
+            border-left: 3px solid #6366f1;
+            color: #334155;
+            font-size: 13px;
+            border-radius: 4px;
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .batch-edit-tip strong { color: #4f46e5; }
+        .batch-field {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            background: #fafbfc;
+            transition: all .2s;
+        }
+        .batch-field.active {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(99,102,241,0.08);
+        }
+        .batch-field-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #1f2937;
+            cursor: pointer;
+            user-select: none;
+        }
+        .batch-field-head input[type="checkbox"] {
+            width: 18px; height: 18px;
+            accent-color: #6366f1;
+            cursor: pointer;
+        }
+        .batch-field-head .bf-label { font-weight: 500; }
+        .batch-field-head .bf-label strong { color: #4f46e5; }
+        .batch-field-body {
+            margin-top: 12px;
+            padding-left: 28px;
+        }
+        .batch-field-body .form-control,
+        .batch-field-body select,
+        .batch-field-body input[type="text"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            font-size: 14px;
+            color: #1f2937;
+            transition: border-color .18s, box-shadow .18s;
+            box-sizing: border-box;
+        }
+        .batch-field-body .form-control:focus,
+        .batch-field-body select:focus,
+        .batch-field-body input[type="text"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        .batch-field-body .form-control:disabled,
+        .batch-field-body select:disabled,
+        .batch-field-body input:disabled {
+            background: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .batch-field-body .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .batch-edit-footer {
+            padding: 14px 24px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .batch-edit-footer .btn-cancel {
+            padding: 8px 20px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #4b5563;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all .18s;
+        }
+        .batch-edit-footer .btn-cancel:hover {
+            border-color: #9ca3af;
+            color: #1f2937;
+        }
+        .batch-edit-footer .btn-confirm {
+            padding: 8px 24px;
+            border: none;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(99,102,241,0.3);
+            transition: all .18s;
+        }
+        .batch-edit-footer .btn-confirm:hover {
+            box-shadow: 0 4px 10px rgba(99,102,241,0.45);
+            transform: translateY(-1px);
+        }
+        .batch-edit-footer .btn-confirm:disabled {
+            background: #c7cbd1;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
+
     </style>
 </head>
 <body>
@@ -285,7 +492,7 @@
                         
                         <button class="btn-primary" onclick="filterProjects()">搜索</button>
                         <button class="btn-success" onclick="showCreateDialog()">+ 新建项目</button>
-                        <button type="button" class="btn-secondary" id="btnBatchEdit" onclick="openBatchEditDialog()" disabled style="opacity:0.6;">批量修改 <span id="batchSelectedCount">(0)</span></button>
+                        <button type="button" class="btn-primary btn-batch-edit" id="btnBatchEdit" onclick="openBatchEditDialog()" disabled>批量修改 <span id="batchSelectedCount">(0)</span></button>
                     </div>
                 </div>
 
@@ -888,7 +1095,6 @@
             var btn = document.getElementById('btnBatchEdit');
             if (btn) {
                 btn.disabled = cnt === 0;
-                btn.style.opacity = cnt === 0 ? '0.6' : '1';
             }
             var selAll = document.getElementById('batchSelectAll');
             if (selAll) {
@@ -922,8 +1128,14 @@
             var input = document.getElementById(inputId);
             if (!input) return;
             input.disabled = !checkboxEl.checked;
+            // 高亮所在 field 卡片
+            var card = checkboxEl.closest('.batch-field');
+            if (card) {
+                if (checkboxEl.checked) card.classList.add('active');
+                else card.classList.remove('active');
+            }
             if (checkboxEl.checked) {
-                input.focus();
+                try { input.focus(); } catch (e) {}
             } else {
                 input.value = '';
             }
@@ -939,14 +1151,114 @@
                 return;
             }
             document.getElementById('batchEditSelectedCount').textContent = batchSelectedIds.size;
-            ['batchFieldEndCustomer','batchFieldBusinessType','batchFieldCity'].forEach(function(id){
+            var fieldIds = ['batchFieldCompany','batchFieldEndCustomer','batchFieldBusinessType','batchFieldCity'];
+            fieldIds.forEach(function(id){
                 var el = document.getElementById(id); if (el) el.checked = false;
             });
-            ['batchValueEndCustomer','batchValueBusinessType','batchValueCity'].forEach(function(id){
+            var valueIds = ['batchValueCompany','batchValueEndCustomer','batchValueBusinessType','batchValueCity'];
+            valueIds.forEach(function(id){
                 var el = document.getElementById(id);
                 if (el) { el.value = ''; el.disabled = true; }
             });
+            // 根据勾选高亮 field 外框
+            document.querySelectorAll('.batch-field').forEach(function(card){ card.classList.remove('active'); });
+            // 仅管理员展示企业名称字段
+            var role = (localStorage.getItem('userRole') || '').toLowerCase();
+            var normalizedRole = role === 'factory' ? 'admin' : (role === 'user' ? 'customer' : role);
+            var wrap = document.getElementById('batchFieldWrapCompany');
+            if (wrap) wrap.style.display = (normalizedRole === 'admin') ? '' : 'none';
+            // 加载下拉数据源
+            populateBatchEditOptions(normalizedRole === 'admin');
             document.getElementById('batchEditDialog').style.display = 'flex';
+        }
+
+        function populateBatchEditOptions(isAdmin) {
+            var projects = (typeof allProjects !== 'undefined' && Array.isArray(allProjects)) ? allProjects : [];
+
+            function uniqSorted(values) {
+                var seen = {}; var out = [];
+                values.forEach(function(v){
+                    if (v == null) return;
+                    var s = String(v).trim();
+                    if (!s || seen[s]) return;
+                    seen[s] = 1; out.push(s);
+                });
+                out.sort(function(a,b){ return a.localeCompare(b, 'zh'); });
+                return out;
+            }
+
+            // 终端客户
+            var ecList = uniqSorted(projects.map(function(p){ return p.end_customer; }));
+            var ecDL = document.getElementById('batchEndCustomerOptions');
+            if (ecDL) {
+                ecDL.innerHTML = ecList.map(function(v){ return '<option value="' + _escAttr(v) + '"></option>'; }).join('');
+            }
+            // 城市
+            var cityList = uniqSorted(projects.map(function(p){ return p.city; }));
+            var cityDL = document.getElementById('batchCityOptions');
+            if (cityDL) {
+                cityDL.innerHTML = cityList.map(function(v){ return '<option value="' + _escAttr(v) + '"></option>'; }).join('');
+            }
+            // 业务类型：按终端客户分组
+            var sel = document.getElementById('batchValueBusinessType');
+            if (sel) {
+                var groups = {};
+                projects.forEach(function(p){
+                    var bt = (p.business_type || '').trim();
+                    if (!bt) return;
+                    var grp = (p.end_customer || '其他').trim() || '其他';
+                    if (!groups[grp]) groups[grp] = {};
+                    groups[grp][bt] = 1;
+                });
+                var html = '<option value="">-- 请选择业务类型 --</option>';
+                var grpNames = Object.keys(groups).sort(function(a,b){ return a.localeCompare(b,'zh'); });
+                grpNames.forEach(function(g){
+                    html += '<optgroup label="' + _escAttr(g) + '">';
+                    var bts = Object.keys(groups[g]).sort(function(a,b){ return a.localeCompare(b,'zh'); });
+                    bts.forEach(function(bt){
+                        html += '<option value="' + _escAttr(bt) + '">' + _escHtml(bt) + '</option>';
+                    });
+                    html += '</optgroup>';
+                });
+                if (grpNames.length === 0) {
+                    html += '<option value="" disabled>（暂无已录入的业务类型）</option>';
+                }
+                sel.innerHTML = html;
+            }
+            // 企业名称
+            var companySel = document.getElementById('batchValueCompany');
+            if (companySel && isAdmin) {
+                // 从现有项目 creator_company 列出
+                var comFromProjects = uniqSorted(projects.map(function(p){ return p.creator_company; }));
+                var companyHtml = '<option value="">-- 请选择企业名称 --</option>';
+                comFromProjects.forEach(function(name){
+                    companyHtml += '<option value="' + _escAttr(name) + '">' + _escHtml(name) + '</option>';
+                });
+                companySel.innerHTML = companyHtml;
+                // 再异步叠加用户企业清单（管理员接口）
+                if (isProductionMode() && api && api.users && api.users.get) {
+                    api.users.get('/users/companies').then(function(list){
+                        if (!Array.isArray(list)) return;
+                        var existing = {};
+                        Array.prototype.forEach.call(companySel.options, function(o){ if (o.value) existing[o.value] = 1; });
+                        list.forEach(function(name){
+                            if (!name || existing[name]) return;
+                            var opt = document.createElement('option');
+                            opt.value = name; opt.textContent = name;
+                            companySel.appendChild(opt);
+                        });
+                    }).catch(function(e){ console.warn('拉取企业清单失败:', e && e.message); });
+                }
+            }
+        }
+
+        function _escHtml(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+        function _escAttr(s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
         }
 
         function closeBatchEditDialog() {
@@ -958,6 +1270,12 @@
             if (ids.length === 0) { closeBatchEditDialog(); return; }
 
             var payload = {};
+            var companyCb = document.getElementById('batchFieldCompany');
+            if (companyCb && companyCb.checked) {
+                var vcom = (document.getElementById('batchValueCompany').value || '').trim();
+                if (!vcom) { alert('请选择企业名称'); return; }
+                payload.creator_company = vcom;
+            }
             if (document.getElementById('batchFieldEndCustomer').checked) {
                 var v = (document.getElementById('batchValueEndCustomer').value || '').trim();
                 if (!v) { alert('终端客户不能为空'); return; }
@@ -978,7 +1296,8 @@
                 return;
             }
 
-            if (!confirm('将对已选中的 ' + ids.length + ' 个项目进行批量修改，是否继续？')) return;
+            var warnCompany = payload.creator_company ? ('\n注意：这会把这些项目迁移到【' + payload.creator_company + '】的首个账号下，会影响数据权限。') : '';
+            if (!confirm('将对已选中的 ' + ids.length + ' 个项目进行批量修改，是否继续？' + warnCompany)) return;
 
             var btn = document.getElementById('batchEditSubmitBtn');
             if (btn) { btn.disabled = true; btn.textContent = '修改中...'; }
@@ -1026,61 +1345,75 @@
     </script>
 
     <!-- 批量修改项目弹窗 -->
-    <div id="batchEditDialog" class="batch-edit-mask" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
-        <div class="batch-edit-dialog" style="background:white;border-radius:8px;width:520px;max-width:92vw;max-height:90vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
-            <div style="padding:18px 22px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center;">
-                <div style="font-size:16px;font-weight:600;">批量修改项目</div>
-                <button type="button" onclick="closeBatchEditDialog()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#8c8c8c;">×</button>
+    <div id="batchEditDialog" class="batch-edit-mask" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.55);z-index:9999;align-items:center;justify-content:center;">
+        <div class="batch-edit-card">
+            <div class="batch-edit-header">
+                <div>
+                    <div class="bem-title">批量修改项目</div>
+                    <div class="bem-subtitle">只修改勾选的字段，未勾选字段保持原值不变</div>
+                </div>
+                <button type="button" class="bem-close" onclick="closeBatchEditDialog()" aria-label="关闭">&times;</button>
             </div>
-            <div style="padding:18px 22px;">
-                <div style="background:#e6f7ff;border:1px solid #91d5ff;color:#0050b3;padding:8px 12px;border-radius:4px;font-size:13px;margin-bottom:14px;">
-                    当前已选中 <strong><span id="batchEditSelectedCount">0</span></strong> 个项目。仅勾选需要覆盖的字段，未勾选字段保持原值不变。
+            <div class="batch-edit-body">
+                <div class="batch-edit-tip">
+                    当前已选中 <strong><span id="batchEditSelectedCount">0</span></strong> 个项目。下拉选项来自已录入的项目数据，也可以手动输入新值。
                 </div>
 
-                <div class="form-group" style="margin-bottom:14px;">
-                    <label style="display:flex;align-items:center;gap:8px;">
+                <!-- 企业名称（仅管理员可修改，涉及项目归属迁移） -->
+                <div class="batch-field" id="batchFieldWrapCompany" style="display:none;">
+                    <label class="batch-field-head">
+                        <input type="checkbox" id="batchFieldCompany" onchange="onBatchFieldToggle(this,'batchValueCompany')" />
+                        <span class="bf-label">修改<strong>企业名称</strong><span style="color:#9ca3af;font-size:12px;margin-left:6px;">（项目归属企业）</span></span>
+                    </label>
+                    <div class="batch-field-body">
+                        <select id="batchValueCompany" class="form-control" disabled>
+                            <option value="">-- 请选择企业名称 --</option>
+                        </select>
+                        <div class="hint">注意：修改后，这些项目会被迁移到该企业下的首个用户名下；需先在用户管理创建该企业的账号。</div>
+                    </div>
+                </div>
+
+                <!-- 终端客户 -->
+                <div class="batch-field">
+                    <label class="batch-field-head">
                         <input type="checkbox" id="batchFieldEndCustomer" onchange="onBatchFieldToggle(this,'batchValueEndCustomer')" />
-                        <span>修改<strong>终端客户 / 企业名称</strong></span>
+                        <span class="bf-label">修改<strong>终端客户</strong><span style="color:#9ca3af;font-size:12px;margin-left:6px;">（项目服务的最终用户，如"盒马"）</span></span>
                     </label>
-                    <input type="text" id="batchValueEndCustomer" class="form-control" placeholder="请输入新的终端客户名称" disabled style="margin-top:6px;" />
+                    <div class="batch-field-body">
+                        <input list="batchEndCustomerOptions" type="text" id="batchValueEndCustomer" class="form-control" placeholder="从已录入客户中选择，或输入新客户名" disabled />
+                        <datalist id="batchEndCustomerOptions"></datalist>
+                    </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom:14px;">
-                    <label style="display:flex;align-items:center;gap:8px;">
+                <!-- 业务类型 -->
+                <div class="batch-field">
+                    <label class="batch-field-head">
                         <input type="checkbox" id="batchFieldBusinessType" onchange="onBatchFieldToggle(this,'batchValueBusinessType')" />
-                        <span>修改<strong>业务类型</strong></span>
+                        <span class="bf-label">修改<strong>业务类型</strong><span style="color:#9ca3af;font-size:12px;margin-left:6px;">（选项来自已录入项目）</span></span>
                     </label>
-                    <select id="batchValueBusinessType" class="form-control" disabled style="margin-top:6px;">
-                        <option value="">-- 请选择业务类型 --</option>
-                        <optgroup label="冷库">
-                            <option value="冷库新建">冷库新建</option>
-                            <option value="冷库改造">冷库改造</option>
-                            <option value="冷库扩建">冷库扩建</option>
-                        </optgroup>
-                        <optgroup label="前置仓/生鲜">
-                            <option value="前置仓">前置仓</option>
-                            <option value="生鲜">生鲜</option>
-                            <option value="商超">商超</option>
-                        </optgroup>
-                        <optgroup label="新建">
-                            <option value="新建">新建</option>
-                            <option value="改造">改造</option>
-                            <option value="扩建">扩建</option>
-                        </optgroup>
-                    </select>
+                    <div class="batch-field-body">
+                        <select id="batchValueBusinessType" class="form-control" disabled>
+                            <option value="">-- 请选择业务类型 --</option>
+                        </select>
+                        <div class="hint" id="batchBusinessTypeHint">如列表中没有需要的业务类型，请先在"业务类型配置"中添加。</div>
+                    </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom:14px;">
-                    <label style="display:flex;align-items:center;gap:8px;">
+                <!-- 城市 -->
+                <div class="batch-field">
+                    <label class="batch-field-head">
                         <input type="checkbox" id="batchFieldCity" onchange="onBatchFieldToggle(this,'batchValueCity')" />
-                        <span>修改<strong>城市</strong></span>
+                        <span class="bf-label">修改<strong>城市</strong></span>
                     </label>
-                    <input type="text" id="batchValueCity" class="form-control" placeholder="请输入新的城市名称" disabled style="margin-top:6px;" />
+                    <div class="batch-field-body">
+                        <input list="batchCityOptions" type="text" id="batchValueCity" class="form-control" placeholder="从已录入城市中选择，或输入新城市名" disabled />
+                        <datalist id="batchCityOptions"></datalist>
+                    </div>
                 </div>
             </div>
-            <div style="padding:14px 22px;border-top:1px solid #e8e8e8;display:flex;justify-content:flex-end;gap:10px;">
-                <button type="button" class="btn-secondary" onclick="closeBatchEditDialog()">取消</button>
-                <button type="button" class="btn-primary" id="batchEditSubmitBtn" onclick="submitBatchEdit()">确认修改</button>
+            <div class="batch-edit-footer">
+                <button type="button" class="btn-cancel" onclick="closeBatchEditDialog()">取消</button>
+                <button type="button" class="btn-confirm" id="batchEditSubmitBtn" onclick="submitBatchEdit()">确认修改</button>
             </div>
         </div>
     </div>

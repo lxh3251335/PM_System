@@ -87,13 +87,18 @@ class ProjectUpdate(BaseModel):
 class ProjectBatchUpdate(BaseModel):
     """批量更新项目指定字段"""
     project_ids: List[int] = Field(..., min_length=1, description="需要更新的项目 ID 列表")
-    end_customer: Optional[str] = Field(None, description="最终用户（传则覆盖）")
+    end_customer: Optional[str] = Field(None, description="终端客户（传则覆盖）")
     business_type: Optional[str] = Field(None, description="业务类型（传则覆盖）")
     city: Optional[str] = Field(None, description="城市（传则覆盖）")
+    creator_company: Optional[str] = Field(
+        None,
+        description="企业名称：改为把选中项目的 created_by 指向该企业下首个用户；仅 admin 可用",
+    )
 
     @model_validator(mode="after")
     def require_at_least_one_field(self):
-        if self.end_customer is None and self.business_type is None and self.city is None:
+        if (self.end_customer is None and self.business_type is None
+                and self.city is None and self.creator_company is None):
             raise ValueError("至少需要指定一个要更新的字段")
         return self
 
