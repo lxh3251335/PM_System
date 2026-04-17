@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Í¨Ñ¶ÅäÖÃ¼°485µØÖ··ÖÅä - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
+    <title>é€šè®¯é…ç½®åŠ485åœ°å€åˆ†é… - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
     <script src="assets/js/api.js?v=20260418c"></script>
@@ -254,7 +254,7 @@
             background: #fafafa;
         }
 
-        /* ±í¸ñÑùÊ½ */
+        /* è¡¨æ ¼æ ·å¼ */
         .device-table {
             width: 100%;
             border-collapse: collapse;
@@ -605,76 +605,76 @@
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
         <div class="project-info-card">
-            <h3>µ±Ç°ÏîÄ¿</h3>
+            <h3>å½“å‰é¡¹ç›®</h3>
             <div class="project-info-grid" id="projectInfo"></div>
         </div>
 
         <div class="page-header">
-            <h1>Í¨Ñ¶ÅäÖÃ¼°485µØÖ··ÖÅä</h1>
-            <p>ÎªÍø¹ØµÄÃ¿¸öCOM¿Ú(RS485¶Ë¿Ú)Ìí¼ÓÍ¨Ñ¶´ÓÕ¾Éè±¸£¬²¢ÉèÖÃ485µØÖ·¡£Ò»¸öCOM¿ÚÏÂ¿ÉÒÔÌí¼Ó¶àÌ¨´ÓÕ¾Éè±¸¡£</p>
+            <h1>é€šè®¯é…ç½®åŠ485åœ°å€åˆ†é…</h1>
+            <p>ä¸ºç½‘å…³çš„æ¯ä¸ªCOMå£(RS485ç«¯å£)æ·»åŠ é€šè®¯ä»ç«™è®¾å¤‡ï¼Œå¹¶è®¾ç½®485åœ°å€ã€‚ä¸€ä¸ªCOMå£ä¸‹å¯ä»¥æ·»åŠ å¤šå°ä»ç«™è®¾å¤‡ã€‚</p>
         </div>
 
         <div class="info-box">
-            <h4>ÅäÖÃËµÃ÷</h4>
-            <p>Ò»¸ö485¶Ë¿Ú(ÈçCOM1)ÏÂ¿ÉÒÔÌí¼Ó¶àÌ¨´ÓÕ¾Éè±¸¡£Ã¿¸öÉè±¸ĞèÒª·ÖÅäÎ¨Ò»µÄ485µØÖ·(1-247)¡£Í¬Ò»COM¿ÚÏÂµÄÉè±¸485µØÖ·²»ÄÜÖØ¸´¡£µã»÷µØÖ·ÉÏµÄ±à¼­Í¼±ê¿ÉĞŞ¸ÄÒÑ·ÖÅäµÄµØÖ·¡£</p>
+            <h4>é…ç½®è¯´æ˜</h4>
+            <p>ä¸€ä¸ª485ç«¯å£(å¦‚COM1)ä¸‹å¯ä»¥æ·»åŠ å¤šå°ä»ç«™è®¾å¤‡ã€‚æ¯ä¸ªè®¾å¤‡éœ€è¦åˆ†é…å”¯ä¸€çš„485åœ°å€(1-247)ã€‚åŒä¸€COMå£ä¸‹çš„è®¾å¤‡485åœ°å€ä¸èƒ½é‡å¤ã€‚ç‚¹å‡»åœ°å€ä¸Šçš„ç¼–è¾‘å›¾æ ‡å¯ä¿®æ”¹å·²åˆ†é…çš„åœ°å€ã€‚</p>
         </div>
 
         <div class="stats-bar">
             <div class="stat-box">
                 <div class="stat-value" id="totalComCount">0</div>
-                <div class="stat-label">COM¿Ú×ÜÊı</div>
+                <div class="stat-label">COMå£æ€»æ•°</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="assignedDevicesCount">0</div>
-                <div class="stat-label">ÒÑ·ÖÅäÉè±¸</div>
+                <div class="stat-label">å·²åˆ†é…è®¾å¤‡</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="totalCommDevicesCount">0</div>
-                <div class="stat-label">Í¨Ñ¶Éè±¸×ÜÊı</div>
+                <div class="stat-label">é€šè®¯è®¾å¤‡æ€»æ•°</div>
             </div>
             <div class="stat-box">
                 <div class="stat-value" id="configProgress">0%</div>
-                <div class="stat-label">ÅäÖÃ½ø¶È</div>
+                <div class="stat-label">é…ç½®è¿›åº¦</div>
             </div>
         </div>
 
         <div id="gatewayList"></div>
 
-        <!-- Ìí¼ÓÉè±¸µ¯´° -->
+        <!-- æ·»åŠ è®¾å¤‡å¼¹çª— -->
         <div class="modal" id="deviceModal">
             <div class="modal-content">
-                <div class="modal-header" id="modalTitle">Ìí¼Ó´ÓÕ¾Éè±¸</div>
+                <div class="modal-header" id="modalTitle">æ·»åŠ ä»ç«™è®¾å¤‡</div>
                 <form id="deviceForm">
                     <div class="form-group">
-                        <label>Éè±¸ÀàĞÍ</label>
+                        <label>è®¾å¤‡ç±»å‹</label>
                         <select id="deviceTypeFilter" onchange="onModalDeviceTypeFilterChange()">
-                            <option value="">È«²¿ÀàĞÍ</option>
+                            <option value="">å…¨éƒ¨ç±»å‹</option>
                         </select>
-                        <div class="form-help">ÏÈÑ¡ÀàĞÍ¿ÉËõĞ¡ÏÂ·½Éè±¸ÁĞ±í</div>
+                        <div class="form-help">å…ˆé€‰ç±»å‹å¯ç¼©å°ä¸‹æ–¹è®¾å¤‡åˆ—è¡¨</div>
                     </div>
                     <div class="form-group">
-                        <label>Ñ¡ÔñÉè±¸ <span style="color: #f5222d;">*</span></label>
+                        <label>é€‰æ‹©è®¾å¤‡ <span style="color: #f5222d;">*</span></label>
                         <select name="device" id="deviceSelect" required>
-                            <option value="">ÇëÑ¡ÔñÍ¨Ñ¶Éè±¸</option>
+                            <option value="">è¯·é€‰æ‹©é€šè®¯è®¾å¤‡</option>
                         </select>
-                        <div class="form-help">Ö»ÏÔÊ¾ÒÑÅäÖÃÍ¨Ñ¶Ğ­ÒéÇÒÎ´·ÖÅäµÄÉè±¸</div>
+                        <div class="form-help">åªæ˜¾ç¤ºå·²é…ç½®é€šè®¯åè®®ä¸”æœªåˆ†é…çš„è®¾å¤‡</div>
                     </div>
                     <div class="form-group">
-                        <label>485´ÓÕ¾µØÖ· <span style="color: #f5222d;">*</span></label>
-                        <input type="number" name="rs485_address" min="1" max="247" placeholder="ÊäÈë1-247Ö®¼äµÄµØÖ·" required>
-                        <div class="form-help" id="addressHelp">Ã¿¸öÉè±¸µÄ485µØÖ·±ØĞëÎ¨Ò»(1-247)</div>
+                        <label>485ä»ç«™åœ°å€ <span style="color: #f5222d;">*</span></label>
+                        <input type="number" name="rs485_address" min="1" max="247" placeholder="è¾“å…¥1-247ä¹‹é—´çš„åœ°å€" required>
+                        <div class="form-help" id="addressHelp">æ¯ä¸ªè®¾å¤‡çš„485åœ°å€å¿…é¡»å”¯ä¸€(1-247)</div>
                     </div>
                     <div class="modal-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeDeviceModal()">È¡Ïû</button>
-                        <button type="submit" class="btn btn-primary">Ìí¼ÓÉè±¸</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeDeviceModal()">å–æ¶ˆ</button>
+                        <button type="submit" class="btn btn-primary">æ·»åŠ è®¾å¤‡</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <div class="action-bar">
-            <button type="button" class="btn btn-secondary" onclick="(function(){var p=localStorage.getItem('currentProjectId');location.href=p?'gateway-setup.html?project_id='+encodeURIComponent(p):'gateway-setup.html';})()">&#8592; ·µ»ØÉÏÒ»²½</button>
-            <button class="btn btn-success" onclick="completeProject()">Íê³ÉÍ¨Ñ¶ÅäÖÃ£¬¼ÌĞø·¢»õµÇ¼Ç &#8594;</button>
+            <button type="button" class="btn btn-secondary" onclick="(function(){var p=localStorage.getItem('currentProjectId');location.href=p?'gateway-setup.html?project_id='+encodeURIComponent(p):'gateway-setup.html';})()">&#8592; è¿”å›ä¸Šä¸€æ­¥</button>
+            <button class="btn btn-success" onclick="completeProject()">å®Œæˆé€šè®¯é…ç½®ï¼Œç»§ç»­å‘è´§ç™»è®° &#8594;</button>
         </div>
     </div>
 
@@ -683,16 +683,16 @@
 
     <script>
         requireAuth();
-        // È¨ÏŞ¼ì²é£º²½Öè5~7½ö¹ÜÀíÔ±¿É²Ù×÷
+        // æƒé™æ£€æŸ¥ï¼šæ­¥éª¤5~7ä»…ç®¡ç†å‘˜å¯æ“ä½œ
         (function checkAdminOnly() {
             const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
             const normalizedRole = userRole === 'factory' ? 'admin' : (userRole === 'user' ? 'customer' : userRole);
             if (normalizedRole !== 'admin') {
                 document.body.innerHTML = `
                     <div style="text-align:center;padding:120px 20px;font-family:sans-serif;">
-                        <h2 style="color:#e74c3c;margin-bottom:16px;">ÎŞÈ¨·ÃÎÊ</h2>
-                        <p style="color:#666;font-size:16px;">Í¨Ñ¶ÅäÖÃÓÉ¹ÜÀíÔ±Íê³É£¬¿Í»§ÎŞĞè²Ù×÷´Ë²½Öè¡£</p>
-                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">·µ»ØÏîÄ¿ÁĞ±í</button>
+                        <h2 style="color:#e74c3c;margin-bottom:16px;">æ— æƒè®¿é—®</h2>
+                        <p style="color:#666;font-size:16px;">é€šè®¯é…ç½®ç”±ç®¡ç†å‘˜å®Œæˆï¼Œå®¢æˆ·æ— éœ€æ“ä½œæ­¤æ­¥éª¤ã€‚</p>
+                        <button onclick="window.location.href='project-list.html'" style="margin-top:24px;padding:10px 28px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:15px;">è¿”å›é¡¹ç›®åˆ—è¡¨</button>
                     </div>`;
                 throw new Error('ACCESS_DENIED');
             }
@@ -731,26 +731,26 @@
         }
 
         const DEVICE_TYPE_CN = {
-            'air_cooler': 'Àä·ç»ú', 'thermostat': 'ÎÂ¿ØÆ÷', 'unit': 'ÖÆÀä»ú×é',
-            'meter': 'µç±í', 'freezer': 'Àä¹ñ', 'defrost_controller': 'ÈÚËª¿ØÖÆÆ÷',
-            'cooling_tower': 'ÀäÈ´Ëş', 'cabinet': 'µç¿Ø¹ñ',
-            'temp-controller': 'ÎÂ¿ØÆ÷', 'refrigeration_unit': 'ÖÆÀä»ú×é', 'electric_meter': 'µç±í'
+            'air_cooler': 'å†·é£æœº', 'thermostat': 'æ¸©æ§å™¨', 'unit': 'åˆ¶å†·æœºç»„',
+            'meter': 'ç”µè¡¨', 'freezer': 'å†·æŸœ', 'defrost_controller': 'èéœœæ§åˆ¶å™¨',
+            'cooling_tower': 'å†·å´å¡”', 'cabinet': 'ç”µæ§æŸœ',
+            'temp-controller': 'æ¸©æ§å™¨', 'refrigeration_unit': 'åˆ¶å†·æœºç»„', 'electric_meter': 'ç”µè¡¨'
         };
 
-        /** ÓÃÓÚÉ¸Ñ¡µÄÍ³Ò»ÀàĞÍ¼ü£¨Óëºó¶Ë/±¾µØ device_type ¶ÔÆë£© */
+        /** ç”¨äºç­›é€‰çš„ç»Ÿä¸€ç±»å‹é”®ï¼ˆä¸åç«¯/æœ¬åœ° device_type å¯¹é½ï¼‰ */
         function getDeviceTypeKey(device) {
             var t = (device && (device.device_type || device.type) || '').toString();
             var aliases = {
                 'temp-controller': 'thermostat',
+                'refrigeration_unit': 'unit',
+                'electric_meter': 'meter',
                 'temp_controller': 'thermostat',
                 'temperature_controller': 'thermostat',
-                'refrigeration_unit': 'unit',
-                'refrigeration-unit': 'unit',
-                'electric_meter': 'meter',
                 'electric-meter': 'meter',
                 'power_meter': 'meter',
-                'cooling-tower': 'cooling_tower',
+                'refrigeration-unit': 'unit',
                 'air-cooler': 'air_cooler',
+                'cooling-tower': 'cooling_tower',
                 'defrost-controller': 'defrost_controller'
             };
             return aliases[t] || t || '';
@@ -758,7 +758,7 @@
 
         function getDeviceTypeName(d) {
             var t = d.device_type || d.type || '';
-            return DEVICE_TYPE_CN[t] || DEVICE_TYPE_CN[getDeviceTypeKey(d)] || t || 'Éè±¸';
+            return DEVICE_TYPE_CN[t] || DEVICE_TYPE_CN[getDeviceTypeKey(d)] || t || 'è®¾å¤‡';
         }
 
         var modalAvailableDevices = [];
@@ -776,7 +776,7 @@
                 var nb = DEVICE_TYPE_CN[b] || b;
                 return na.localeCompare(nb, 'zh-CN');
             });
-            typeFilter.innerHTML = '<option value="">È«²¿ÀàĞÍ</option>';
+            typeFilter.innerHTML = '<option value="">å…¨éƒ¨ç±»å‹</option>';
             keys.forEach(function(k) {
                 var opt = document.createElement('option');
                 opt.value = k;
@@ -793,7 +793,7 @@
             if (filterVal) {
                 list = modalAvailableDevices.filter(function(d) { return getDeviceTypeKey(d) === filterVal; });
             }
-            deviceSelect.innerHTML = '<option value="">ÇëÑ¡ÔñÍ¨Ñ¶Éè±¸</option>';
+            deviceSelect.innerHTML = '<option value="">è¯·é€‰æ‹©é€šè®¯è®¾å¤‡</option>';
             list.forEach(function(device) {
                 var typeName = getDeviceTypeName(device);
                 var modelStr = [device.brand, device.model].filter(Boolean).join(' ');
@@ -809,29 +809,29 @@
             fillDeviceSelectFromFilter();
         }
 
-        /** ÏÂÀ­ÓëÕ¹Ê¾ÓÃ£º½âÎöÉè±¸ËùÊôÀä¿â/ÇøÓòÃû³Æ */
+        /** ä¸‹æ‹‰ä¸å±•ç¤ºç”¨ï¼šè§£æè®¾å¤‡æ‰€å±å†·åº“/åŒºåŸŸåç§° */
         function getColdRoomLabelForDevice(device) {
-            if (!device) return 'Î´·ÖÅäÀä¿â';
+            if (!device) return 'æœªåˆ†é…å†·åº“';
             var raw = device.cold_room_name;
             if (raw != null && String(raw).trim() !== '' && String(raw).trim() !== '-') {
                 return String(raw).trim();
             }
             var crid = device.cold_room_id;
-            if (crid == null || crid === '') return 'Î´·ÖÅäÀä¿â';
-            if (String(crid) === 'tower') return 'ÀäÈ´Ëş';
+            if (crid == null || crid === '') return 'æœªåˆ†é…å†·åº“';
+            if (String(crid) === 'tower') return 'å†·å´å¡”';
             var areaKeys = ['total', 'cold_chain', 'ac', 'fish_tank', 'lighting', 'hot_kitchen'];
             if (areaKeys.indexOf(String(crid)) !== -1) {
-                return device.cold_room_name && String(device.cold_room_name).trim() ? String(device.cold_room_name).trim() : 'µç±íÇøÓò';
+                return device.cold_room_name && String(device.cold_room_name).trim() ? String(device.cold_room_name).trim() : 'ç”µè¡¨åŒºåŸŸ';
             }
             var room = coldRooms.find(function(r) { return String(r.id) === String(crid); });
-            return room ? room.name : ('Àä¿â#' + crid);
+            return room ? room.name : ('å†·åº“#' + crid);
         }
 
         function getCommInfo(device) {
             const specs = device.specifications || {};
             return {
-                comm_port: device.comm_port || device.comm_port_type || specs.comm_port || specs['Í¨Ñ¶¿Ú'] || specs['Í¨Ñ¶¶Ë¿Ú'] || '',
-                comm_protocol: device.comm_protocol || specs.comm_protocol || specs['Í¨Ñ¶Ğ­Òé'] || specs['Ğ­Òé'] || ''
+                comm_port: device.comm_port || device.comm_port_type || specs.comm_port || specs['é€šè®¯å£'] || specs['é€šè®¯ç«¯å£'] || '',
+                comm_protocol: device.comm_protocol || specs.comm_protocol || specs['é€šè®¯åè®®'] || specs['åè®®'] || ''
             };
         }
 
@@ -849,12 +849,12 @@
 
         function renderProjectInfoBar() {
             document.getElementById('projectInfo').innerHTML =
-                '<div><strong>ÏîÄ¿±àºÅ£º</strong>' + (project.project_no || '-') + '</div>' +
-                '<div><strong>ÏîÄ¿Ãû³Æ£º</strong>' + (project.name || '-') + '</div>' +
-                '<div><strong>Àä¿âÊıÁ¿£º</strong>' + coldRooms.length + '¸ö</div>' +
-                '<div><strong>Éè±¸ÊıÁ¿£º</strong>' + devices.length + 'Ì¨</div>' +
-                '<div><strong>¹ØÏµÊıÁ¿£º</strong>' + relations.length + 'Ìõ</div>' +
-                '<div><strong>Íø¹ØÊıÁ¿£º</strong>' + gateways.length + '¸ö</div>';
+                '<div><strong>é¡¹ç›®ç¼–å·ï¼š</strong>' + (project.project_no || '-') + '</div>' +
+                '<div><strong>é¡¹ç›®åç§°ï¼š</strong>' + (project.name || '-') + '</div>' +
+                '<div><strong>å†·åº“æ•°é‡ï¼š</strong>' + coldRooms.length + 'ä¸ª</div>' +
+                '<div><strong>è®¾å¤‡æ•°é‡ï¼š</strong>' + devices.length + 'å°</div>' +
+                '<div><strong>å…³ç³»æ•°é‡ï¼š</strong>' + relations.length + 'æ¡</div>' +
+                '<div><strong>ç½‘å…³æ•°é‡ï¼š</strong>' + gateways.length + 'ä¸ª</div>';
         }
 
         async function loadDataFromApi() {
@@ -867,33 +867,33 @@
             try {
                 var apiProject = await api.projects.getProject(projectId);
                 if (apiProject && apiProject.name) project = apiProject;
-            } catch (e) { console.warn('API¼ÓÔØÏîÄ¿Ê§°Ü:', e.message); }
+            } catch (e) { console.warn('APIåŠ è½½é¡¹ç›®å¤±è´¥:', e.message); }
 
             try {
                 var apiRooms = await api.projects.getColdRooms(projectId);
                 if (Array.isArray(apiRooms) && apiRooms.length > 0) coldRooms = apiRooms;
-            } catch (e) { console.warn('API¼ÓÔØÀä¿âÊ§°Ü:', e.message); }
+            } catch (e) { console.warn('APIåŠ è½½å†·åº“å¤±è´¥:', e.message); }
 
             try {
                 var apiDevices = await api.devices.getDevices({ project_id: projectId });
                 if (Array.isArray(apiDevices) && apiDevices.length > 0) {
                     devices = apiDevices;
                 }
-            } catch (e) { console.warn('API¼ÓÔØÉè±¸Ê§°Ü:', e.message); }
+            } catch (e) { console.warn('APIåŠ è½½è®¾å¤‡å¤±è´¥:', e.message); }
 
             try {
                 var apiGateways = await api.gateways.getGateways({ project_id: projectId });
                 if (Array.isArray(apiGateways) && apiGateways.length > 0) {
                     gateways = apiGateways;
                 }
-            } catch (e) { console.warn('API¼ÓÔØÍø¹ØÊ§°Ü:', e.message); }
+            } catch (e) { console.warn('APIåŠ è½½ç½‘å…³å¤±è´¥:', e.message); }
 
             try {
                 var apiRelations = await api.devices.getRelations({ project_id: projectId });
                 if (Array.isArray(apiRelations) && apiRelations.length > 0) {
                     relations = apiRelations;
                 }
-            } catch (e) { console.warn('API¼ÓÔØÉè±¸¹ØÏµÊ§°Ü:', e.message); }
+            } catch (e) { console.warn('APIåŠ è½½è®¾å¤‡å…³ç³»å¤±è´¥:', e.message); }
 
             buildCommDevices();
             renderProjectInfoBar();
@@ -912,7 +912,7 @@
             if (gateways.length === 0) {
                 listDiv.innerHTML = `
                     <div class="gateway-card">
-                        <p class="empty-message">ÔİÎŞÍø¹Ø£¬ÇëÏÈÔÚ"ÅäÖÃÍø¹Ø"²½ÖèÖĞÌí¼ÓÍø¹Ø</p>
+                        <p class="empty-message">æš‚æ— ç½‘å…³ï¼Œè¯·å…ˆåœ¨"é…ç½®ç½‘å…³"æ­¥éª¤ä¸­æ·»åŠ ç½‘å…³</p>
                     </div>`;
                 return;
             }
@@ -921,29 +921,29 @@
                 const rs485Count = parseInt(gateway.rs485_ports) || parseInt(gateway.total_ports) || 0;
                 const totalConfigured = comConfigs.filter(c => c.gateway_no === gateway.gateway_no).length;
                 const iotCard = gateway.iot_card_no || gateway.sim_card_no || '-';
-                const rs485Display = gateway.rs485_ports || (gateway.total_ports ? gateway.total_ports + '¿Ú' : '-');
+                const rs485Display = gateway.rs485_ports || (gateway.total_ports ? gateway.total_ports + 'å£' : '-');
                 return `
                     <div class="gateway-card">
                         <div class="gateway-header">
                             <div class="gateway-title">${gateway.gateway_no} - ${gateway.brand} ${gateway.model}</div>
-                            <div class="gateway-badge">ÒÑÅäÖÃ ${totalConfigured} Ì¨Éè±¸</div>
+                            <div class="gateway-badge">å·²é…ç½® ${totalConfigured} å°è®¾å¤‡</div>
                         </div>
                         <div class="gateway-info">
-                            ${(gateway.serial_no) ? '<div class="gateway-info-item"><div class="gateway-info-label">SNºÅ</div><div class="gateway-info-value" style="font-family:monospace;">' + gateway.serial_no + '</div></div>' : ''}
+                            ${(gateway.serial_no) ? '<div class="gateway-info-item"><div class="gateway-info-label">SNå·</div><div class="gateway-info-value" style="font-family:monospace;">' + gateway.serial_no + '</div></div>' : ''}
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">RS485¶Ë¿ÚÊı</div>
+                                <div class="gateway-info-label">RS485ç«¯å£æ•°</div>
                                 <div class="gateway-info-value">${rs485Display}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">Íø¿Ú¶Ë¿ÚÊı</div>
+                                <div class="gateway-info-label">ç½‘å£ç«¯å£æ•°</div>
                                 <div class="gateway-info-value">${gateway.eth_ports || '-'}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">ÎïÁªÍø¿¨ºÅ</div>
+                                <div class="gateway-info-label">ç‰©è”ç½‘å¡å·</div>
                                 <div class="gateway-info-value">${iotCard}</div>
                             </div>
                             <div class="gateway-info-item">
-                                <div class="gateway-info-label">IPµØÖ·</div>
+                                <div class="gateway-info-label">IPåœ°å€</div>
                                 <div class="gateway-info-value">${gateway.ip_address || '-'}</div>
                             </div>
                         </div>
@@ -970,11 +970,11 @@
                             <thead>
                                 <tr>
                                     <th style="width: 40px;">#</th>
-                                    <th>Éè±¸±àºÅ</th>
-                                    <th>Æ·ÅÆĞÍºÅ</th>
-                                    <th>Í¨Ñ¶Ğ­Òé</th>
-                                    <th style="width: 160px;">485µØÖ·</th>
-                                    <th style="width: 100px; text-align: center;">²Ù×÷</th>
+                                    <th>è®¾å¤‡ç¼–å·</th>
+                                    <th>å“ç‰Œå‹å·</th>
+                                    <th>é€šè®¯åè®®</th>
+                                    <th style="width: 160px;">485åœ°å€</th>
+                                    <th style="width: 100px; text-align: center;">æ“ä½œ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -982,7 +982,7 @@
                             </tbody>
                         </table>`;
                 } else {
-                    bodyHtml = '<p class="empty-message">¸ÃCOM¿ÚÔİÎ´Ìí¼ÓÉè±¸</p>';
+                    bodyHtml = '<p class="empty-message">è¯¥COMå£æš‚æœªæ·»åŠ è®¾å¤‡</p>';
                 }
 
                 var ps = getPortSetting(gateway.gateway_no, comPort);
@@ -991,31 +991,31 @@
                         <div class="com-header">
                             <div class="com-title">COM${i + 1} (RS485)</div>
                             <div class="com-params">
-                                <label>²¨ÌØÂÊ
+                                <label>æ³¢ç‰¹ç‡
                                     <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','baud_rate',this.value)">
                                         ${[1200,2400,4800,9600,19200,38400,57600,115200].map(b => '<option value="'+b+'"'+(String(ps.baud_rate)===String(b)?' selected':'')+'>'+b+'</option>').join('')}
                                     </select>
                                 </label>
-                                <label>Ğ£Ñé
+                                <label>æ ¡éªŒ
                                     <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','parity',this.value)">
-                                        <option value="N"${ps.parity==='N'?' selected':''}>ÎŞ(N)</option>
-                                        <option value="E"${ps.parity==='E'?' selected':''}>Å¼(E)</option>
-                                        <option value="O"${ps.parity==='O'?' selected':''}>Ææ(O)</option>
+                                        <option value="N"${ps.parity==='N'?' selected':''}>æ— (N)</option>
+                                        <option value="E"${ps.parity==='E'?' selected':''}>å¶(E)</option>
+                                        <option value="O"${ps.parity==='O'?' selected':''}>å¥‡(O)</option>
                                     </select>
                                 </label>
-                                <label>Í£Ö¹Î»
+                                <label>åœæ­¢ä½
                                     <select onchange="savePortSetting('${gateway.gateway_no}','${comPort}','stop_bits',this.value)">
                                         <option value="1"${String(ps.stop_bits)==='1'?' selected':''}>1</option>
                                         <option value="2"${String(ps.stop_bits)==='2'?' selected':''}>2</option>
                                     </select>
                                 </label>
                             </div>
-                            <div class="com-stats">ÒÑÅäÖÃ ${configs.length} Ì¨Éè±¸</div>
+                            <div class="com-stats">å·²é…ç½® ${configs.length} å°è®¾å¤‡</div>
                         </div>
                         <div class="com-content">
                             ${bodyHtml}
                             <button class="add-device-btn" onclick="openDeviceModal('${gateway.gateway_no}', '${comPort}')">
-                                + Ìí¼Ó´ÓÕ¾Éè±¸
+                                + æ·»åŠ ä»ç«™è®¾å¤‡
                             </button>
                         </div>
                     </div>`;
@@ -1041,17 +1041,17 @@
                         <span id="addr-display-${config.id}">
                             <span class="address-badge">
                                 ${config.rs485_address}
-                                <button class="address-edit-btn" onclick="startEditAddress(${config.id}, '${config.rs485_address}', '${config.gateway_no}', '${config.com_port}')" title="±à¼­µØÖ·">&#9998;</button>
+                                <button class="address-edit-btn" onclick="startEditAddress(${config.id}, '${config.rs485_address}', '${config.gateway_no}', '${config.com_port}')" title="ç¼–è¾‘åœ°å€">&#9998;</button>
                             </span>
                         </span>
                         <span id="addr-edit-${config.id}" style="display:none;">
                             <input class="address-input" type="number" id="addr-input-${config.id}" min="1" max="247" value="${config.rs485_address}">
-                            <button class="address-save-btn" onclick="saveAddress(${config.id}, '${config.gateway_no}', '${config.com_port}')">±£´æ</button>
-                            <button class="address-cancel-btn" onclick="cancelEditAddress(${config.id})">È¡Ïû</button>
+                            <button class="address-save-btn" onclick="saveAddress(${config.id}, '${config.gateway_no}', '${config.com_port}')">ä¿å­˜</button>
+                            <button class="address-cancel-btn" onclick="cancelEditAddress(${config.id})">å–æ¶ˆ</button>
                         </span>
                     </td>
                     <td style="text-align: center;">
-                        <button class="btn-action danger" onclick="deleteDevice(${config.id})">É¾³ı</button>
+                        <button class="btn-action danger" onclick="deleteDevice(${config.id})">åˆ é™¤</button>
                     </td>
                 </tr>`;
         }
@@ -1087,7 +1087,7 @@
             const newAddr = input.value.trim();
 
             if (!newAddr || newAddr < 1 || newAddr > 247) {
-                showToast('485µØÖ·±ØĞëÔÚ1-247Ö®¼ä', 'error');
+                showToast('485åœ°å€å¿…é¡»åœ¨1-247ä¹‹é—´', 'error');
                 return;
             }
 
@@ -1099,7 +1099,7 @@
             );
 
             if (conflict) {
-                showToast('¸ÃCOM¿ÚÏÂµØÖ· ' + newAddr + ' ÒÑ±»Õ¼ÓÃ', 'error');
+                showToast('è¯¥COMå£ä¸‹åœ°å€ ' + newAddr + ' å·²è¢«å ç”¨', 'error');
                 return;
             }
 
@@ -1107,7 +1107,7 @@
             if (config) {
                 config.rs485_address = newAddr;
                 localStorage.setItem('comConfigs', JSON.stringify(comConfigs));
-                showToast('485µØÖ·ÒÑ¸üĞÂÎª ' + newAddr, 'success');
+                showToast('485åœ°å€å·²æ›´æ–°ä¸º ' + newAddr, 'success');
                 renderGateways();
             }
         }
@@ -1116,7 +1116,7 @@
             currentGateway = gatewayNo;
             currentComPort = comPort;
 
-            document.getElementById('modalTitle').textContent = `${gatewayNo} - ${comPort} Ìí¼Ó´ÓÕ¾Éè±¸`;
+            document.getElementById('modalTitle').textContent = `${gatewayNo} - ${comPort} æ·»åŠ ä»ç«™è®¾å¤‡`;
 
             const assignedDevices = comConfigs.map(c => c.device_no);
             modalAvailableDevices = commDevices.filter(d => !assignedDevices.includes(d.device_no));
@@ -1128,8 +1128,8 @@
                 .map(c => c.rs485_address);
 
             document.getElementById('addressHelp').textContent = usedAddresses.length > 0
-                ? '¸ÃCOM¿ÚÒÑÊ¹ÓÃµØÖ·: ' + usedAddresses.join(', ')
-                : 'Ã¿¸öÉè±¸µÄ485µØÖ·±ØĞëÎ¨Ò»(1-247)';
+                ? 'è¯¥COMå£å·²ä½¿ç”¨åœ°å€: ' + usedAddresses.join(', ')
+                : 'æ¯ä¸ªè®¾å¤‡çš„485åœ°å€å¿…é¡»å”¯ä¸€(1-247)';
 
             document.getElementById('deviceForm').reset();
             var tf = document.getElementById('deviceTypeFilter');
@@ -1166,7 +1166,7 @@
                     rs485_address: String(rs485Addr)
                 });
             } catch (e) {
-                console.warn('Í¬²½Í¨Ñ¶ÅäÖÃµ½ºó¶ËÊ§°Ü:', e.message);
+                console.warn('åŒæ­¥é€šè®¯é…ç½®åˆ°åç«¯å¤±è´¥:', e.message);
             }
         }
 
@@ -1180,7 +1180,7 @@
                     rs485_address: null
                 });
             } catch (e) {
-                console.warn('Çå³ıÍ¨Ñ¶ÅäÖÃÊ§°Ü:', e.message);
+                console.warn('æ¸…é™¤é€šè®¯é…ç½®å¤±è´¥:', e.message);
             }
         }
 
@@ -1198,7 +1198,7 @@
             );
 
             if (addressUsed) {
-                showToast('¸ÃCOM¿ÚÏÂ485µØÖ· ' + rs485Address + ' ÒÑ±»Ê¹ÓÃ', 'error');
+                showToast('è¯¥COMå£ä¸‹485åœ°å€ ' + rs485Address + ' å·²è¢«ä½¿ç”¨', 'error');
                 return;
             }
 
@@ -1215,11 +1215,11 @@
             syncDeviceCommToBackend(deviceNo, currentGateway, currentComPort, rs485Address);
             closeDeviceModal();
             renderGateways();
-            showToast('´ÓÕ¾Éè±¸Ìí¼Ó³É¹¦', 'success');
+            showToast('ä»ç«™è®¾å¤‡æ·»åŠ æˆåŠŸ', 'success');
         });
 
         function deleteDevice(configId) {
-            if (confirm('È·¶¨ÒªÉ¾³ı¸Ã´ÓÕ¾Éè±¸Âğ£¿')) {
+            if (confirm('ç¡®å®šè¦åˆ é™¤è¯¥ä»ç«™è®¾å¤‡å—ï¼Ÿ')) {
                 var config = comConfigs.find(c => c.id === configId);
                 comConfigs = comConfigs.filter(c => c.id !== configId);
                 localStorage.setItem('comConfigs', JSON.stringify(comConfigs));
@@ -1227,7 +1227,7 @@
                     clearDeviceCommInBackend(config.device_no);
                 }
                 renderGateways();
-                showToast('Éè±¸ÒÑÉ¾³ı', 'success');
+                showToast('è®¾å¤‡å·²åˆ é™¤', 'success');
             }
         }
 
@@ -1245,7 +1245,7 @@
 
         function completeProject() {
             if (comConfigs.length === 0) {
-                if (!confirm('»¹Ã»ÓĞÅäÖÃÈÎºÎ´ÓÕ¾Éè±¸£¬È·¶¨Òª¼ÌĞøÂğ£¿')) return;
+                if (!confirm('è¿˜æ²¡æœ‰é…ç½®ä»»ä½•ä»ç«™è®¾å¤‡ï¼Œç¡®å®šè¦ç»§ç»­å—ï¼Ÿ')) return;
             }
             localStorage.setItem('portConfigs', JSON.stringify(comConfigs));
             window.location.href = 'shipping-register.html';

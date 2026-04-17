@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>·¢»õµÇ¼Ç - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
+    <title>å‘è´§ç™»è®° - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260417"></script>
+    <script src="assets/js/api.js?v=20260418c"></script>
     <style>
         .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; }
         .card h3 { margin: 0 0 20px 0; font-size: 18px; color: var(--text-primary); }
@@ -67,7 +67,7 @@
         <aside class="sidebar" id="sidebar"></aside>
         <main class="main-content">
             <header class="top-bar">
-                <h1>·¢»õµÇ¼Ç</h1>
+                <h1>å‘è´§ç™»è®°</h1>
                 <div class="user-menu"></div>
             </header>
             <div class="content-wrapper">
@@ -75,98 +75,98 @@
         <div class="steps" id="stepNavContainer" style="display:none;"></div>
 
         <div class="info-box" id="roleHint">
-            <p>ÇëÑ¡ÔñÏîÄ¿ºó²é¿´»ò¹ÜÀí·¢»õ¼ÇÂ¼¡£</p>
+            <p>è¯·é€‰æ‹©é¡¹ç›®åæŸ¥çœ‹æˆ–ç®¡ç†å‘è´§è®°å½•ã€‚</p>
         </div>
 
         <div class="card">
             <div class="filter-bar">
-                <label style="font-weight: 500;">Ñ¡ÔñÏîÄ¿£º</label>
+                <label style="font-weight: 500;">é€‰æ‹©é¡¹ç›®ï¼š</label>
                 <select id="projectSelect" onchange="onProjectChange()" style="min-width: 300px;">
-                    <option value="">-- ÇëÑ¡ÔñÏîÄ¿ --</option>
+                    <option value="">-- è¯·é€‰æ‹©é¡¹ç›® --</option>
                 </select>
-                <button class="btn btn-primary btn-sm" id="addShipmentBtn" onclick="showAddForm()" style="display:none;">+ ĞÂÔö·¢»õ¼ÇÂ¼</button>
+                <button class="btn btn-primary btn-sm" id="addShipmentBtn" onclick="showAddForm()" style="display:none;">+ æ–°å¢å‘è´§è®°å½•</button>
             </div>
         </div>
 
-        <!-- ĞÂÔö·¢»õ±íµ¥£¨Ä¬ÈÏÒş²Ø£© -->
+        <!-- æ–°å¢å‘è´§è¡¨å•ï¼ˆé»˜è®¤éšè—ï¼‰ -->
         <div class="card" id="addFormCard" style="display: none;">
-            <h3>ĞÂÔö·¢»õ¼ÇÂ¼</h3>
+            <h3>æ–°å¢å‘è´§è®°å½•</h3>
             <form id="shippingForm" onsubmit="submitForm(event)">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>¹ØÁªÍø¹Ø</label>
+                        <label>å…³è”ç½‘å…³</label>
                         <select id="gatewaySelect" name="gateway_id">
-                            <option value="">²»¹ØÁªÍø¹Ø£¨½öÓÊ¼Ä£©</option>
+                            <option value="">ä¸å…³è”ç½‘å…³ï¼ˆä»…é‚®å¯„ï¼‰</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>¿ìµİ¹«Ë¾ *</label>
+                        <label>å¿«é€’å…¬å¸ *</label>
                         <select name="courier_company" required>
-                            <option value="">ÇëÑ¡Ôñ</option>
-                            <option value="Ë³·áËÙÔË">Ë³·áËÙÔË</option>
-                            <option value="ÖĞÍ¨¿ìµİ">ÖĞÍ¨¿ìµİ</option>
-                            <option value="Ô²Í¨ËÙµİ">Ô²Í¨ËÙµİ</option>
-                            <option value="ÔÏ´ï¿ìµİ">ÔÏ´ï¿ìµİ</option>
-                            <option value="ÉêÍ¨¿ìµİ">ÉêÍ¨¿ìµİ</option>
-                            <option value="¼«ÍÃËÙµİ">¼«ÍÃËÙµİ</option>
-                            <option value="¾©¶«ÎïÁ÷">¾©¶«ÎïÁ÷</option>
-                            <option value="ÓÊÕşEMS">ÓÊÕşEMS</option>
-                            <option value="µÂ°îÎïÁ÷">µÂ°îÎïÁ÷</option>
-                            <option value="ÆäËû">ÆäËû</option>
+                            <option value="">è¯·é€‰æ‹©</option>
+                            <option value="é¡ºä¸°é€Ÿè¿">é¡ºä¸°é€Ÿè¿</option>
+                            <option value="ä¸­é€šå¿«é€’">ä¸­é€šå¿«é€’</option>
+                            <option value="åœ†é€šé€Ÿé€’">åœ†é€šé€Ÿé€’</option>
+                            <option value="éŸµè¾¾å¿«é€’">éŸµè¾¾å¿«é€’</option>
+                            <option value="ç”³é€šå¿«é€’">ç”³é€šå¿«é€’</option>
+                            <option value="æå…”é€Ÿé€’">æå…”é€Ÿé€’</option>
+                            <option value="äº¬ä¸œç‰©æµ">äº¬ä¸œç‰©æµ</option>
+                            <option value="é‚®æ”¿EMS">é‚®æ”¿EMS</option>
+                            <option value="å¾·é‚¦ç‰©æµ">å¾·é‚¦ç‰©æµ</option>
+                            <option value="å…¶ä»–">å…¶ä»–</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>¿ìµİµ¥ºÅ *</label>
-                        <input type="text" name="tracking_no" required placeholder="ÇëÊäÈë¿ìµİµ¥ºÅ">
+                        <label>å¿«é€’å•å· *</label>
+                        <input type="text" name="tracking_no" required placeholder="è¯·è¾“å…¥å¿«é€’å•å·">
                     </div>
                     <div class="form-group">
-                        <label>ÓÊ¼ÄÈÕÆÚ *</label>
+                        <label>é‚®å¯„æ—¥æœŸ *</label>
                         <input type="date" name="mailing_date" required>
                     </div>
                     <div class="form-group">
-                        <label>Ô¤¼Æµ½´ïÈÕÆÚ</label>
+                        <label>é¢„è®¡åˆ°è¾¾æ—¥æœŸ</label>
                         <input type="date" name="expected_arrival_date">
                     </div>
                     <div class="form-group">
-                        <label>ÊÕ¼şÈË *</label>
-                        <input type="text" name="recipient_name" required placeholder="ÊÕ¼şÈËĞÕÃû">
+                        <label>æ”¶ä»¶äºº *</label>
+                        <input type="text" name="recipient_name" required placeholder="æ”¶ä»¶äººå§“å">
                     </div>
                     <div class="form-group">
-                        <label>ÊÕ¼şÈËµç»° *</label>
-                        <input type="text" name="recipient_phone" required placeholder="ÊÖ»úºÅÂë">
+                        <label>æ”¶ä»¶äººç”µè¯ *</label>
+                        <input type="text" name="recipient_phone" required placeholder="æ‰‹æœºå·ç ">
                     </div>
                     <div class="form-group">
-                        <label>ÊÕ¼şµØÖ· *</label>
-                        <input type="text" name="recipient_address" required placeholder="ÏêÏ¸ÊÕ¼şµØÖ·">
+                        <label>æ”¶ä»¶åœ°å€ *</label>
+                        <input type="text" name="recipient_address" required placeholder="è¯¦ç»†æ”¶ä»¶åœ°å€">
                     </div>
                     <div class="form-group form-full">
-                        <label>ÓÊ¼ÄÎïÆ·ÃèÊö</label>
-                        <textarea name="item_description" rows="2" placeholder="Èç£ºÍø¹Ø1Ì¨¡¢µçÔ´ÊÊÅäÆ÷1¸ö"></textarea>
+                        <label>é‚®å¯„ç‰©å“æè¿°</label>
+                        <textarea name="item_description" rows="2" placeholder="å¦‚ï¼šç½‘å…³1å°ã€ç”µæºé€‚é…å™¨1ä¸ª"></textarea>
                     </div>
                     <div class="form-group form-full">
-                        <label>±¸×¢</label>
-                        <textarea name="remarks" rows="2" placeholder="¿ÉÑ¡±¸×¢"></textarea>
+                        <label>å¤‡æ³¨</label>
+                        <textarea name="remarks" rows="2" placeholder="å¯é€‰å¤‡æ³¨"></textarea>
                     </div>
                 </div>
                 <div style="margin-top: 20px; display: flex; gap: 12px;">
-                    <button type="submit" class="btn btn-primary">Ìá½»·¢»õ¼ÇÂ¼</button>
-                    <button type="button" class="btn btn-secondary" onclick="hideAddForm()">È¡Ïû</button>
+                    <button type="submit" class="btn btn-primary">æäº¤å‘è´§è®°å½•</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideAddForm()">å–æ¶ˆ</button>
                 </div>
             </form>
         </div>
 
-        <!-- ·¢»õ¼ÇÂ¼ÁĞ±í -->
+        <!-- å‘è´§è®°å½•åˆ—è¡¨ -->
         <div class="card">
-            <h3>·¢»õ¼ÇÂ¼ <span id="recordCount" style="font-weight: normal; color: var(--text-secondary);"></span></h3>
+            <h3>å‘è´§è®°å½• <span id="recordCount" style="font-weight: normal; color: var(--text-secondary);"></span></h3>
             <div id="recordList">
-                <div class="empty-state">ÇëÏÈÑ¡ÔñÏîÄ¿</div>
+                <div class="empty-state">è¯·å…ˆé€‰æ‹©é¡¹ç›®</div>
             </div>
         </div>
 
-        <!-- Á÷³Ì²Ù×÷À¸£¨½ö´ÓÁ÷³Ì½øÈëÊ±ÏÔÊ¾£© -->
+        <!-- æµç¨‹æ“ä½œæ ï¼ˆä»…ä»æµç¨‹è¿›å…¥æ—¶æ˜¾ç¤ºï¼‰ -->
         <div class="flow-action-bar" id="flowActionBar" style="display:none;">
-            <button class="btn btn-secondary" onclick="window.location.href='communication-setup.html'">¡û ·µ»ØÉÏÒ»²½</button>
-            <button class="btn btn-primary" onclick="goToComplete()">Íê³É·¢»õµÇ¼Ç£¬Ìá½» ¡ú</button>
+            <button class="btn btn-secondary" onclick="window.location.href='communication-setup.html'">â† è¿”å›ä¸Šä¸€æ­¥</button>
+            <button class="btn btn-primary" onclick="goToComplete()">å®Œæˆå‘è´§ç™»è®°ï¼Œæäº¤ â†’</button>
         </div>
             </div><!-- content-wrapper -->
         </main>
@@ -202,10 +202,10 @@
             if (isAdmin()) {
                 document.getElementById('addShipmentBtn').style.display = '';
                 document.getElementById('roleHint').querySelector('p').textContent =
-                    '¹ÜÀíÔ±¿ÉÒÔĞÂÔö·¢»õ¼ÇÂ¼¡¢±à¼­ºÍÉ¾³ı¡£¿Í»§½öÄÜ²é¿´¡£';
+                    'ç®¡ç†å‘˜å¯ä»¥æ–°å¢å‘è´§è®°å½•ã€ç¼–è¾‘å’Œåˆ é™¤ã€‚å®¢æˆ·ä»…èƒ½æŸ¥çœ‹ã€‚';
             } else {
                 document.getElementById('roleHint').querySelector('p').textContent =
-                    'Äú¿ÉÒÔÔÚ´Ë²é¿´ÄúÏîÄ¿µÄ·¢»õ¼°ÎïÁ÷×´Ì¬¡£';
+                    'æ‚¨å¯ä»¥åœ¨æ­¤æŸ¥çœ‹æ‚¨é¡¹ç›®çš„å‘è´§åŠç‰©æµçŠ¶æ€ã€‚';
             }
 
             try {
@@ -218,21 +218,21 @@
                     select.appendChild(opt);
                 });
 
-                // Èç¹ûÓĞÉÏÏÂÎÄÏîÄ¿£¬×Ô¶¯Ñ¡ÖĞ
+                // å¦‚æœæœ‰ä¸Šä¸‹æ–‡é¡¹ç›®ï¼Œè‡ªåŠ¨é€‰ä¸­
                 const savedProjId = localStorage.getItem('currentProjectId');
                 if (savedProjId) {
                     select.value = savedProjId;
                     onProjectChange();
                 }
             } catch (e) {
-                console.warn('¼ÓÔØÏîÄ¿ÁĞ±íÊ§°Ü:', e.message);
+                console.warn('åŠ è½½é¡¹ç›®åˆ—è¡¨å¤±è´¥:', e.message);
             }
         }
 
         async function onProjectChange() {
             const projectId = document.getElementById('projectSelect').value;
             if (!projectId) {
-                document.getElementById('recordList').innerHTML = '<div class="empty-state">ÇëÏÈÑ¡ÔñÏîÄ¿</div>';
+                document.getElementById('recordList').innerHTML = '<div class="empty-state">è¯·å…ˆé€‰æ‹©é¡¹ç›®</div>';
                 document.getElementById('recordCount').textContent = '';
                 return;
             }
@@ -247,7 +247,7 @@
                 records = await api.mailing.getRecords(currentProjectId);
                 renderRecords();
             } catch (e) {
-                console.warn('¼ÓÔØ·¢»õ¼ÇÂ¼Ê§°Ü:', e.message);
+                console.warn('åŠ è½½å‘è´§è®°å½•å¤±è´¥:', e.message);
                 records = [];
                 renderRecords();
             }
@@ -257,7 +257,7 @@
             try {
                 const gateways = await api.gateways.getGateways({ project_id: currentProjectId });
                 const select = document.getElementById('gatewaySelect');
-                select.innerHTML = '<option value="">²»¹ØÁªÍø¹Ø£¨½öÓÊ¼Ä£©</option>';
+                select.innerHTML = '<option value="">ä¸å…³è”ç½‘å…³ï¼ˆä»…é‚®å¯„ï¼‰</option>';
                 (gateways || []).forEach(gw => {
                     const opt = document.createElement('option');
                     opt.value = gw.id;
@@ -265,7 +265,7 @@
                     select.appendChild(opt);
                 });
             } catch (e) {
-                console.warn('¼ÓÔØÍø¹ØÁĞ±íÊ§°Ü:', e.message);
+                console.warn('åŠ è½½ç½‘å…³åˆ—è¡¨å¤±è´¥:', e.message);
             }
         }
 
@@ -281,28 +281,28 @@
 
         function renderRecords() {
             const container = document.getElementById('recordList');
-            document.getElementById('recordCount').textContent = `(${records.length}Ìõ)`;
+            document.getElementById('recordCount').textContent = `(${records.length}æ¡)`;
 
             if (!records || records.length === 0) {
-                container.innerHTML = '<div class="empty-state">ÔİÎŞ·¢»õ¼ÇÂ¼</div>';
+                container.innerHTML = '<div class="empty-state">æš‚æ— å‘è´§è®°å½•</div>';
                 return;
             }
 
             const adminActions = isAdmin();
             let html = '<table><thead><tr>';
-            html += '<th>¿ìµİ¹«Ë¾</th><th>¿ìµİµ¥ºÅ</th><th>ÓÊ¼ÄÈÕÆÚ</th><th>Ô¤¼Æµ½´ï</th><th>Êµ¼Êµ½´ï</th>';
-            html += '<th>ÊÕ¼şÈË</th><th>ÎïÆ·</th><th>¿ì½İ¸´ÖÆ</th><th>×´Ì¬</th>';
-            if (adminActions) html += '<th>²Ù×÷</th>';
+            html += '<th>å¿«é€’å…¬å¸</th><th>å¿«é€’å•å·</th><th>é‚®å¯„æ—¥æœŸ</th><th>é¢„è®¡åˆ°è¾¾</th><th>å®é™…åˆ°è¾¾</th>';
+            html += '<th>æ”¶ä»¶äºº</th><th>ç‰©å“</th><th>å¿«æ·å¤åˆ¶</th><th>çŠ¶æ€</th>';
+            if (adminActions) html += '<th>æ“ä½œ</th>';
             html += '</tr></thead><tbody>';
 
             records.forEach(r => {
-                let status = 'ÒÑ·¢»õ';
+                let status = 'å·²å‘è´§';
                 let statusClass = 'status-shipped';
                 if (r.actual_arrival_date) {
-                    status = 'ÒÑÇ©ÊÕ';
+                    status = 'å·²ç­¾æ”¶';
                     statusClass = 'status-arrived';
                 } else if (!r.mailing_date) {
-                    status = '´ı·¢»õ';
+                    status = 'å¾…å‘è´§';
                     statusClass = 'status-pending';
                 }
 
@@ -315,16 +315,16 @@
                 html += `<td>${r.recipient_name || '-'} ${r.recipient_phone ? '(' + r.recipient_phone + ')' : ''}</td>`;
                 html += `<td>${r.item_description || '-'}</td>`;
                 html += `<td><div class="copy-actions">` +
-                    `<button type="button" class="btn-copy primary" onclick="copyShipmentAll(${r.id})" title="¿ìµİ¡¢µ¥ºÅ¡¢ÊÕ¼şĞÅÏ¢Õû¶Î¸´ÖÆ">Ò»¼ü¸´ÖÆ</button>` +
-                    `<button type="button" class="btn-copy" onclick="copyShipmentRecipient(${r.id})" title="ÊÕ¼şÈË¡¢µç»°¡¢µØÖ·¡¢ÎïÆ·">¸´ÖÆÓÊ¼ÄĞÅÏ¢</button>` +
+                    `<button type="button" class="btn-copy primary" onclick="copyShipmentAll(${r.id})" title="å¿«é€’ã€å•å·ã€æ”¶ä»¶ä¿¡æ¯æ•´æ®µå¤åˆ¶">ä¸€é”®å¤åˆ¶</button>` +
+                    `<button type="button" class="btn-copy" onclick="copyShipmentRecipient(${r.id})" title="æ”¶ä»¶äººã€ç”µè¯ã€åœ°å€ã€ç‰©å“">å¤åˆ¶é‚®å¯„ä¿¡æ¯</button>` +
                     `</div></td>`;
                 html += `<td><span class="status-badge ${statusClass}">${status}</span></td>`;
                 if (adminActions) {
                     html += `<td>`;
                     if (!r.actual_arrival_date) {
-                        html += `<button class="btn btn-sm btn-primary" onclick="markArrived(${r.id})" style="margin-right:4px;">È·ÈÏµ½´ï</button>`;
+                        html += `<button class="btn btn-sm btn-primary" onclick="markArrived(${r.id})" style="margin-right:4px;">ç¡®è®¤åˆ°è¾¾</button>`;
                     }
-                    html += `<button class="btn btn-sm btn-danger" onclick="deleteRecord(${r.id})">É¾³ı</button>`;
+                    html += `<button class="btn btn-sm btn-danger" onclick="deleteRecord(${r.id})">åˆ é™¤</button>`;
                     html += `</td>`;
                 }
                 html += '</tr>';
@@ -336,7 +336,7 @@
 
         function showAddForm() {
             if (!currentProjectId) {
-                alert('ÇëÏÈÑ¡ÔñÏîÄ¿');
+                alert('è¯·å…ˆé€‰æ‹©é¡¹ç›®');
                 return;
             }
             document.getElementById('addFormCard').style.display = '';
@@ -365,36 +365,36 @@
 
             try {
                 await api.mailing.createRecord(currentProjectId, data);
-                api.projects.showSuccess('·¢»õ¼ÇÂ¼´´½¨³É¹¦');
+                api.projects.showSuccess('å‘è´§è®°å½•åˆ›å»ºæˆåŠŸ');
                 hideAddForm();
                 form.reset();
                 await loadRecords();
             } catch (e) {
-                console.error('´´½¨·¢»õ¼ÇÂ¼Ê§°Ü:', e.message);
+                console.error('åˆ›å»ºå‘è´§è®°å½•å¤±è´¥:', e.message);
             }
         }
 
         async function markArrived(recordId) {
-            if (!confirm('È·ÈÏ¸ÃÅú´ÎÒÑµ½´ï£¿')) return;
+            if (!confirm('ç¡®è®¤è¯¥æ‰¹æ¬¡å·²åˆ°è¾¾ï¼Ÿ')) return;
             try {
                 await api.mailing.updateRecord(recordId, {
                     actual_arrival_date: new Date().toISOString().split('T')[0]
                 });
-                api.projects.showSuccess('ÒÑ±ê¼Çµ½´ï');
+                api.projects.showSuccess('å·²æ ‡è®°åˆ°è¾¾');
                 await loadRecords();
             } catch (e) {
-                console.error('¸üĞÂÊ§°Ü:', e.message);
+                console.error('æ›´æ–°å¤±è´¥:', e.message);
             }
         }
 
         async function deleteRecord(recordId) {
-            if (!confirm('È·¶¨É¾³ı¸Ã·¢»õ¼ÇÂ¼£¿')) return;
+            if (!confirm('ç¡®å®šåˆ é™¤è¯¥å‘è´§è®°å½•ï¼Ÿ')) return;
             try {
                 await api.mailing.deleteRecord(recordId);
-                api.projects.showSuccess('É¾³ı³É¹¦');
+                api.projects.showSuccess('åˆ é™¤æˆåŠŸ');
                 await loadRecords();
             } catch (e) {
-                console.error('É¾³ıÊ§°Ü:', e.message);
+                console.error('åˆ é™¤å¤±è´¥:', e.message);
             }
         }
 
@@ -406,9 +406,9 @@
             var t = (text == null ? '' : String(text));
             if (!t.trim()) {
                 if (typeof api !== 'undefined' && api.projects && api.projects.showSuccess) {
-                    api.projects.showSuccess('Ã»ÓĞ¿É¸´ÖÆµÄÄÚÈİ');
+                    api.projects.showSuccess('æ²¡æœ‰å¯å¤åˆ¶çš„å†…å®¹');
                 } else {
-                    alert('Ã»ÓĞ¿É¸´ÖÆµÄÄÚÈİ');
+                    alert('æ²¡æœ‰å¯å¤åˆ¶çš„å†…å®¹');
                 }
                 return Promise.resolve(false);
             }
@@ -439,48 +439,48 @@
 
         function notifyCopied(ok, hint) {
             if (typeof api !== 'undefined' && api.projects && api.projects.showSuccess) {
-                api.projects.showSuccess(ok ? (hint || 'ÒÑ¸´ÖÆµ½¼ôÌù°å') : '¸´ÖÆÊ§°Ü£¬ÇëÊÖ¶¯Ñ¡Ôñ¸´ÖÆ');
+                api.projects.showSuccess(ok ? (hint || 'å·²å¤åˆ¶åˆ°å‰ªè´´æ¿') : 'å¤åˆ¶å¤±è´¥ï¼Œè¯·æ‰‹åŠ¨é€‰æ‹©å¤åˆ¶');
             } else {
-                alert(ok ? (hint || 'ÒÑ¸´ÖÆµ½¼ôÌù°å') : '¸´ÖÆÊ§°Ü');
+                alert(ok ? (hint || 'å·²å¤åˆ¶åˆ°å‰ªè´´æ¿') : 'å¤åˆ¶å¤±è´¥');
             }
         }
 
-        /** Ò»¼ü£º¿ìµİ + µ¥ºÅ + ÍêÕûÓÊ¼ÄĞÅÏ¢£¨ÊÊºÏ·¢¸ø¿Í·ş»òÕ³Ìùµ½±¸ÍüÂ¼£© */
+        /** ä¸€é”®ï¼šå¿«é€’ + å•å· + å®Œæ•´é‚®å¯„ä¿¡æ¯ï¼ˆé€‚åˆå‘ç»™å®¢æœæˆ–ç²˜è´´åˆ°å¤‡å¿˜å½•ï¼‰ */
         function formatShipmentAll(r) {
             var lines = [];
-            lines.push('¿ìµİ¹«Ë¾£º' + (r.courier_company || '-'));
-            lines.push('¿ìµİµ¥ºÅ£º' + (r.tracking_no || '-'));
+            lines.push('å¿«é€’å…¬å¸ï¼š' + (r.courier_company || '-'));
+            lines.push('å¿«é€’å•å·ï¼š' + (r.tracking_no || '-'));
             lines.push('---');
-            lines.push('ÊÕ¼şÈË£º' + (r.recipient_name || '-'));
-            lines.push('µç»°£º' + (r.recipient_phone || '-'));
-            lines.push('ÊÕ¼şµØÖ·£º' + (r.recipient_address || '-'));
-            if (r.item_description) lines.push('ÎïÆ·£º' + r.item_description);
-            if (r.mailing_date) lines.push('ÓÊ¼ÄÈÕÆÚ£º' + r.mailing_date);
-            if (r.expected_arrival_date) lines.push('Ô¤¼Æµ½´ï£º' + r.expected_arrival_date);
-            if (r.remarks) lines.push('±¸×¢£º' + r.remarks);
+            lines.push('æ”¶ä»¶äººï¼š' + (r.recipient_name || '-'));
+            lines.push('ç”µè¯ï¼š' + (r.recipient_phone || '-'));
+            lines.push('æ”¶ä»¶åœ°å€ï¼š' + (r.recipient_address || '-'));
+            if (r.item_description) lines.push('ç‰©å“ï¼š' + r.item_description);
+            if (r.mailing_date) lines.push('é‚®å¯„æ—¥æœŸï¼š' + r.mailing_date);
+            if (r.expected_arrival_date) lines.push('é¢„è®¡åˆ°è¾¾ï¼š' + r.expected_arrival_date);
+            if (r.remarks) lines.push('å¤‡æ³¨ï¼š' + r.remarks);
             return lines.join('\n');
         }
 
-        /** ÓÊ¼ÄĞÅÏ¢£ºÊÕ¼şÈË²à£¨º¬µØÖ·£©£¬²»º¬¿ìµİ¹«Ë¾/µ¥ºÅ */
+        /** é‚®å¯„ä¿¡æ¯ï¼šæ”¶ä»¶äººä¾§ï¼ˆå«åœ°å€ï¼‰ï¼Œä¸å«å¿«é€’å…¬å¸/å•å· */
         function formatShipmentRecipient(r) {
             var lines = [];
-            lines.push('ÊÕ¼şÈË£º' + (r.recipient_name || '-'));
-            lines.push('µç»°£º' + (r.recipient_phone || '-'));
-            lines.push('ÊÕ¼şµØÖ·£º' + (r.recipient_address || '-'));
-            if (r.item_description) lines.push('ÎïÆ·£º' + r.item_description);
+            lines.push('æ”¶ä»¶äººï¼š' + (r.recipient_name || '-'));
+            lines.push('ç”µè¯ï¼š' + (r.recipient_phone || '-'));
+            lines.push('æ”¶ä»¶åœ°å€ï¼š' + (r.recipient_address || '-'));
+            if (r.item_description) lines.push('ç‰©å“ï¼š' + r.item_description);
             return lines.join('\n');
         }
 
         function copyShipmentAll(recordId) {
             var r = getRecordById(recordId);
             if (!r) return;
-            copyToClipboard(formatShipmentAll(r)).then(function (ok) { notifyCopied(ok, 'ÒÑ¸´ÖÆÕû¶Î·¢»õĞÅÏ¢'); });
+            copyToClipboard(formatShipmentAll(r)).then(function (ok) { notifyCopied(ok, 'å·²å¤åˆ¶æ•´æ®µå‘è´§ä¿¡æ¯'); });
         }
 
         function copyShipmentRecipient(recordId) {
             var r = getRecordById(recordId);
             if (!r) return;
-            copyToClipboard(formatShipmentRecipient(r)).then(function (ok) { notifyCopied(ok, 'ÒÑ¸´ÖÆÓÊ¼ÄĞÅÏ¢'); });
+            copyToClipboard(formatShipmentRecipient(r)).then(function (ok) { notifyCopied(ok, 'å·²å¤åˆ¶é‚®å¯„ä¿¡æ¯'); });
         }
 
         document.addEventListener('DOMContentLoaded', initPage);

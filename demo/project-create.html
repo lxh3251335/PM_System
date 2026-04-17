@@ -242,7 +242,7 @@
 </head>
 <body>
     <div class="create-container">
-        <!-- 步骤指示�?-->
+        <!-- 步骤指示器 -->
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(1);</script>
@@ -259,8 +259,8 @@
                     <div class="form-section-title">管理员配置：最终用户与业务类型</div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>新增最终用�?/label>
-                            <input type="text" name="config_end_customer" placeholder="例如：盒�?>
+                            <label>新增最终用户</label>
+                            <input type="text" name="config_end_customer" placeholder="例如：盒马">
                         </div>
                         <div class="form-group">
                             <label>新增业务类型</label>
@@ -270,7 +270,7 @@
                     <div class="form-grid full" style="margin-top: 12px;">
                         <div class="form-group">
                             <button type="button" id="addBusinessTypeBtn" class="btn-cancel" style="width: 220px;">新增关联配置</button>
-                            <div class="form-help">仅管理员可新增。客户登录后只能选择管理员已配置的数据�?/div>
+                            <div class="form-help">仅管理员可新增。客户登录后只能选择管理员已配置的数据。</div>
                         </div>
                     </div>
                 </div>
@@ -281,18 +281,18 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>项目名称 <span class="required">*</span></label>
-                            <input type="text" name="name" placeholder="请输入项目名�? required>
-                            <div class="form-help">例如：北京朝阳冷库项�?/div>
+                            <input type="text" name="name" placeholder="请输入项目名称" required>
+                            <div class="form-help">例如：北京朝阳冷库项目</div>
                         </div>
                         <div class="form-group">
-                            <label>最终用�?<span class="required">*</span></label>
+                            <label>最终用户 <span class="required">*</span></label>
                             <select name="end_customer" required>
-                                <option value="">请选择最终用�?/option>
+                                <option value="">请选择最终用户</option>
                                 <option value="盒马">盒马</option>
                                 <option value="美团">美团</option>
                                 <option value="京东">京东</option>
                                 <option value="永辉">永辉</option>
-                                <option value="大润�?>大润�?/option>
+                                <option value="大润发">大润发</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -303,7 +303,7 @@
                         </div>
                         <div class="form-group">
                             <label>城市 <span class="required">*</span></label>
-                            <input type="text" name="city" placeholder="请输入城�? required>
+                            <input type="text" name="city" placeholder="请输入城市" required>
                         </div>
                     </div>
                     <div class="form-grid full" style="margin-top: 20px;">
@@ -323,17 +323,17 @@
                             <select name="contact_profile">
                                 <option value="">新建收件信息</option>
                             </select>
-                            <div class="form-help">支持同一最终用户下快速选择历史收件信息，也可直接新�?/div>
+                            <div class="form-help">支持同一最终用户下快速选择历史收件信息，也可直接新建</div>
                         </div>
                     </div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>收件�?<span class="required">*</span></label>
+                            <label>收件人 <span class="required">*</span></label>
                             <input type="text" name="recipient_name" placeholder="请输入收件人姓名" required>
                         </div>
                         <div class="form-group">
                             <label>联系电话 <span class="required">*</span></label>
-                            <input type="tel" name="recipient_phone" placeholder="请输入联系电�? required>
+                            <input type="tel" name="recipient_phone" placeholder="请输入联系电话" required>
                         </div>
                     </div>
                     <div class="form-grid full" style="margin-top: 20px;">
@@ -374,7 +374,7 @@
                 <!-- 操作按钮 -->
                 <div class="form-actions">
                     <button type="button" class="btn-cancel" onclick="window.location.href='project-list.html'">取消</button>
-                    <button type="submit" class="btn-submit">保存并继�?/button>
+                    <button type="submit" class="btn-submit">保存并继续</button>
                 </div>
             </form>
         </div>
@@ -383,11 +383,11 @@
     <script>
         requireAuth();
         const DEFAULT_CUSTOMER_BUSINESS_TYPE_MAP = {
-            '盒马': ['前置�?, '超盒�?, '盒马奥莱�?, '配送中�?, '中央厨房'],
+            '盒马': ['前置仓', '超盒算', '盒马奥莱店', '配送中心', '中央厨房'],
             '美团': ['美团生鲜零售'],
             '京东': ['京东生鲜零售'],
             '永辉': ['永辉生鲜零售'],
-            '大润�?: ['大润发生鲜零�?]
+            '大润发': ['大润发生鲜零售']
         };
         let customerBusinessTypeMap = { ...DEFAULT_CUSTOMER_BUSINESS_TYPE_MAP };
         const rawUserRole = (localStorage.getItem('userRole') || 'customer').toLowerCase();
@@ -400,7 +400,7 @@
         const isCopyMode = !!copyFromId;
         const isEditMode = !!editId && !isCopyMode;
 
-        // 页面初始�?
+        // 页面初始化
         document.addEventListener('DOMContentLoaded', async function() {
             setDefaultExpectedArrivalMonth();
             toggleAdminConfigSection();
@@ -419,7 +419,7 @@
 
             await loadContactProfiles();
 
-            // 加载项目数据（编辑或复制模式�?
+            // 加载项目数据（编辑或复制模式）
             if (isEditMode || isCopyMode) {
                 await loadProjectData(isCopyMode ? copyFromId : editId, isCopyMode);
             }
@@ -464,7 +464,7 @@
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
-            // date 控件需完整日期，这里默认到本年本月的第一�?
+            // date 控件需完整日期，这里默认到本年本月的第一天
             input.value = `${year}-${month}-01`;
         }
 
@@ -479,7 +479,7 @@
             if (!endCustomerSelect) return;
 
             const customers = Object.keys(customerBusinessTypeMap).sort();
-            endCustomerSelect.innerHTML = '<option value="">请选择最终用�?/option>';
+            endCustomerSelect.innerHTML = '<option value="">请选择最终用户</option>';
 
             customers.forEach(customer => {
                 const option = document.createElement('option');
@@ -680,14 +680,12 @@
                     // 生产模式：调用API
                     if (isEditMode) {
                         result = await api.projects.updateProject(editId, projectData);
-                        api.projects.showSuccess('项目更新成功�?);
+                        api.projects.showSuccess('项目更新成功！');
                     } else if (isCopyMode) {
                         const copyPayload = {
                             new_project_name: projectData.name,
                             copy_cold_rooms: true,
-                            copy_devices: true,
-                            copy_gateways: true,
-                            copy_relations: true,
+                            copy_devices: false,
                             end_customer: projectData.end_customer,
                             business_type: projectData.business_type,
                             city: projectData.city,
@@ -701,10 +699,10 @@
                             copyPayload.expected_arrival_time = projectData.expected_arrival_time;
                         }
                         result = await api.projects.copyProject(copyFromId, copyPayload);
-                        api.projects.showSuccess('项目复制成功�?);
+                        api.projects.showSuccess('项目复制成功！');
                     } else {
                         result = await api.projects.createProject(projectData);
-                        alert('项目创建成功！\n项目编号�? + result.project_no);
+                        alert('项目创建成功！\n项目编号：' + result.project_no);
                     }
                 } else {
                     // 演示模式：保存到localStorage
@@ -717,7 +715,7 @@
                     };
                     
                     localStorage.setItem('currentProject', JSON.stringify(result));
-                    alert('项目' + (isEditMode ? '更新' : '创建') + '成功！\n项目编号�? + result.project_no + '\n\n下一步：创建冷库');
+                    alert('项目' + (isEditMode ? '更新' : '创建') + '成功！\n项目编号：' + result.project_no + '\n\n下一步：创建冷库');
                 }
                 
                 // 保存项目ID用于后续步骤
@@ -726,12 +724,9 @@
                     localStorage.setItem('currentProject', JSON.stringify(result));
                 }
                 
+                // 跳转到冷库创建页面
                 setTimeout(() => {
-                    if (isCopyMode && result && result.id) {
-                        window.location.href = 'project-detail.html?id=' + result.id;
-                    } else {
-                        window.location.href = 'cold-room-create.html';
-                    }
+                    window.location.href = 'cold-room-create.html';
                 }, 1000);
                 
             } catch (error) {

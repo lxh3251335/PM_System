@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>´´½¨Àä¿â - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
+    <title>åˆ›å»ºå†·åº“ - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260417"></script>
+    <script src="assets/js/api.js?v=20260418c"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -304,73 +304,73 @@
 </head>
 <body>
     <div class="create-container">
-        <!-- ²½ÖèÖ¸Ê¾Æ÷ -->
+        <!-- æ­¥éª¤æŒ‡ç¤ºå™¨ -->
         <div class="steps"></div>
         <script src="assets/js/step-nav.js"></script>
         <script>renderStepNav(2);</script>
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
-        <!-- ÏîÄ¿ĞÅÏ¢Õ¹Ê¾ -->
+        <!-- é¡¹ç›®ä¿¡æ¯å±•ç¤º -->
         <div class="project-info-card" id="projectInfoCard">
-            <h3>?? µ±Ç°ÏîÄ¿</h3>
+            <h3>ğŸ“¦ å½“å‰é¡¹ç›®</h3>
             <div class="project-info-grid" id="projectInfo">
-                <!-- ¶¯Ì¬Ìî³ä -->
+                <!-- åŠ¨æ€å¡«å…… -->
             </div>
         </div>
 
         <div class="create-header">
-            <h1>´´½¨Àä¿â</h1>
-            <p>ÎªÏîÄ¿Ìí¼ÓÀä¿â£¬ÏµÍ³½«×Ô¶¯¼ÆËãÈİ»ıºÍÖÆÀä¼ÁÓÃÁ¿</p>
+            <h1>åˆ›å»ºå†·åº“</h1>
+            <p>ä¸ºé¡¹ç›®æ·»åŠ å†·åº“ï¼Œç³»ç»Ÿå°†è‡ªåŠ¨è®¡ç®—å®¹ç§¯å’Œåˆ¶å†·å‰‚ç”¨é‡</p>
         </div>
 
-        <!-- Àä¿â±íµ¥ -->
+        <!-- å†·åº“è¡¨å• -->
         <div class="form-card">
             <form id="coldRoomForm">
-                <div class="form-section-title">Àä¿âĞÅÏ¢</div>
+                <div class="form-section-title">å†·åº“ä¿¡æ¯</div>
                 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Àä¿âÃû³Æ <span class="required">*</span></label>
-                        <input type="text" name="name" id="roomName" placeholder="ÀıÈç£º1ºÅµÍÎÂ¿â" required>
+                        <label>å†·åº“åç§° <span class="required">*</span></label>
+                        <input type="text" name="name" id="roomName" placeholder="ä¾‹å¦‚ï¼š1å·ä½æ¸©åº“" required>
                     </div>
                     <div class="form-group">
-                        <label>Àä¿âÀàĞÍ <span class="required">*</span></label>
+                        <label>å†·åº“ç±»å‹ <span class="required">*</span></label>
                         <select name="room_type" id="roomType" required>
-                            <option value="">ÇëÑ¡ÔñÀä¿â/Àä¹ñÀàĞÍ</option>
-                            <option value="low_temp">µÍÎÂ¿â£¨-18¡æ~-15¡æ£©</option>
-                            <option value="refrigerated">Àä²Ø¿â£¨1¡æ~4¡æ£©</option>
-                            <option value="medium_temp">ÖĞÎÂ¿â£¨8¡æ~10¡æ£©</option>
-                            <option value="low_temp_cabinet">µÍÎÂÀä¹ñ£¨-18¡æ~-15¡æ£©</option>
-                            <option value="medium_temp_cabinet">ÖĞÎÂÀä¹ñ£¨2¡æ~8¡æ£©</option>
+                            <option value="">è¯·é€‰æ‹©å†·åº“/å†·æŸœç±»å‹</option>
+                            <option value="low_temp">ä½æ¸©åº“ï¼ˆ-18â„ƒ~-15â„ƒï¼‰</option>
+                            <option value="refrigerated">å†·è—åº“ï¼ˆ1â„ƒ~4â„ƒï¼‰</option>
+                            <option value="medium_temp">ä¸­æ¸©åº“ï¼ˆ8â„ƒ~10â„ƒï¼‰</option>
+                            <option value="low_temp_cabinet">ä½æ¸©å†·æŸœï¼ˆ-18â„ƒ~-15â„ƒï¼‰</option>
+                            <option value="medium_temp_cabinet">ä¸­æ¸©å†·æŸœï¼ˆ2â„ƒ~8â„ƒï¼‰</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Éè¼ÆÎÂ¶ÈÏÂÏŞ£¨¡æ£© <span class="required">*</span></label>
+                        <label>è®¾è®¡æ¸©åº¦ä¸‹é™ï¼ˆâ„ƒï¼‰ <span class="required">*</span></label>
                         <input type="number" name="design_temp_min" id="tempMin" step="1" required readonly>
-                        <div class="form-help">¸ù¾İÀä¿âÀàĞÍ×Ô¶¯ÉèÖÃ</div>
+                        <div class="form-help">æ ¹æ®å†·åº“ç±»å‹è‡ªåŠ¨è®¾ç½®</div>
                     </div>
                     <div class="form-group">
-                        <label>Éè¼ÆÎÂ¶ÈÉÏÏŞ£¨¡æ£© <span class="required">*</span></label>
+                        <label>è®¾è®¡æ¸©åº¦ä¸Šé™ï¼ˆâ„ƒï¼‰ <span class="required">*</span></label>
                         <input type="number" name="design_temp_max" id="tempMax" step="1" required readonly>
-                        <div class="form-help">¸ù¾İÀä¿âÀàĞÍ×Ô¶¯ÉèÖÃ</div>
+                        <div class="form-help">æ ¹æ®å†·åº“ç±»å‹è‡ªåŠ¨è®¾ç½®</div>
                     </div>
                     <div class="form-group">
-                        <label>Ãæ»ı£¨©O£© <span class="required">*</span></label>
-                        <input type="number" name="area" id="area" step="0.01" placeholder="ÇëÊäÈëÃæ»ı" required>
+                        <label>é¢ç§¯ï¼ˆã¡ï¼‰ <span class="required">*</span></label>
+                        <input type="number" name="area" id="area" step="0.01" placeholder="è¯·è¾“å…¥é¢ç§¯" required>
                     </div>
                     <div class="form-group">
-                        <label>¸ß¶È£¨m£© <span class="required">*</span></label>
-                        <input type="number" name="height" id="height" step="0.01" placeholder="ÇëÊäÈë¸ß¶È" required>
+                        <label>é«˜åº¦ï¼ˆmï¼‰ <span class="required">*</span></label>
+                        <input type="number" name="height" id="height" step="0.01" placeholder="è¯·è¾“å…¥é«˜åº¦" required>
                     </div>
                     <div class="form-group">
-                        <label>Èİ»ı£¨m3£©</label>
-                        <div class="calculated-value" id="volume">Ãæ»ı ¡Á ¸ß¶È = ×Ô¶¯¼ÆËã</div>
-                        <div class="form-help">×Ô¶¯¼ÆËã£ºÃæ»ı ¡Á ¸ß¶È</div>
+                        <label>å®¹ç§¯ï¼ˆmÂ³ï¼‰</label>
+                        <div class="calculated-value" id="volume">é¢ç§¯ Ã— é«˜åº¦ = è‡ªåŠ¨è®¡ç®—</div>
+                        <div class="form-help">è‡ªåŠ¨è®¡ç®—ï¼šé¢ç§¯ Ã— é«˜åº¦</div>
                     </div>
                     <div class="form-group">
-                        <label>ÖÆÀä¼ÁÀàĞÍ <span class="required">*</span></label>
+                        <label>åˆ¶å†·å‰‚ç±»å‹ <span class="required">*</span></label>
                         <select name="refrigerant_type" required>
-                            <option value="">ÇëÑ¡ÔñÖÆÀä¼ÁÀàĞÍ</option>
+                            <option value="">è¯·é€‰æ‹©åˆ¶å†·å‰‚ç±»å‹</option>
                             <option value="R410A">R410A</option>
                             <option value="R404A">R404A</option>
                             <option value="R507">R507</option>
@@ -381,101 +381,101 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="addAnother()">±£´æ²¢¼ÌĞøÌí¼Ó</button>
-                    <button type="submit" class="btn btn-primary">Ìí¼Óµ½ÁĞ±í</button>
+                    <button type="button" class="btn btn-secondary" onclick="addAnother()">ä¿å­˜å¹¶ç»§ç»­æ·»åŠ </button>
+                    <button type="submit" class="btn btn-primary">æ·»åŠ åˆ°åˆ—è¡¨</button>
                 </div>
             </form>
         </div>
 
-        <!-- ÒÑ´´½¨µÄÀä¿âÁĞ±í -->
+        <!-- å·²åˆ›å»ºçš„å†·åº“åˆ—è¡¨ -->
         <div class="form-card" style="margin-top: 24px;">
-            <div class="form-section-title">ÒÑ´´½¨µÄÀä¿â <span style="font-weight: normal; color: var(--text-secondary);" id="roomCount">(0¸ö)</span></div>
+            <div class="form-section-title">å·²åˆ›å»ºçš„å†·åº“ <span style="font-weight: normal; color: var(--text-secondary);" id="roomCount">(0ä¸ª)</span></div>
             <div class="cold-room-list" id="coldRoomList">
                 <p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">
-                    ÔİÎŞÀä¿â£¬ÇëÌí¼ÓµÚÒ»¸öÀä¿â
+                    æš‚æ— å†·åº“ï¼Œè¯·æ·»åŠ ç¬¬ä¸€ä¸ªå†·åº“
                 </p>
             </div>
             
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'">·µ»ØÏîÄ¿ÁĞ±í</button>
-                <button type="button" class="btn btn-success" onclick="continueToDevices()" id="btnContinue" disabled>Íê³ÉÀä¿â´´½¨£¬¼ÌĞøµÇ¼ÇÉè±¸ ¡ú</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='project-list.html'">è¿”å›é¡¹ç›®åˆ—è¡¨</button>
+                <button type="button" class="btn btn-success" onclick="continueToDevices()" id="btnContinue" disabled>å®Œæˆå†·åº“åˆ›å»ºï¼Œç»§ç»­ç™»è®°è®¾å¤‡ â†’</button>
             </div>
         </div>
     </div>
 
     <script>
         requireAuth();
-        // È«¾Ö±äÁ¿
+        // å…¨å±€å˜é‡
         let project = null;
         let coldRooms = [];
         let projectId = null;
 
-        // Ò³Ãæ³õÊ¼»¯
+        // é¡µé¢åˆå§‹åŒ–
         document.addEventListener('DOMContentLoaded', async function() {
             await loadProjectInfo();
             await loadColdRooms();
         });
 
-        // ¼ÓÔØÏîÄ¿ĞÅÏ¢
+        // åŠ è½½é¡¹ç›®ä¿¡æ¯
         async function loadProjectInfo() {
             try {
                 projectId = localStorage.getItem('currentProjectId');
                 if (!projectId) {
-                    alert('Î´ÕÒµ½ÏîÄ¿ĞÅÏ¢£¬ÇëÏÈ´´½¨ÏîÄ¿');
+                    alert('æœªæ‰¾åˆ°é¡¹ç›®ä¿¡æ¯ï¼Œè¯·å…ˆåˆ›å»ºé¡¹ç›®');
                     window.location.href = 'project-create.html';
                     return;
                 }
 
                 if (isProductionMode()) {
-                    // Éú²úÄ£Ê½£º´ÓAPI¼ÓÔØ
+                    // ç”Ÿäº§æ¨¡å¼ï¼šä»APIåŠ è½½
                     project = await api.projects.getProject(projectId);
                 } else {
-                    // ÑİÊ¾Ä£Ê½£º´ÓlocalStorage¼ÓÔØ
+                    // æ¼”ç¤ºæ¨¡å¼ï¼šä»localStorageåŠ è½½
                     project = JSON.parse(localStorage.getItem('currentProject') || '{}');
                 }
 
                 if (!project || !project.id) {
-                    alert('Î´ÕÒµ½ÏîÄ¿ĞÅÏ¢£¬ÇëÏÈ´´½¨ÏîÄ¿');
+                    alert('æœªæ‰¾åˆ°é¡¹ç›®ä¿¡æ¯ï¼Œè¯·å…ˆåˆ›å»ºé¡¹ç›®');
                     window.location.href = 'project-create.html';
                     return;
                 }
 
-                // ÏÔÊ¾ÏîÄ¿ĞÅÏ¢
+                // æ˜¾ç¤ºé¡¹ç›®ä¿¡æ¯
                 document.getElementById('projectInfo').innerHTML = `
-                    <div><strong>ÏîÄ¿±àºÅ£º</strong>${project.project_no || 'N/A'}</div>
-                    <div><strong>ÏîÄ¿Ãû³Æ£º</strong>${project.name || 'N/A'}</div>
-                    <div><strong>×îÖÕÓÃ»§£º</strong>${project.end_customer || 'N/A'}</div>
+                    <div><strong>é¡¹ç›®ç¼–å·ï¼š</strong>${project.project_no || 'N/A'}</div>
+                    <div><strong>é¡¹ç›®åç§°ï¼š</strong>${project.name || 'N/A'}</div>
+                    <div><strong>æœ€ç»ˆç”¨æˆ·ï¼š</strong>${project.end_customer || 'N/A'}</div>
                 `;
             } catch (error) {
-                console.error('¼ÓÔØÏîÄ¿ĞÅÏ¢Ê§°Ü:', error);
-                // ½µ¼¶µ½ÑİÊ¾Ä£Ê½
+                console.error('åŠ è½½é¡¹ç›®ä¿¡æ¯å¤±è´¥:', error);
+                // é™çº§åˆ°æ¼”ç¤ºæ¨¡å¼
                 project = JSON.parse(localStorage.getItem('currentProject') || '{}');
                 if (!project.id) {
-                    alert('Î´ÕÒµ½ÏîÄ¿ĞÅÏ¢£¬ÇëÏÈ´´½¨ÏîÄ¿');
+                    alert('æœªæ‰¾åˆ°é¡¹ç›®ä¿¡æ¯ï¼Œè¯·å…ˆåˆ›å»ºé¡¹ç›®');
                     window.location.href = 'project-create.html';
                 }
             }
         }
 
-        // ¼ÓÔØÀä¿âÁĞ±í
+        // åŠ è½½å†·åº“åˆ—è¡¨
         async function loadColdRooms() {
             try {
                 if (isProductionMode() && projectId) {
-                    // Éú²úÄ£Ê½£º´ÓAPI¼ÓÔØ
+                    // ç”Ÿäº§æ¨¡å¼ï¼šä»APIåŠ è½½
                     coldRooms = await api.projects.getColdRooms(projectId);
                 } else {
-                    // ÑİÊ¾Ä£Ê½£º´ÓlocalStorage¼ÓÔØ
+                    // æ¼”ç¤ºæ¨¡å¼ï¼šä»localStorageåŠ è½½
                     coldRooms = JSON.parse(localStorage.getItem('coldRooms') || '[]');
                 }
                 renderColdRooms();
             } catch (error) {
-                console.error('¼ÓÔØÀä¿âÁĞ±íÊ§°Ü:', error);
+                console.error('åŠ è½½å†·åº“åˆ—è¡¨å¤±è´¥:', error);
                 coldRooms = [];
                 renderColdRooms();
             }
         }
 
-        // Àä¿âÀàĞÍ±ä»¯Ê±×Ô¶¯ÉèÖÃÎÂ¶È
+        // å†·åº“ç±»å‹å˜åŒ–æ—¶è‡ªåŠ¨è®¾ç½®æ¸©åº¦
         const roomTypeSelect = document.getElementById('roomType');
         const tempMinInput = document.getElementById('tempMin');
         const tempMaxInput = document.getElementById('tempMax');
@@ -490,41 +490,41 @@
                     tempMinInput.value = -18;
                     tempMaxInput.value = -15;
                     if (!roomNameInput.value) {
-                        roomNameInput.value = (roomCount + 1) + 'ºÅµÍÎÂ¿â';
+                        roomNameInput.value = (roomCount + 1) + 'å·ä½æ¸©åº“';
                     }
                     break;
                 case 'refrigerated':
                     tempMinInput.value = 1;
                     tempMaxInput.value = 4;
                     if (!roomNameInput.value) {
-                        roomNameInput.value = (roomCount + 1) + 'ºÅÀä²Ø¿â';
+                        roomNameInput.value = (roomCount + 1) + 'å·å†·è—åº“';
                     }
                     break;
                 case 'medium_temp':
                     tempMinInput.value = 8;
                     tempMaxInput.value = 10;
                     if (!roomNameInput.value) {
-                        roomNameInput.value = (roomCount + 1) + 'ºÅÖĞÎÂ¿â';
+                        roomNameInput.value = (roomCount + 1) + 'å·ä¸­æ¸©åº“';
                     }
                     break;
                 case 'low_temp_cabinet':
                     tempMinInput.value = -18;
                     tempMaxInput.value = -15;
                     if (!roomNameInput.value) {
-                        roomNameInput.value = (roomCount + 1) + 'ºÅµÍÎÂÀä¹ñ';
+                        roomNameInput.value = (roomCount + 1) + 'å·ä½æ¸©å†·æŸœ';
                     }
                     break;
                 case 'medium_temp_cabinet':
                     tempMinInput.value = 2;
                     tempMaxInput.value = 8;
                     if (!roomNameInput.value) {
-                        roomNameInput.value = (roomCount + 1) + 'ºÅÖĞÎÂÀä¹ñ';
+                        roomNameInput.value = (roomCount + 1) + 'å·ä¸­æ¸©å†·æŸœ';
                     }
                     break;
             }
         });
 
-        // ¼ÆËãÈİ»ı
+        // è®¡ç®—å®¹ç§¯
         const areaInput = document.getElementById('area');
         const heightInput = document.getElementById('height');
         const volumeDiv = document.getElementById('volume');
@@ -535,10 +535,10 @@
             const volume = area * height;
             
             if (area > 0 && height > 0) {
-                volumeDiv.textContent = `${volume.toFixed(2)} m3`;
+                volumeDiv.textContent = `${volume.toFixed(2)} mÂ³`;
                 volumeDiv.style.color = 'var(--primary-color)';
             } else {
-                volumeDiv.textContent = 'Ãæ»ı ¡Á ¸ß¶È = ×Ô¶¯¼ÆËã';
+                volumeDiv.textContent = 'é¢ç§¯ Ã— é«˜åº¦ = è‡ªåŠ¨è®¡ç®—';
                 volumeDiv.style.color = '#999';
             }
         }
@@ -546,7 +546,7 @@
         areaInput.addEventListener('input', calculateVolume);
         heightInput.addEventListener('input', calculateVolume);
 
-        // ±£´æÀä¿â
+        // ä¿å­˜å†·åº“
         document.getElementById('coldRoomForm').addEventListener('submit', function(e) {
             e.preventDefault();
             saveColdRoom(false);
@@ -582,7 +582,7 @@
                             } catch (e) {
                                 coldRooms[idx] = { ...coldRooms[idx], ...coldRoomData };
                             }
-                            api.projects.showSuccess('Àä¿âĞŞ¸Ä³É¹¦£¡');
+                            api.projects.showSuccess('å†·åº“ä¿®æ”¹æˆåŠŸï¼');
                         } else {
                             coldRooms[idx] = { ...coldRooms[idx], ...coldRoomData };
                             localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
@@ -590,13 +590,13 @@
                     }
                     editingRoomId = null;
                     const submitBtn = document.getElementById('coldRoomForm').querySelector('button[type="submit"]');
-                    submitBtn.textContent = 'Ìí¼Óµ½ÁĞ±í';
+                    submitBtn.textContent = 'æ·»åŠ åˆ°åˆ—è¡¨';
                     submitBtn.style.background = '';
                 } else {
                     if (isProductionMode() && projectId) {
                         const result = await api.projects.createColdRoom(projectId, coldRoomData);
                         coldRooms.push(result);
-                        api.projects.showSuccess('Àä¿âÌí¼Ó³É¹¦£¡');
+                        api.projects.showSuccess('å†·åº“æ·»åŠ æˆåŠŸï¼');
                     } else {
                         coldRoomData.id = Date.now();
                         coldRooms.push(coldRoomData);
@@ -604,37 +604,22 @@
                     }
                 }
                 
-                var keepType = '';
-                var keepRefrigerant = '';
-                if (continueAdding) {
-                    keepType = document.getElementById('roomType').value;
-                    keepRefrigerant = document.querySelector('select[name="refrigerant_type"]').value;
-                }
-
                 document.getElementById('coldRoomForm').reset();
                 document.getElementById('roomName').value = '';
-                document.getElementById('volume').textContent = 'Ãæ»ı x ¸ß¶È = ×Ô¶¯¼ÆËã';
-
-                if (continueAdding && keepType) {
-                    document.getElementById('roomType').value = keepType;
-                    document.getElementById('roomType').dispatchEvent(new Event('change'));
-                    if (keepRefrigerant) {
-                        document.querySelector('select[name="refrigerant_type"]').value = keepRefrigerant;
-                    }
-                }
-
+                document.getElementById('volume').textContent = 'é¢ç§¯ x é«˜åº¦ = è‡ªåŠ¨è®¡ç®—';
+                
                 renderColdRooms();
                 
             } catch (error) {
-                console.error('±£´æÀä¿âÊ§°Ü:', error);
-                api.projects.showError('±£´æÀä¿âÊ§°Ü: ' + error.message);
+                console.error('ä¿å­˜å†·åº“å¤±è´¥:', error);
+                api.projects.showError('ä¿å­˜å†·åº“å¤±è´¥: ' + error.message);
             }
         }
 
         let editingRoomId = null;
 
         function editColdRoom(id) {
-            const room = coldRooms.find(r => String(r.id) === String(id));
+            const room = coldRooms.find(r => r.id === id);
             if (!room) return;
 
             editingRoomId = id;
@@ -651,7 +636,7 @@
             document.querySelector('.form-section-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.textContent = '±£´æĞŞ¸Ä';
+            submitBtn.textContent = 'ä¿å­˜ä¿®æ”¹';
             submitBtn.style.background = '#faad14';
         }
 
@@ -659,16 +644,16 @@
             saveColdRoom(true);
         }
 
-        // äÖÈ¾Àä¿âÁĞ±í
+        // æ¸²æŸ“å†·åº“åˆ—è¡¨
         function renderColdRooms() {
             const listDiv = document.getElementById('coldRoomList');
             const countSpan = document.getElementById('roomCount');
             const btnContinue = document.getElementById('btnContinue');
             
-            countSpan.textContent = `(${coldRooms.length}¸ö)`;
+            countSpan.textContent = `(${coldRooms.length}ä¸ª)`;
             
             if (coldRooms.length === 0) {
-                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">ÔİÎŞÀä¿â£¬ÇëÌí¼ÓµÚÒ»¸öÀä¿â</p>';
+                listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px 0;">æš‚æ— å†·åº“ï¼Œè¯·æ·»åŠ ç¬¬ä¸€ä¸ªå†·åº“</p>';
                 btnContinue.disabled = true;
             } else {
                 listDiv.innerHTML = coldRooms.map(room => `
@@ -676,17 +661,17 @@
                         <div class="cold-room-item-info">
                             <h4>${room.name}</h4>
                             <div class="cold-room-item-details">
-                                ÀàĞÍ£º${getRoomTypeName(room.room_type)} | 
-                                ÎÂ¶È£º${room.design_temp_min}&#8451;~${room.design_temp_max}&#8451; | 
-                                Ãæ»ı£º${room.area}&#13217; | 
-                                ¸ß¶È£º${room.height}m | 
-                                Èİ»ı£º${room.volume}m&#179; | 
-                                ÖÆÀä¼Á£º${room.refrigerant_type}
+                                ç±»å‹ï¼š${getRoomTypeName(room.room_type)} | 
+                                æ¸©åº¦ï¼š${room.design_temp_min}&#8451;~${room.design_temp_max}&#8451; | 
+                                é¢ç§¯ï¼š${room.area}&#13217; | 
+                                é«˜åº¦ï¼š${room.height}m | 
+                                å®¹ç§¯ï¼š${room.volume}m&#179; | 
+                                åˆ¶å†·å‰‚ï¼š${room.refrigerant_type}
                             </div>
                         </div>
                         <div class="cold-room-item-actions">
-                            <button onclick="editColdRoom(${room.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">±à¼­</button>
-                            <button onclick="deleteColdRoom(${room.id})" class="delete">É¾³ı</button>
+                            <button onclick="editColdRoom(${room.id})" style="background:#e6f7ff;color:var(--primary-color);border:1px solid #91d5ff;padding:6px 16px;border-radius:4px;cursor:pointer;margin-right:8px;">ç¼–è¾‘</button>
+                            <button onclick="deleteColdRoom(${room.id})" class="delete">åˆ é™¤</button>
                         </div>
                     </div>
                 `).join('');
@@ -696,26 +681,24 @@
 
         function getRoomTypeName(type) {
             const names = {
-                'low_temp': 'µÍÎÂ¿â',
-                'refrigerated': 'Àä²Ø¿â',
-                'medium_temp': 'ÖĞÎÂ¿â',
-                'low_temp_cabinet': 'µÍÎÂÀä¹ñ',
-                'medium_temp_cabinet': 'ÖĞÎÂÀä¹ñ'
+                'low_temp': 'ä½æ¸©åº“',
+                'refrigerated': 'å†·è—åº“',
+                'medium_temp': 'ä¸­æ¸©åº“'
             };
             return names[type] || type;
         }
 
         async function deleteColdRoom(id) {
-            if (!confirm('È·¶¨ÒªÉ¾³ıÕâ¸öÀä¿âÂğ£¿')) {
+            if (!confirm('ç¡®å®šè¦åˆ é™¤è¿™ä¸ªå†·åº“å—ï¼Ÿ')) {
                 return;
             }
             
             try {
                 if (isProductionMode() && projectId) {
                     await api.projects.deleteColdRoom(projectId, id);
-                    api.projects.showSuccess('Àä¿âÉ¾³ı³É¹¦£¡');
+                    api.projects.showSuccess('å†·åº“åˆ é™¤æˆåŠŸï¼');
                 } else {
-                    api.projects.showSuccess('Àä¿âÒÑÉ¾³ı');
+                    api.projects.showSuccess('å†·åº“å·²åˆ é™¤');
                 }
 
                 coldRooms = coldRooms.filter(room => String(room.id) !== String(id));
@@ -724,20 +707,20 @@
                 }
                 renderColdRooms();
             } catch (error) {
-                console.error('É¾³ıÀä¿âÊ§°Ü:', error);
-                api.projects.showError('É¾³ıÀä¿âÊ§°Ü: ' + (error.message || String(error)));
+                console.error('åˆ é™¤å†·åº“å¤±è´¥:', error);
+                api.projects.showError('åˆ é™¤å†·åº“å¤±è´¥: ' + (error.message || String(error)));
             }
         }
 
         function continueToDevices() {
             if (coldRooms.length === 0) {
-                alert('ÇëÖÁÉÙÌí¼ÓÒ»¸öÀä¿â');
+                alert('è¯·è‡³å°‘æ·»åŠ ä¸€ä¸ªå†·åº“');
                 return;
             }
             window.location.href = 'device-register.html';
         }
 
-        // ³õÊ¼»¯äÖÈ¾
+        // åˆå§‹åŒ–æ¸²æŸ“
         renderColdRooms();
     </script>
 </body>

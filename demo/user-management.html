@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÓÃ»§¹ÜÀí - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
+    <title>ç”¨æˆ·ç®¡ç† - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260417"></script>
+    <script src="assets/js/api.js?v=20260418c"></script>
     <style>
         .page-container { max-width: 1200px; margin: 24px auto; width: calc(100% - 32px); }
         .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
@@ -37,87 +37,87 @@
     <div class="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">??</div>
-                <span class="brand-name">Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</span>
+                <div class="logo">ğŸ“¦</div>
+                <span class="brand-name">å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</span>
             </div>
             <nav class="sidebar-nav">
                 <a href="project-list.html" class="nav-item">
-                    <span class="nav-icon">??</span>
-                    <span>ÏîÄ¿¹ÜÀí</span>
+                    <span class="nav-icon">ğŸ“‹</span>
+                    <span>é¡¹ç›®ç®¡ç†</span>
                 </a>
                 <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">??</span>
-                    <span>Éè±¸¹ÜÀí</span>
+                    <span class="nav-icon">ğŸ”§</span>
+                    <span>è®¾å¤‡ç®¡ç†</span>
                 </a>
                 <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">??</span>
-                    <span>Íø¹ØÅäÖÃ</span>
+                    <span class="nav-icon">ğŸ“¡</span>
+                    <span>ç½‘å…³é…ç½®</span>
                 </a>
                 <a href="business-options.html" class="nav-item" id="navBusinessOptions">
-                    <span class="nav-icon">??</span>
-                    <span>ÒµÎñÀàĞÍÅäÖÃ</span>
+                    <span class="nav-icon">âš™ï¸</span>
+                    <span>ä¸šåŠ¡ç±»å‹é…ç½®</span>
                 </a>
                 <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
-                    <span class="nav-icon">??</span>
-                    <span>Éè±¸ÅäÖÃ¹ÜÀí</span>
+                    <span class="nav-icon">ğŸ§©</span>
+                    <span>è®¾å¤‡é…ç½®ç®¡ç†</span>
                 </a>
                 <a href="user-management.html" class="nav-item active" id="navUserManagement">
-                    <span class="nav-icon">??</span>
-                    <span>ÓÃ»§¹ÜÀí</span>
+                    <span class="nav-icon">ğŸ‘¥</span>
+                    <span>ç”¨æˆ·ç®¡ç†</span>
                 </a>
                 <a href="index.html" class="nav-item">
-                    <span class="nav-icon">??</span>
-                    <span>²úÆ·ÃÅ»§</span>
+                    <span class="nav-icon">ğŸ </span>
+                    <span>äº§å“é—¨æˆ·</span>
                 </a>
             </nav>
         </aside>
 
         <main class="main-content" id="mainContent">
             <header class="top-bar">
-                <h1>ÓÃ»§¹ÜÀí</h1>
+                <h1>ç”¨æˆ·ç®¡ç†</h1>
                 <div class="user-menu">
-                    <span class="user-name" id="userDisplayName">?? ¿Í»§</span>
-                    <button class="btn-logout" onclick="window.location.href='index.html'">ÍË³ö</button>
+                    <span class="user-name" id="userDisplayName">ğŸ‘¤ å®¢æˆ·</span>
+                    <button class="btn-logout" onclick="window.location.href='index.html'">é€€å‡º</button>
                 </div>
             </header>
 
             <div class="content-wrapper page-container">
-                <div id="noAccessTip" class="no-access" style="display: none;">½ö¹ÜÀíÔ±¿ÉĞÂÔöÕËºÅ¡£</div>
+                <div id="noAccessTip" class="no-access" style="display: none;">ä»…ç®¡ç†å‘˜å¯æ–°å¢è´¦å·ã€‚</div>
 
                 <div class="card">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>ÓÃ»§Ãû</label>
-                            <input type="text" id="usernameInput" placeholder="ÀıÈç£ºcustomer002">
+                            <label>ç”¨æˆ·å</label>
+                            <input type="text" id="usernameInput" placeholder="ä¾‹å¦‚ï¼šcustomer002">
                         </div>
                         <div class="form-group">
-                            <label>ÃÜÂë</label>
-                            <input type="password" id="passwordInput" placeholder="ÖÁÉÙ6Î»">
+                            <label>å¯†ç </label>
+                            <input type="password" id="passwordInput" placeholder="è‡³å°‘6ä½">
                         </div>
                         <div class="form-group">
-                            <label>ÆóÒµÃû³Æ</label>
-                            <input type="text" id="companyInput" placeholder="ÀıÈç£ºÄÏ¾©XXÀäÁ´ÓĞÏŞ¹«Ë¾">
+                            <label>ä¼ä¸šåç§°</label>
+                            <input type="text" id="companyInput" placeholder="ä¾‹å¦‚ï¼šå—äº¬XXå†·é“¾æœ‰é™å…¬å¸">
                         </div>
                         <div class="form-group">
-                            <label>½ÇÉ«</label>
+                            <label>è§’è‰²</label>
                             <select id="roleInput">
-                                <option value="customer">¿Í»§</option>
-                                <option value="admin">¹ÜÀíÔ±</option>
+                                <option value="customer">å®¢æˆ·</option>
+                                <option value="admin">ç®¡ç†å‘˜</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>×´Ì¬</label>
+                            <label>çŠ¶æ€</label>
                             <select id="activeInput">
-                                <option value="true">ÆôÓÃ</option>
-                                <option value="false">Í£ÓÃ</option>
+                                <option value="true">å¯ç”¨</option>
+                                <option value="false">åœç”¨</option>
                             </select>
                         </div>
-                        <button class="btn-primary" id="createUserBtn">ĞÂÔöÕËºÅ</button>
+                        <button class="btn-primary" id="createUserBtn">æ–°å¢è´¦å·</button>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3 style="margin-bottom: 12px;">ÕËºÅÁĞ±í</h3>
+                    <h3 style="margin-bottom: 12px;">è´¦å·åˆ—è¡¨</h3>
                     <div class="table-wrapper" id="userListContainer"></div>
                 </div>
             </div>
@@ -132,7 +132,7 @@
         const passwordCache = {};
 
         function initUserContext() {
-            const roleText = role === 'admin' ? '¹ÜÀíÔ±' : '¿Í»§';
+            const roleText = role === 'admin' ? 'ç®¡ç†å‘˜' : 'å®¢æˆ·';
             const displayEl = document.getElementById('userDisplayName');
             if (displayEl) {
                 displayEl.textContent = `${roleText}${username ? ' - ' + username : ''}`;
@@ -150,7 +150,7 @@
 
         function roleBadge(roleValue) {
             const value = (roleValue || '').toLowerCase();
-            const text = value === 'admin' ? '¹ÜÀíÔ±' : '¿Í»§';
+            const text = value === 'admin' ? 'ç®¡ç†å‘˜' : 'å®¢æˆ·';
             return `<span class="badge-role ${value === 'admin' ? 'admin' : 'customer'}">${text}</span>`;
         }
 
@@ -160,7 +160,7 @@
                 const list = await api.users.getUsers(role);
                 currentUsers = list || [];
                 if (!list || list.length === 0) {
-                    container.innerHTML = '<div class="empty">ÔİÎŞÕËºÅ</div>';
+                    container.innerHTML = '<div class="empty">æš‚æ— è´¦å·</div>';
                     return;
                 }
 
@@ -168,13 +168,13 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>ĞòºÅ</th>
-                                <th>ÓÃ»§Ãû</th>
-                                <th>ÆóÒµÃû³Æ</th>
-                                <th>½ÇÉ«</th>
-                                <th>×´Ì¬</th>
-                                <th>´´½¨Ê±¼ä</th>
-                                <th>²Ù×÷</th>
+                                <th>åºå·</th>
+                                <th>ç”¨æˆ·å</th>
+                                <th>ä¼ä¸šåç§°</th>
+                                <th>è§’è‰²</th>
+                                <th>çŠ¶æ€</th>
+                                <th>åˆ›å»ºæ—¶é—´</th>
+                                <th>æ“ä½œ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -184,14 +184,14 @@
                                     <td>${item.username}</td>
                                     <td>${item.company_name || '-'}</td>
                                     <td>${roleBadge(item.role)}</td>
-                                    <td>${item.is_active ? 'ÆôÓÃ' : 'Í£ÓÃ'}</td>
+                                    <td>${item.is_active ? 'å¯ç”¨' : 'åœç”¨'}</td>
                                     <td>${item.created_at ? new Date(item.created_at).toLocaleString('zh-CN') : '-'}</td>
                                     <td>
                                         ${role === 'admin' ? `
-                                            <span class="action-link" onclick="copyUserInfo(${item.id})">¸´ÖÆ</span>
-                                            <span class="action-link" onclick="showEditUser(${item.id})">±à¼­</span>
-                                            <span class="action-link" onclick="toggleUserActive(${item.id}, ${item.is_active})">${item.is_active ? 'Í£ÓÃ' : 'ÆôÓÃ'}</span>
-                                            <span class="action-link danger" onclick="deleteUser(${item.id})">É¾³ı</span>
+                                            <span class="action-link" onclick="copyUserInfo(${item.id})">å¤åˆ¶</span>
+                                            <span class="action-link" onclick="showEditUser(${item.id})">ç¼–è¾‘</span>
+                                            <span class="action-link" onclick="toggleUserActive(${item.id}, ${item.is_active})">${item.is_active ? 'åœç”¨' : 'å¯ç”¨'}</span>
+                                            <span class="action-link danger" onclick="deleteUser(${item.id})">åˆ é™¤</span>
                                         ` : '-'}
                                     </td>
                                 </tr>
@@ -200,7 +200,7 @@
                     </table>
                 `;
             } catch (error) {
-                container.innerHTML = `<div class="empty">¼ÓÔØÊ§°Ü£º${error.message}</div>`;
+                container.innerHTML = `<div class="empty">åŠ è½½å¤±è´¥ï¼š${error.message}</div>`;
             }
         }
 
@@ -213,7 +213,7 @@
             const activeValue = document.getElementById('activeInput').value === 'true';
 
             if (!usernameValue || !passwordValue) {
-                api.projects.showError('ÇëÊäÈëÓÃ»§ÃûºÍÃÜÂë');
+                api.projects.showError('è¯·è¾“å…¥ç”¨æˆ·åå’Œå¯†ç ');
                 return;
             }
 
@@ -225,7 +225,7 @@
                     role: roleValue,
                     is_active: activeValue
                 }, role);
-                api.projects.showSuccess('ÕËºÅ´´½¨³É¹¦');
+                api.projects.showSuccess('è´¦å·åˆ›å»ºæˆåŠŸ');
                 passwordCache[usernameValue] = passwordValue;
 
                 const newUser = {
@@ -256,13 +256,13 @@
             const target = currentUsers.find(item => item.id === userId);
             if (!target) return;
 
-            const actionText = currentActive ? 'Í£ÓÃ' : 'ÆôÓÃ';
-            const confirmed = confirm(`È·¶¨Òª${actionText}ÕËºÅ ${target.username} Âğ£¿`);
+            const actionText = currentActive ? 'åœç”¨' : 'å¯ç”¨';
+            const confirmed = confirm(`ç¡®å®šè¦${actionText}è´¦å· ${target.username} å—ï¼Ÿ`);
             if (!confirmed) return;
 
             try {
                 await api.users.updateUser(userId, { is_active: !currentActive }, role);
-                api.projects.showSuccess(`${actionText}³É¹¦`);
+                api.projects.showSuccess(`${actionText}æˆåŠŸ`);
                 await loadUsers();
             } catch (error) {
                 api.projects.showError(error.message);
@@ -274,12 +274,12 @@
             const target = currentUsers.find(item => item.id === userId);
             if (!target) return;
 
-            const confirmed = confirm(`È·¶¨É¾³ıÕËºÅ ${target.username} Âğ£¿`);
+            const confirmed = confirm(`ç¡®å®šåˆ é™¤è´¦å· ${target.username} å—ï¼Ÿ`);
             if (!confirmed) return;
 
             try {
                 await api.users.deleteUser(userId, role);
-                api.projects.showSuccess('É¾³ı³É¹¦');
+                api.projects.showSuccess('åˆ é™¤æˆåŠŸ');
                 await loadUsers();
             } catch (error) {
                 api.projects.showError(error.message);
@@ -299,32 +299,32 @@
             modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
             modal.innerHTML = `
                 <div style="background:white;border-radius:8px;padding:32px;width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
-                    <h3 style="margin:0 0 20px 0;">±à¼­ÓÃ»§ - ${user.username}</h3>
+                    <h3 style="margin:0 0 20px 0;">ç¼–è¾‘ç”¨æˆ· - ${user.username}</h3>
                     <div style="margin-bottom:16px;">
-                        <label style="display:block;font-size:14px;margin-bottom:4px;">ÆóÒµÃû³Æ</label>
-                        <input type="text" id="editCompany" value="${user.company_name || ''}" placeholder="ÆóÒµÃû³Æ" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">ä¼ä¸šåç§°</label>
+                        <input type="text" id="editCompany" value="${user.company_name || ''}" placeholder="ä¼ä¸šåç§°" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
                     </div>
                     <div style="margin-bottom:16px;">
-                        <label style="display:block;font-size:14px;margin-bottom:4px;">ĞÂÃÜÂë£¨Áô¿Õ²»ĞŞ¸Ä£©</label>
-                        <input type="password" id="editPassword" placeholder="ÖÁÉÙ6Î»" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">æ–°å¯†ç ï¼ˆç•™ç©ºä¸ä¿®æ”¹ï¼‰</label>
+                        <input type="password" id="editPassword" placeholder="è‡³å°‘6ä½" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
                     </div>
                     <div style="margin-bottom:16px;">
-                        <label style="display:block;font-size:14px;margin-bottom:4px;">½ÇÉ«</label>
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">è§’è‰²</label>
                         <select id="editRole" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
-                            <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>¿Í»§</option>
-                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>¹ÜÀíÔ±</option>
+                            <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>å®¢æˆ·</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ç®¡ç†å‘˜</option>
                         </select>
                     </div>
                     <div style="margin-bottom:20px;">
-                        <label style="display:block;font-size:14px;margin-bottom:4px;">×´Ì¬</label>
+                        <label style="display:block;font-size:14px;margin-bottom:4px;">çŠ¶æ€</label>
                         <select id="editActive" style="width:100%;padding:10px;border:1px solid #d9d9d9;border-radius:4px;">
-                            <option value="true" ${user.is_active ? 'selected' : ''}>ÆôÓÃ</option>
-                            <option value="false" ${!user.is_active ? 'selected' : ''}>Í£ÓÃ</option>
+                            <option value="true" ${user.is_active ? 'selected' : ''}>å¯ç”¨</option>
+                            <option value="false" ${!user.is_active ? 'selected' : ''}>åœç”¨</option>
                         </select>
                     </div>
                     <div style="display:flex;gap:12px;justify-content:flex-end;">
-                        <button class="btn-primary" onclick="saveEditUser(${userId})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;">±£´æ</button>
-                        <button onclick="document.getElementById('editUserModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;">È¡Ïû</button>
+                        <button class="btn-primary" onclick="saveEditUser(${userId})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;">ä¿å­˜</button>
+                        <button onclick="document.getElementById('editUserModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;">å–æ¶ˆ</button>
                     </div>
                 </div>
             `;
@@ -340,7 +340,7 @@
             const payload = { company_name: companyValue, role: roleValue, is_active: activeValue };
             if (password) {
                 if (password.length < 6) {
-                    api.projects.showError('ÃÜÂëÖÁÉÙ6Î»');
+                    api.projects.showError('å¯†ç è‡³å°‘6ä½');
                     return;
                 }
                 payload.password = password;
@@ -352,7 +352,7 @@
                     const target = currentUsers.find(u => u.id === userId);
                     if (target) passwordCache[target.username] = password;
                 }
-                api.projects.showSuccess('ÓÃ»§ĞÅÏ¢¸üĞÂ³É¹¦');
+                api.projects.showSuccess('ç”¨æˆ·ä¿¡æ¯æ›´æ–°æˆåŠŸ');
                 document.getElementById('editUserModal').remove();
                 await loadUsers();
             } catch (error) {
@@ -363,23 +363,23 @@
         function showCopyToast(msg) {
             const toast = document.createElement('div');
             toast.className = 'copy-toast';
-            toast.textContent = msg || 'ÒÑ¸´ÖÆµ½¼ôÌù°å';
+            toast.textContent = msg || 'å·²å¤åˆ¶åˆ°å‰ªè´´æ¿';
             document.body.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 2000);
         }
 
         function formatUserInfoText(user, password) {
-            const roleText = (user.role || '').toLowerCase() === 'admin' ? '¹ÜÀíÔ±' : '¿Í»§';
-            const statusText = user.is_active ? 'ÆôÓÃ' : 'Í£ÓÃ';
+            const roleText = (user.role || '').toLowerCase() === 'admin' ? 'ç®¡ç†å‘˜' : 'å®¢æˆ·';
+            const statusText = user.is_active ? 'å¯ç”¨' : 'åœç”¨';
             const createdAt = user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '-';
             let lines = [
-                '--- ÕËºÅĞÅÏ¢ ---',
-                'ÓÃ»§Ãû: ' + (user.username || '-'),
-                'ÃÜÂë: ' + (password || '(ÇëÁªÏµ¹ÜÀíÔ±»ñÈ¡)'),
-                'ÆóÒµÃû³Æ: ' + (user.company_name || '-'),
-                '½ÇÉ«: ' + roleText,
-                '×´Ì¬: ' + statusText,
-                '´´½¨Ê±¼ä: ' + createdAt
+                '--- è´¦å·ä¿¡æ¯ ---',
+                'ç”¨æˆ·å: ' + (user.username || '-'),
+                'å¯†ç : ' + (password || '(è¯·è”ç³»ç®¡ç†å‘˜è·å–)'),
+                'ä¼ä¸šåç§°: ' + (user.company_name || '-'),
+                'è§’è‰²: ' + roleText,
+                'çŠ¶æ€: ' + statusText,
+                'åˆ›å»ºæ—¶é—´: ' + createdAt
             ];
             return lines.join('\n');
         }
@@ -406,7 +406,7 @@
             const cachedPwd = passwordCache[user.username];
             if (cachedPwd) {
                 const text = formatUserInfoText(user, cachedPwd);
-                copyToClipboard(text).then(() => showCopyToast('ÕËºÅĞÅÏ¢ÒÑ¸´ÖÆµ½¼ôÌù°å'));
+                copyToClipboard(text).then(() => showCopyToast('è´¦å·ä¿¡æ¯å·²å¤åˆ¶åˆ°å‰ªè´´æ¿'));
             } else {
                 showPasswordInputForCopy(user);
             }
@@ -421,15 +421,15 @@
             modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000;';
             modal.innerHTML = `
                 <div style="background:white;border-radius:8px;padding:28px;width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
-                    <h3 style="margin:0 0 12px 0;">¸´ÖÆÕËºÅĞÅÏ¢ - ${user.username}</h3>
-                    <p style="margin:0 0 12px 0;font-size:13px;color:#666;">ÇëÊäÈë¸ÃÓÃ»§µÄÃÜÂë£¨ÏµÍ³²»´æ´¢Ã÷ÎÄÃÜÂë£¬ĞèÊÖ¶¯ÌîĞ´£©£º</p>
-                    <input type="text" id="copyPwdInput" placeholder="ÊäÈëÃÜÂë" style="width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;margin-bottom:16px;">
+                    <h3 style="margin:0 0 12px 0;">å¤åˆ¶è´¦å·ä¿¡æ¯ - ${user.username}</h3>
+                    <p style="margin:0 0 12px 0;font-size:13px;color:#666;">è¯·è¾“å…¥è¯¥ç”¨æˆ·çš„å¯†ç ï¼ˆç³»ç»Ÿä¸å­˜å‚¨æ˜æ–‡å¯†ç ï¼Œéœ€æ‰‹åŠ¨å¡«å†™ï¼‰ï¼š</p>
+                    <input type="text" id="copyPwdInput" placeholder="è¾“å…¥å¯†ç " style="width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:4px;font-size:14px;margin-bottom:16px;">
                     <div id="copyPreviewArea" style="display:none;margin-bottom:16px;">
                         <textarea id="copyPreviewText" readonly style="width:100%;height:150px;padding:12px;border:1px solid #d9d9d9;border-radius:4px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;background:#fafafa;color:#333;"></textarea>
                     </div>
                     <div style="display:flex;gap:10px;justify-content:flex-end;">
-                        <button onclick="doCopyWithPwd(${user.id})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">¸´ÖÆ</button>
-                        <button onclick="document.getElementById('pwdCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">È¡Ïû</button>
+                        <button onclick="doCopyWithPwd(${user.id})" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">å¤åˆ¶</button>
+                        <button onclick="document.getElementById('pwdCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">å–æ¶ˆ</button>
                     </div>
                 </div>
             `;
@@ -442,10 +442,10 @@
             if (!user) return;
             const pwd = document.getElementById('copyPwdInput').value;
             if (pwd) passwordCache[user.username] = pwd;
-            const text = formatUserInfoText(user, pwd || '(Î´ÌîĞ´)');
+            const text = formatUserInfoText(user, pwd || '(æœªå¡«å†™)');
             copyToClipboard(text).then(() => {
                 document.getElementById('pwdCopyModal').remove();
-                showCopyToast('ÕËºÅĞÅÏ¢ÒÑ¸´ÖÆµ½¼ôÌù°å');
+                showCopyToast('è´¦å·ä¿¡æ¯å·²å¤åˆ¶åˆ°å‰ªè´´æ¿');
             });
         }
 
@@ -459,12 +459,12 @@
             modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000;';
             modal.innerHTML = `
                 <div style="background:white;border-radius:8px;padding:28px;width:460px;box-shadow:0 8px 24px rgba(0,0,0,0.2);">
-                    <h3 style="margin:0 0 8px 0; color:#52c41a;">ÕËºÅ´´½¨³É¹¦</h3>
-                    <p style="margin:0 0 16px 0; font-size:13px; color:#666;">ÒÔÏÂĞÅÏ¢°üº¬ÃÜÂë£¬¿ÉÖ±½Ó¸´ÖÆ·¢ËÍ¸øÓÃ»§£º</p>
+                    <h3 style="margin:0 0 8px 0; color:#52c41a;">è´¦å·åˆ›å»ºæˆåŠŸ</h3>
+                    <p style="margin:0 0 16px 0; font-size:13px; color:#666;">ä»¥ä¸‹ä¿¡æ¯åŒ…å«å¯†ç ï¼Œå¯ç›´æ¥å¤åˆ¶å‘é€ç»™ç”¨æˆ·ï¼š</p>
                     <textarea id="newUserInfoText" readonly style="width:100%;height:160px;padding:12px;border:1px solid #d9d9d9;border-radius:4px;font-family:monospace;font-size:13px;line-height:1.6;resize:none;background:#fafafa;color:#333;">${text}</textarea>
                     <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;">
-                        <button onclick="copyNewUserInfo()" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">¸´ÖÆĞÅÏ¢</button>
-                        <button onclick="document.getElementById('newUserCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">¹Ø±Õ</button>
+                        <button onclick="copyNewUserInfo()" style="padding:10px 24px;border:none;border-radius:4px;cursor:pointer;background:#1890ff;color:white;font-size:14px;">å¤åˆ¶ä¿¡æ¯</button>
+                        <button onclick="document.getElementById('newUserCopyModal').remove()" style="padding:10px 24px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:white;font-size:14px;">å…³é—­</button>
                     </div>
                 </div>
             `;
@@ -474,7 +474,7 @@
         function copyNewUserInfo() {
             const ta = document.getElementById('newUserInfoText');
             if (!ta) return;
-            copyToClipboard(ta.value).then(() => showCopyToast('ÕËºÅĞÅÏ¢£¨º¬ÃÜÂë£©ÒÑ¸´ÖÆµ½¼ôÌù°å'));
+            copyToClipboard(ta.value).then(() => showCopyToast('è´¦å·ä¿¡æ¯ï¼ˆå«å¯†ç ï¼‰å·²å¤åˆ¶åˆ°å‰ªè´´æ¿'));
         }
 
         document.addEventListener('DOMContentLoaded', async function() {

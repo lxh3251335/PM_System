@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Íø¹ØÅäÖÃ - Àä¿âÏîÄ¿ĞÅÏ¢¹ÜÀíÏµÍ³</title>
+    <title>ç½‘å…³é…ç½® - å†·åº“é¡¹ç›®ä¿¡æ¯ç®¡ç†ç³»ç»Ÿ</title>
     <link rel="stylesheet" href="assets/css/app.css">
     <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260417"></script>
+    <script src="assets/js/api.js?v=20260418c"></script>
     <style>
         .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; }
         .card h3 { margin: 0 0 16px 0; }
@@ -41,35 +41,35 @@
         <aside class="sidebar" id="sidebar"></aside>
         <main class="main-content">
             <header class="top-bar">
-                <h1>Íø¹Ø¶Ë¿ÚÅäÖÃ</h1>
+                <h1>ç½‘å…³ç«¯å£é…ç½®</h1>
                 <div class="user-menu"></div>
             </header>
             <div class="content-wrapper">
 
         <div class="card">
             <div class="filter-bar">
-                <label style="font-weight:500;">Ñ¡ÔñÏîÄ¿£º</label>
+                <label style="font-weight:500;">é€‰æ‹©é¡¹ç›®ï¼š</label>
                 <select id="projectSelect" onchange="onProjectChange()">
-                    <option value="">-- ÇëÑ¡Ôñ --</option>
+                    <option value="">-- è¯·é€‰æ‹© --</option>
                 </select>
-                <label style="font-weight:500; margin-left: 16px;">Ñ¡ÔñÍø¹Ø£º</label>
+                <label style="font-weight:500; margin-left: 16px;">é€‰æ‹©ç½‘å…³ï¼š</label>
                 <select id="gatewaySelect" onchange="onGatewayChange()">
-                    <option value="">-- ÇëÏÈÑ¡ÔñÏîÄ¿ --</option>
+                    <option value="">-- è¯·å…ˆé€‰æ‹©é¡¹ç›® --</option>
                 </select>
             </div>
         </div>
 
         <div class="card" id="gatewayInfoCard" style="display: none;">
-            <h3>Íø¹ØĞÅÏ¢</h3>
+            <h3>ç½‘å…³ä¿¡æ¯</h3>
             <div class="info-grid" id="gatewayInfo"></div>
         </div>
 
         <div class="card" id="portConfigCard" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0;">¶Ë¿ÚÅäÖÃ</h3>
-                <button class="btn-success btn-sm" id="autoAssignBtn" onclick="autoAssign()" style="display:none;">×Ô¶¯·ÖÅäµØÖ·</button>
+                <h3 style="margin: 0;">ç«¯å£é…ç½®</h3>
+                <button class="btn-success btn-sm" id="autoAssignBtn" onclick="autoAssign()" style="display:none;">è‡ªåŠ¨åˆ†é…åœ°å€</button>
             </div>
-            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 4px;">ÂÌÉ« = ÒÑ·ÖÅä£¬»ÒÉ« = Î´·ÖÅä¡£½ö¹ÜÀíÔ±¿É²Ù×÷¡£</p>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 4px;">ç»¿è‰² = å·²åˆ†é…ï¼Œç°è‰² = æœªåˆ†é…ã€‚ä»…ç®¡ç†å‘˜å¯æ“ä½œã€‚</p>
             <div class="port-grid" id="portGrid"></div>
         </div>
 
@@ -108,22 +108,22 @@
                     onProjectChange();
                 }
             } catch (e) {
-                console.warn('¼ÓÔØÏîÄ¿ÁĞ±íÊ§°Ü:', e.message);
+                console.warn('åŠ è½½é¡¹ç›®åˆ—è¡¨å¤±è´¥:', e.message);
             }
         }
 
         async function onProjectChange() {
             currentProjectId = document.getElementById('projectSelect').value;
             const gwSel = document.getElementById('gatewaySelect');
-            gwSel.innerHTML = '<option value="">-- ¼ÓÔØÖĞ --</option>';
+            gwSel.innerHTML = '<option value="">-- åŠ è½½ä¸­ --</option>';
             document.getElementById('gatewayInfoCard').style.display = 'none';
             document.getElementById('portConfigCard').style.display = 'none';
 
-            if (!currentProjectId) { gwSel.innerHTML = '<option value="">-- ÇëÏÈÑ¡ÔñÏîÄ¿ --</option>'; return; }
+            if (!currentProjectId) { gwSel.innerHTML = '<option value="">-- è¯·å…ˆé€‰æ‹©é¡¹ç›® --</option>'; return; }
 
             try {
                 const gateways = await api.gateways.getGateways({ project_id: currentProjectId });
-                gwSel.innerHTML = '<option value="">-- ÇëÑ¡ÔñÍø¹Ø --</option>';
+                gwSel.innerHTML = '<option value="">-- è¯·é€‰æ‹©ç½‘å…³ --</option>';
                 (gateways || []).forEach(gw => {
                     const opt = document.createElement('option');
                     opt.value = gw.id;
@@ -132,7 +132,7 @@
                     gwSel.appendChild(opt);
                 });
             } catch (e) {
-                gwSel.innerHTML = '<option value="">¼ÓÔØÊ§°Ü</option>';
+                gwSel.innerHTML = '<option value="">åŠ è½½å¤±è´¥</option>';
             }
 
             try {
@@ -156,12 +156,12 @@
 
             document.getElementById('gatewayInfoCard').style.display = '';
             document.getElementById('gatewayInfo').innerHTML =
-                '<div><strong>±àºÅ£º</strong>' + currentGateway.gateway_no + '</div>' +
-                '<div><strong>Æ·ÅÆĞÍºÅ£º</strong>' + (currentGateway.brand || '-') + ' ' + (currentGateway.model || '') + '</div>' +
-                '<div><strong>¶Ë¿ÚÊı£º</strong>' + (currentGateway.total_ports || 8) + ' ¿Ú</div>' +
-                '<div><strong>SIM¿¨ºÅ£º</strong>' + (currentGateway.sim_card_no || '-') + '</div>' +
-                '<div><strong>IPµØÖ·£º</strong>' + (currentGateway.ip_address || '-') + '</div>' +
-                '<div><strong>MACµØÖ·£º</strong>' + (currentGateway.mac_address || '-') + '</div>';
+                '<div><strong>ç¼–å·ï¼š</strong>' + currentGateway.gateway_no + '</div>' +
+                '<div><strong>å“ç‰Œå‹å·ï¼š</strong>' + (currentGateway.brand || '-') + ' ' + (currentGateway.model || '') + '</div>' +
+                '<div><strong>ç«¯å£æ•°ï¼š</strong>' + (currentGateway.total_ports || 8) + ' å£</div>' +
+                '<div><strong>SIMå¡å·ï¼š</strong>' + (currentGateway.sim_card_no || '-') + '</div>' +
+                '<div><strong>IPåœ°å€ï¼š</strong>' + (currentGateway.ip_address || '-') + '</div>' +
+                '<div><strong>MACåœ°å€ï¼š</strong>' + (currentGateway.mac_address || '-') + '</div>';
 
             document.getElementById('portConfigCard').style.display = '';
             renderPorts();
@@ -200,27 +200,27 @@
                 const a = portAssignments[key];
                 if (a) {
                     html += '<div class="port-card assigned">' +
-                        '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status assigned">ÒÑ·ÖÅä</span></div>' +
+                        '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status assigned">å·²åˆ†é…</span></div>' +
                         '<div class="port-device">' + (a.device_no || '-') + '</div>' +
-                        '<div class="port-address">485µØÖ·: ' + (a.rs485_address || 'Î´ÉèÖÃ') + '</div>' +
+                        '<div class="port-address">485åœ°å€: ' + (a.rs485_address || 'æœªè®¾ç½®') + '</div>' +
                         '<div style="font-size:13px; color:#999;">' + (a.brand || '') + ' ' + (a.model || '') + '</div>' +
-                        (adminMode ? '<button class="btn btn-sm" style="margin-top:8px;" onclick="clearPort(' + i + ')">Çå³ı</button>' : '') +
+                        (adminMode ? '<button class="btn btn-sm" style="margin-top:8px;" onclick="clearPort(' + i + ')">æ¸…é™¤</button>' : '') +
                         '</div>';
                 } else {
                     if (adminMode) {
                         html += '<div class="port-card" id="port_card_' + i + '">' +
-                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">Î´·ÖÅä</span></div>' +
+                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">æœªåˆ†é…</span></div>' +
                             '<div class="assign-form">' +
-                            '<select id="port_device_' + i + '"><option value="">Ñ¡ÔñÉè±¸...</option>' +
+                            '<select id="port_device_' + i + '"><option value="">é€‰æ‹©è®¾å¤‡...</option>' +
                             getUnassignedDeviceOptions() +
                             '</select>' +
-                            '<input type="number" id="port_addr_' + i + '" placeholder="485µØÖ· (1-247)" min="1" max="247">' +
-                            '<button class="btn btn-primary btn-sm" onclick="assignPort(' + i + ')">·ÖÅä</button>' +
+                            '<input type="number" id="port_addr_' + i + '" placeholder="485åœ°å€ (1-247)" min="1" max="247">' +
+                            '<button class="btn btn-primary btn-sm" onclick="assignPort(' + i + ')">åˆ†é…</button>' +
                             '</div></div>';
                     } else {
                         html += '<div class="port-card">' +
-                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">Î´·ÖÅä</span></div>' +
-                            '<div style="color:#999;">´ı¹ÜÀíÔ±ÅäÖÃ</div></div>';
+                            '<div class="port-header"><span class="port-number">Port ' + i + '</span><span class="port-status unassigned">æœªåˆ†é…</span></div>' +
+                            '<div style="color:#999;">å¾…ç®¡ç†å‘˜é…ç½®</div></div>';
                     }
                 }
             }
@@ -239,16 +239,16 @@
             const deviceSel = document.getElementById('port_device_' + portNum);
             const addrInput = document.getElementById('port_addr_' + portNum);
             const deviceId = deviceSel.value;
-            if (!deviceId) { alert('ÇëÑ¡ÔñÉè±¸'); return; }
+            if (!deviceId) { alert('è¯·é€‰æ‹©è®¾å¤‡'); return; }
 
             const addr = addrInput.value ? parseInt(addrInput.value) : null;
-            if (addr && (addr < 1 || addr > 247)) { alert('485µØÖ··¶Î§: 1-247'); return; }
+            if (addr && (addr < 1 || addr > 247)) { alert('485åœ°å€èŒƒå›´: 1-247'); return; }
 
             // Check address conflict
             if (addr) {
                 for (const [k, v] of Object.entries(portAssignments)) {
                     if (v.rs485_address === addr && k !== String(portNum)) {
-                        alert('485µØÖ· ' + addr + ' ÒÑ±» Port ' + k + ' Ê¹ÓÃ');
+                        alert('485åœ°å€ ' + addr + ' å·²è¢« Port ' + k + ' ä½¿ç”¨');
                         return;
                     }
                 }
@@ -274,11 +274,11 @@
                     gateway_port: portNum,
                     rs485_address: addr,
                 });
-            } catch (e) { console.warn('¸üĞÂÉè±¸Íø¹ØĞÅÏ¢Ê§°Ü:', e.message); }
+            } catch (e) { console.warn('æ›´æ–°è®¾å¤‡ç½‘å…³ä¿¡æ¯å¤±è´¥:', e.message); }
         }
 
         function clearPort(portNum) {
-            if (!confirm('Çå³ı Port ' + portNum + ' µÄÅäÖÃ£¿')) return;
+            if (!confirm('æ¸…é™¤ Port ' + portNum + ' çš„é…ç½®ï¼Ÿ')) return;
             const a = portAssignments[String(portNum)];
             if (a && a.device_id) {
                 try {
@@ -287,7 +287,7 @@
                         gateway_port: null,
                         rs485_address: null,
                     });
-                } catch (e) { console.warn('Çå³ıÉè±¸Íø¹ØĞÅÏ¢Ê§°Ü:', e.message); }
+                } catch (e) { console.warn('æ¸…é™¤è®¾å¤‡ç½‘å…³ä¿¡æ¯å¤±è´¥:', e.message); }
             }
             delete portAssignments[String(portNum)];
             savePortAssignments();
@@ -295,7 +295,7 @@
         }
 
         function autoAssign() {
-            if (!currentGateway || !devices.length) { alert('ÇëÏÈÑ¡ÔñÍø¹ØºÍÈ·±£ÓĞÉè±¸'); return; }
+            if (!currentGateway || !devices.length) { alert('è¯·å…ˆé€‰æ‹©ç½‘å…³å’Œç¡®ä¿æœ‰è®¾å¤‡'); return; }
             const totalPorts = currentGateway.total_ports || 8;
             const assignedIds = new Set(Object.values(portAssignments).map(a => a.device_id).filter(Boolean));
             const unassigned = devices.filter(d => !assignedIds.has(d.id));
@@ -332,7 +332,7 @@
 
             savePortAssignments();
             renderPorts();
-            api.projects.showSuccess('×Ô¶¯·ÖÅäÍê³É');
+            api.projects.showSuccess('è‡ªåŠ¨åˆ†é…å®Œæˆ');
         }
 
         function savePortAssignments() {
