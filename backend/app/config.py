@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     
-    # CORS配置（生产环境通过 .env 设置允许的域名）
+    # CORS：默认值宽松；实际以 .env 的 CORS_ORIGINS 为准（须包含前端 Origin，例如 :8080）
     CORS_ORIGINS: List[str] = ["*"]
     
     class Config:

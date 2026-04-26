@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>项目列表 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260331c"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/version-badge.js?v=20260418c"></script>
     <style>
         /* 统计卡片样式 */
@@ -23,6 +23,16 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             border-left: 4px solid var(--primary-color);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+        .stat-card.active {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
         .stat-card.success { border-left-color: var(--success-color); }
         .stat-card.warning { border-left-color: var(--warning-color); }
@@ -384,43 +394,8 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- 侧边栏 -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">📦</div>
-                <span class="brand-name">冷库项目信息管理系统</span>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="project-list.html" class="nav-item active">
-                    <span class="nav-icon">📋</span>
-                    <span>项目管理</span>
-                </a>
-                <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">🔧</span>
-                    <span>设备管理</span>
-                </a>
-                <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">📡</span>
-                    <span>网关配置</span>
-                </a>
-                <a href="business-options.html" class="nav-item" id="navBusinessOptions">
-                    <span class="nav-icon">⚙️</span>
-                    <span>业务类型配置</span>
-                </a>
-                <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
-                    <span class="nav-icon">🧩</span>
-                    <span>设备配置管理</span>
-                </a>
-                <a href="user-management.html" class="nav-item" id="navUserManagement">
-                    <span class="nav-icon">👥</span>
-                    <span>用户管理</span>
-                </a>
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span>产品门户</span>
-                </a>
-            </nav>
-        </aside>
+        <!-- 侧边栏（由 nav.js 动态渲染） -->
+        <aside class="sidebar" id="sidebar"></aside>
 
         <!-- 主内容区 -->
         <main class="main-content" id="mainContent">
@@ -435,21 +410,21 @@
 
             <!-- 内容区域 -->
             <div class="content-wrapper">
-                <!-- 统计卡片 -->
+                <!-- 统计卡片（点击下钻筛选） -->
                 <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card" id="statTotalCard">
+                    <div class="stat-card" id="statTotalCard" onclick="drillDownByStatus('')" title="点击查看全部项目">
                         <div class="stat-label">项目总数</div>
                         <div class="stat-value" id="statTotalValue">0</div>
                     </div>
-                    <div class="stat-card warning" id="statSubmittedCard">
+                    <div class="stat-card warning" id="statSubmittedCard" onclick="drillDownByStatus('submitted,configuring')" title="点击筛选待配置/配置中项目">
                         <div class="stat-label" id="statSubmittedLabel">待配置</div>
                         <div class="stat-value" id="statSubmittedValue">0</div>
                     </div>
-                    <div class="stat-card danger" id="statUnfinishedCard">
+                    <div class="stat-card danger" id="statUnfinishedCard" onclick="drillDownByStatus('unfinished')" title="点击筛选未完成项目">
                         <div class="stat-label">未完成</div>
                         <div class="stat-value" id="statUnfinishedValue">0</div>
                     </div>
-                    <div class="stat-card info" id="statCompletedCard">
+                    <div class="stat-card info" id="statCompletedCard" onclick="drillDownByStatus('completed')" title="点击筛选已完成项目">
                         <div class="stat-label">已完成</div>
                         <div class="stat-value" id="statCompletedValue">0</div>
                     </div>
@@ -674,6 +649,65 @@
                 label.textContent = '待配置';
             } else {
                 label.textContent = '已提交';
+            }
+        }
+
+        // 统计卡片下钻筛选
+        var currentDrillDown = '';
+        function drillDownByStatus(statusKey) {
+            // 清除所有卡片高亮
+            document.querySelectorAll('.stat-card').forEach(function(card) {
+                card.classList.remove('active');
+            });
+            
+            // 如果点击同一个卡片，取消筛选
+            if (currentDrillDown === statusKey) {
+                currentDrillDown = '';
+                document.getElementById('filterStatus').value = '';
+                filterProjects();
+                return;
+            }
+            
+            currentDrillDown = statusKey;
+            
+            // 高亮当前卡片
+            var cardMap = {
+                '': 'statTotalCard',
+                'submitted,configuring': 'statSubmittedCard',
+                'unfinished': 'statUnfinishedCard',
+                'completed': 'statCompletedCard'
+            };
+            var cardId = cardMap[statusKey];
+            if (cardId && statusKey !== '') {
+                document.getElementById(cardId).classList.add('active');
+            }
+            
+            // 执行筛选
+            if (statusKey === '') {
+                // 全部
+                document.getElementById('filterStatus').value = '';
+                filterProjects();
+            } else if (statusKey === 'submitted,configuring') {
+                // 待配置 + 配置中
+                document.getElementById('filterStatus').value = '';
+                filteredProjects = allProjects.filter(function(p) {
+                    var s = p.status || '';
+                    return s === 'submitted' || s === 'configuring';
+                });
+                applySortOrder();
+                renderProjects();
+            } else if (statusKey === 'unfinished') {
+                // 未完成（非 completed）
+                document.getElementById('filterStatus').value = '';
+                filteredProjects = allProjects.filter(function(p) {
+                    return (p.status || '').toLowerCase() !== 'completed';
+                });
+                applySortOrder();
+                renderProjects();
+            } else if (statusKey === 'completed') {
+                // 已完成
+                document.getElementById('filterStatus').value = 'completed';
+                filterProjects();
             }
         }
 
@@ -1464,7 +1498,7 @@
         </div>
     </div>
 
-    <script src="assets/js/nav.js"></script>
+    <script src="assets/js/nav.js?v=20260426b"></script>
     <script src="assets/js/config-home-fab.js?v=20260329"></script>
 </body>
 </html>

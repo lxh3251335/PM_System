@@ -7,11 +7,26 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 
+# 系统预定义的语义类型枚举（前端下拉 + 后端校验）
+SEMANTIC_TYPES = [
+    "air_cooler",        # 冷风机
+    "thermostat",        # 温控器
+    "unit",              # 机组
+    "meter",             # 电表
+    "freezer",           # 冷柜
+    "defrost_controller" # 融霜控制器
+]
+
+
 # ========== 设备类型 (Category) ==========
 
 class EquipmentCategoryBase(BaseModel):
     name: str = Field(..., description="类型名称")
     code: str = Field(..., description="类型编码")
+    semantic_type: Optional[str] = Field(
+        None,
+        description="语义类型（下拉选择），用于系统级映射，同值默认唯一"
+    )
     description: Optional[str] = None
 
 class EquipmentCategoryCreate(EquipmentCategoryBase):
@@ -20,6 +35,7 @@ class EquipmentCategoryCreate(EquipmentCategoryBase):
 class EquipmentCategoryUpdate(BaseModel):
     name: Optional[str] = None
     code: Optional[str] = None
+    semantic_type: Optional[str] = None
     description: Optional[str] = None
 
 class EquipmentCategory(EquipmentCategoryBase):

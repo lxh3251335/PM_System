@@ -416,26 +416,218 @@ code {
 }
 
 /* ========== 响应式 ========== */
-@media (max-width: 768px) {
+
+/* 平板横屏 (1024px 以下) */
+@media (max-width: 1024px) {
     .sidebar {
-        width: 60px;
+        width: 200px;
     }
     
-    .sidebar-header .brand-name,
-    .nav-item span:not(.nav-icon) {
+    .content-wrapper {
+        padding: 20px;
+    }
+    
+    .data-table {
+        font-size: 13px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+    }
+}
+
+/* 平板竖屏 (768px 以下) */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: auto;
+        z-index: 1000;
+        flex-direction: row;
+        padding: 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar-header {
         display: none;
+    }
+    
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0;
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    .nav-item {
+        flex-direction: column;
+        padding: 8px 12px;
+        font-size: 10px;
+        gap: 4px;
+        min-width: 60px;
+        text-align: center;
+    }
+    
+    .nav-icon {
+        font-size: 20px;
+    }
+    
+    .nav-item span:not(.nav-icon) {
+        font-size: 10px;
+        white-space: nowrap;
+    }
+    
+    .nav-group-label {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding-bottom: 70px; /* 底部导航栏高度 */
     }
     
     .content-wrapper {
         padding: 16px;
     }
     
+    .top-bar {
+        padding: 12px 16px;
+    }
+    
+    .top-bar h1 {
+        font-size: 16px;
+    }
+    
     .search-row {
         flex-direction: column;
+        gap: 12px;
     }
     
     .search-input, .filter-select {
         width: 100%;
+    }
+    
+    /* 表格响应式：水平滚动 */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table {
+        min-width: 600px;
+    }
+    
+    /* 卡片视图 */
+    .project-card {
+        flex-direction: column;
+    }
+    
+    .project-card-info {
+        width: 100%;
+    }
+    
+    .project-card-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* 筛选栏 */
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-bar > * {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+    
+    /* 按钮组 */
+    .btn-group {
+        flex-wrap: wrap;
+    }
+    
+    /* 表单 */
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* 步骤条 */
+    .steps {
+        overflow-x: auto;
+        padding: 0 10px;
+    }
+    
+    .step {
+        min-width: 80px;
+    }
+    
+    .step-title {
+        font-size: 11px;
+    }
+}
+
+/* 手机 (480px 以下) */
+@media (max-width: 480px) {
+    .content-wrapper {
+        padding: 12px;
+    }
+    
+    .card {
+        padding: 16px;
+        border-radius: 8px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    /* 隐藏部分导航项 */
+    .sidebar-nav .nav-item:nth-child(n+6) {
+        display: none;
+    }
+    
+    /* 模态框全屏 */
+    .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .modal-body {
+        max-height: calc(100vh - 120px);
+    }
+    
+    /* 表格紧凑模式 */
+    .data-table th,
+    .data-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    /* 隐藏次要列 */
+    .data-table .hide-mobile {
+        display: none;
     }
 }
 

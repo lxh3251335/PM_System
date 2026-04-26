@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>业务类型配置 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .page-container { max-width: 1320px; margin: 24px auto; width: calc(100% - 32px); }
@@ -32,42 +32,8 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">📦</div>
-                <span class="brand-name">冷库项目信息管理系统</span>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="project-list.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span>项目管理</span>
-                </a>
-                <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">🔧</span>
-                    <span>设备管理</span>
-                </a>
-                <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">📡</span>
-                    <span>网关配置</span>
-                </a>
-                <a href="business-options.html" class="nav-item active" id="navBusinessOptions">
-                    <span class="nav-icon">⚙️</span>
-                    <span>业务类型配置</span>
-                </a>
-                <a href="equipment-config.html" class="nav-item" id="navEquipmentConfig">
-                    <span class="nav-icon">🧩</span>
-                    <span>设备配置管理</span>
-                </a>
-                <a href="user-management.html" class="nav-item" id="navUserManagement">
-                    <span class="nav-icon">👥</span>
-                    <span>用户管理</span>
-                </a>
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span>产品门户</span>
-                </a>
-            </nav>
-        </aside>
+        <!-- 侧边栏（由 nav.js 动态渲染） -->
+        <aside class="sidebar" id="sidebar"></aside>
 
         <main class="main-content" id="mainContent">
             <header class="top-bar">
@@ -366,7 +332,7 @@
             await loadOptions();
         });
     </script>
-    <script src="assets/js/nav.js"></script>
+    <script src="assets/js/nav.js?v=20260426b"></script>
     <script src="assets/js/config-home-fab.js?v=20260329"></script>
 </body>
 </html>

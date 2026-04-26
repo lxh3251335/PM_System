@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>设备配置管理 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/version-badge.js?v=20260418c"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
@@ -129,43 +129,8 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">📦</div>
-                <span class="brand-name">冷库项目信息管理系统</span>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="project-list.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span>项目管理</span>
-                </a>
-                <a href="device-management.html" class="nav-item">
-                    <span class="nav-icon">🔧</span>
-                    <span>设备管理</span>
-                </a>
-                <a href="gateway-config.html" class="nav-item">
-                    <span class="nav-icon">📡</span>
-                    <span>网关配置</span>
-                </a>
-                <a href="business-options.html" class="nav-item" id="navBusinessOptions">
-                    <span class="nav-icon">⚙️</span>
-                    <span>业务类型配置</span>
-                </a>
-                <a href="equipment-config.html" class="nav-item active" id="navEquipmentConfig">
-                    <span class="nav-icon">🧩</span>
-                    <span>设备配置管理</span>
-                </a>
-                <a href="user-management.html" class="nav-item" id="navUserManagement">
-                    <span class="nav-icon">👥</span>
-                    <span>用户管理</span>
-                </a>
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span>产品门户</span>
-                </a>
-            </nav>
-        </aside>
+        <!-- Sidebar（由 nav.js 动态渲染） -->
+        <aside class="sidebar" id="sidebar"></aside>
 
         <main class="main-content">
             <header class="top-bar">
@@ -181,19 +146,25 @@
                     <div class="tabs-nav" style="padding: 0 24px; margin: 0; background: #fff; border-bottom: 1px solid var(--line);">
                         <button class="tab-btn active" onclick="switchTab('category')">1. 设备类型 (Admin)</button>
                         <button class="tab-btn" onclick="switchTab('brand')">2. 品牌与模板</button>
-                        <button class="tab-btn" onclick="switchTab('model')">3. 型号数据</button>
+                        <button class="tab-btn" onclick="switchTab('model')">3. 设备型号</button>
                         <button class="tab-btn" onclick="switchTab('gateway')">4. 网关型号管理</button>
                     </div>
 
                     <div style="padding: 24px;">
                         <!-- Tab 1: Category Management -->
                         <div id="categoryTab" class="tab-pane active">
-                            <div class="form-grid cols-auto" style="margin-bottom: 24px; align-items: end;">
-                                <div class="form-group" style="width: 240px;">
+                            <div class="form-grid" style="margin-bottom: 24px; align-items: end; grid-template-columns: 200px 200px 280px auto;">
+                                <div class="form-group">
                                     <label>类型名称</label>
                                     <input id="catName" class="form-control" placeholder="如：温湿度传感器" oninput="onCatNameInput()">
                                 </div>
-                                <div class="form-group" style="width: 320px;">
+                                <div class="form-group">
+                                    <label>语义类型 <span style="color:#f5222d;">*</span></label>
+                                    <select id="catSemanticType" class="form-control">
+                                        <option value="">请选择</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label style="display:flex; align-items:center; justify-content:space-between;">
                                         <span>类型编码 (英文)</span>
                                         <label style="font-size:12px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; cursor:pointer; font-weight:normal;">
@@ -216,7 +187,7 @@
                             </div>
                             <div class="table-container">
                                 <table class="data-table">
-                                    <thead><tr><th>ID</th><th>名称</th><th>编码</th><th>说明</th><th style="text-align:right">操作</th></tr></thead>
+                                    <thead><tr><th style="width:50px;text-align:center">ID</th><th style="width:140px">名称</th><th style="width:120px;text-align:center">语义类型</th><th style="width:180px">编码</th><th style="width:150px">说明</th><th style="width:100px;text-align:center;white-space:nowrap">操作</th></tr></thead>
                                     <tbody id="catTableBody"></tbody>
                                 </table>
                             </div>
@@ -307,6 +278,11 @@
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label>类型名称</label>
                     <input id="editCatName" class="form-control" placeholder="类型名称">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>语义类型</label>
+                    <select id="editCatSemanticType" class="form-control"></select>
+                    <span style="font-size:11px; color:var(--text-secondary);">同语义类型默认唯一</span>
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label>类型编码 (英文)</label>
@@ -460,10 +436,40 @@
             if (displayEl) displayEl.innerText = `${roleText} ${username}`;
             
             // Initial Load
+            await loadSemanticTypes();
             await loadCategories();
             await loadBrands();
             switchTab('category');
         });
+
+        // --- 语义类型枚举 ---
+        let SEMANTIC_TYPES = [];
+        const SEMANTIC_TYPE_LABELS = {
+            'air_cooler': '冷风机',
+            'thermostat': '温控器',
+            'unit': '机组',
+            'meter': '电表',
+            'freezer': '冷柜',
+            'defrost_controller': '融霜控制器'
+        };
+
+        async function loadSemanticTypes() {
+            try {
+                SEMANTIC_TYPES = await api.equipment.get('/equipment-library/semantic-types') || [];
+            } catch(e) {
+                console.warn('获取语义类型失败, 使用默认值', e);
+                SEMANTIC_TYPES = Object.keys(SEMANTIC_TYPE_LABELS);
+            }
+            renderSemanticTypeSelects();
+        }
+
+        function renderSemanticTypeSelects() {
+            const opts = '<option value="">请选择</option>' + SEMANTIC_TYPES.map(t =>
+                `<option value="${t}">${SEMANTIC_TYPE_LABELS[t] || t}</option>`
+            ).join('');
+            document.getElementById('catSemanticType').innerHTML = opts;
+            document.getElementById('editCatSemanticType').innerHTML = opts;
+        }
 
         // --- 1. Category Logic ---
         async function loadCategories() {
@@ -473,7 +479,7 @@
                 updateSelects();
             } catch(e) { 
                 console.error('加载设备类型失败:', e);
-                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:24px;">加载失败: ' + e.message + '</td></tr>';
+                document.getElementById('catTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:24px;">加载失败: ' + e.message + '</td></tr>';
             }
         }
 
@@ -511,12 +517,15 @@
         async function addCategory() {
             const name = document.getElementById('catName').value.trim();
             const code = document.getElementById('catCode').value.trim();
+            const semantic_type = document.getElementById('catSemanticType').value || null;
             if(!name || !code) return alert('请填写类型名称和编码');
+            if(!semantic_type) return alert('请选择语义类型（用于系统级映射，同语义类型只能有一个分类）');
             
             try {
-                await api.equipment.post('/equipment-library/categories', { name, code });
+                await api.equipment.post('/equipment-library/categories', { name, code, semantic_type });
                 document.getElementById('catName').value = '';
                 document.getElementById('catCode').value = '';
+                document.getElementById('catSemanticType').value = '';
                 await loadCategories();
             } catch(e) {
                 alert('添加失败: ' + e.message);
@@ -536,6 +545,7 @@
             if (!cat) return;
             document.getElementById('editCatId').value = cat.id;
             document.getElementById('editCatName').value = cat.name;
+            document.getElementById('editCatSemanticType').value = cat.semantic_type || '';
             document.getElementById('editCatCode').value = cat.code;
             document.getElementById('editCatDesc').value = cat.description || '';
             document.getElementById('catEditModal').classList.add('open');
@@ -544,12 +554,13 @@
         async function saveEditCategory() {
             const id = document.getElementById('editCatId').value;
             const name = document.getElementById('editCatName').value.trim();
+            const semantic_type = document.getElementById('editCatSemanticType').value || null;
             const code = document.getElementById('editCatCode').value.trim();
             const description = document.getElementById('editCatDesc').value.trim();
             if (!name || !code) return alert('名称和编码不能为空');
 
             try {
-                await api.equipment.put('/equipment-library/categories/' + id, { name, code, description: description || null });
+                await api.equipment.put('/equipment-library/categories/' + id, { name, code, semantic_type, description: description || null });
                 closeModal('catEditModal');
                 await loadCategories();
             } catch(e) {
@@ -561,13 +572,14 @@
             const tbody = document.getElementById('catTableBody');
             tbody.innerHTML = state.categories.map(c => `
                 <tr>
-                    <td>${c.id}</td>
+                    <td style="text-align:center">${c.id}</td>
                     <td style="font-weight:600">${c.name}</td>
+                    <td style="text-align:center"><span class="badge" style="background:#e6f7ff;border-color:#91d5ff;color:#1890ff;">${SEMANTIC_TYPE_LABELS[c.semantic_type] || c.semantic_type || '-'}</span></td>
                     <td><span class="badge">${c.code}</span></td>
-                    <td style="color:var(--text-secondary); font-size:13px;">${c.description || '-'}</td>
-                    <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary-color)" onclick="openEditCategory(${c.id})">✎ 编辑</button>
-                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteCategory(${c.id})">🗑</button>
+                    <td style="color:var(--text-secondary);font-size:13px;">${c.description || '-'}</td>
+                    <td style="text-align:center;white-space:nowrap">
+                        <a href="javascript:void(0)" style="color:var(--primary-color);margin-right:8px" onclick="openEditCategory(${c.id})">编辑</a>
+                        <a href="javascript:void(0)" style="color:var(--danger-color)" onclick="deleteCategory(${c.id})">删除</a>
                     </td>
                 </tr>
             `).join('');
@@ -596,9 +608,9 @@
                     <td style="font-weight:600">${b.name}</td>
                     <td>${cat ? cat.name : '-'}</td>
                     <td><span class="badge">${fieldCount} 个字段</span></td>
-                    <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary)" onclick="editBrand(${b.id})">✎ 编辑</button>
-                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteBrand(${b.id})">🗑</button>
+                    <td style="text-align:center;white-space:nowrap">
+                        <a href="javascript:void(0)" style="color:var(--primary-color);margin-right:8px" onclick="editBrand(${b.id})">编辑</a>
+                        <a href="javascript:void(0)" style="color:var(--danger-color)" onclick="deleteBrand(${b.id})">删除</a>
                     </td>
                 </tr>
             `}).join('');
@@ -725,14 +737,16 @@
                     <td style="font-weight:600">${m.model_name}</td>
                     <td>${brand ? brand.name : '-'}</td>
                     <td style="color:var(--text-sub); font-size:12px;">${specStr || '-'}</td>
-                    <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--danger)" onclick="deleteModel(${m.id})">🗑</button>
+                    <td style="text-align:center;white-space:nowrap">
+                        <a href="javascript:void(0)" style="color:var(--primary-color);margin-right:8px" onclick="editModel(${m.id})">编辑</a>
+                        <a href="javascript:void(0)" style="color:var(--danger-color)" onclick="deleteModel(${m.id})">删除</a>
                     </td>
                 </tr>
             `}).join('');
         }
 
         function openModelModal() {
+            editingModelId = null;
             const brandId = document.getElementById('modelFilterBrand').value;
             if(!brandId) return alert('请先在左上角选择一个品牌，以便加载对应模板');
             
@@ -776,16 +790,63 @@
             });
 
             try {
-                await api.equipment.createModel({
-                    brand_id: parseInt(brandId),
-                    model_name: name,
-                    specifications: specs
-                });
+                if (editingModelId) {
+                    await api.equipment.updateModel(editingModelId, {
+                        brand_id: parseInt(brandId),
+                        model_name: name,
+                        specifications: specs
+                    });
+                } else {
+                    await api.equipment.createModel({
+                        brand_id: parseInt(brandId),
+                        model_name: name,
+                        specifications: specs
+                    });
+                }
+                editingModelId = null;
                 closeModal('modelModal');
                 loadModels();
             } catch(e) {
                 alert('保存失败: ' + e.message);
             }
+        }
+        
+        var editingModelId = null;
+        
+        function editModel(id) {
+            const model = state.models.find(m => m.id === id);
+            if (!model) return alert('未找到型号数据');
+            
+            const brand = state.brands.find(b => b.id === model.brand_id);
+            if (!brand) return alert('未找到品牌数据');
+            
+            editingModelId = id;
+            document.getElementById('modalModelBrand').innerHTML = `<option value="${brand.id}">${brand.name}</option>`;
+            document.getElementById('modalModelName').value = model.model_name;
+            
+            const container = document.getElementById('dynamicFormArea');
+            container.innerHTML = '';
+            
+            if (brand.spec_template && brand.spec_template.length > 0) {
+                brand.spec_template.forEach(field => {
+                    const div = document.createElement('div');
+                    div.className = 'form-group';
+                    const value = model.specifications ? (model.specifications[field.key] || '') : '';
+                    let inputHtml = '';
+                    if (field.type === 'select') {
+                        const opts = field.options.map(o => `<option value="${o}" ${o === value ? 'selected' : ''}>${o}</option>`).join('');
+                        inputHtml = `<select class="form-control d-input" data-key="${field.key}">${opts}</select>`;
+                    } else {
+                        inputHtml = `<input class="form-control d-input" data-key="${field.key}" value="${value}" placeholder="请输入">`;
+                    }
+                    div.innerHTML = `<label>${field.label}</label>${inputHtml}`;
+                    container.appendChild(div);
+                });
+            } else {
+                container.innerHTML = '<div style="color:#94a3b8; grid-column:span 2; padding: 20px; text-align:center; background:#f8fafc; border-radius:8px;">该品牌未定义参数模板。</div>';
+            }
+            
+            document.getElementById('modelModal').classList.add('open');
         }
         
         async function deleteModel(id) {
@@ -806,7 +867,7 @@
         }
         
         function updateModelBrandSelect() {
-            const opts = '<option value="">请选择品牌...</option>' + state.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            const opts = '<option value="">全部品牌</option>' + state.brands.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
             document.getElementById('modelFilterBrand').innerHTML = opts;
             if(currentBrandId) document.getElementById('modelFilterBrand').value = currentBrandId;
         }
@@ -863,9 +924,9 @@
                         <span style="color:var(--primary-color);font-weight:600">${m.total_count || 0}</span>
                         / <span style="color:var(--success-color)">${m.in_stock_count || 0}</span>
                     </td>
-                    <td style="text-align:right">
-                        <button class="btn-icon" style="color:var(--primary-color)" onclick="editGwModel(${m.id})">✎</button>
-                        <button class="btn-icon" style="color:var(--danger-color)" onclick="deleteGwModel(${m.id})">🗑</button>
+                    <td style="text-align:center;white-space:nowrap">
+                        <a href="javascript:void(0)" style="color:var(--primary-color);margin-right:8px" onclick="editGwModel(${m.id})">编辑</a>
+                        <a href="javascript:void(0)" style="color:var(--danger-color)" onclick="deleteGwModel(${m.id})">删除</a>
                     </td>
                 </tr>`;
             }).join('');
@@ -1082,7 +1143,43 @@
             }
         }
     </script>
-    <script src="assets/js/nav.js"></script>
+    <script src="assets/js/nav.js?v=20260426c"></script>
+    <script>
+        // 确保侧边栏渲染
+        (function() {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.innerHTML.trim()) {
+                var role = 'admin';
+                try { if (typeof getCurrentRole === 'function') role = getCurrentRole(); } catch(e) {}
+                var currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                var navGroups = [
+                    { title: '项目配置', roles: ['admin','customer'], items: [
+                        { href: 'project-list.html', icon: '📋', label: '项目管理', roles: ['admin','customer'] },
+                        { href: 'shipping-register.html', icon: '📦', label: '发货登记', roles: ['admin'] }
+                    ]},
+                    { title: '后台管理', roles: ['admin'], items: [
+                        { href: 'equipment-config.html', icon: '🧩', label: '设备配置管理', roles: ['admin'] },
+                        { href: 'business-options.html', icon: '⚙️', label: '业务类型配置', roles: ['admin'] },
+                        { href: 'gateway-inventory.html', icon: '🗄️', label: '网关库存', roles: ['admin'] },
+                        { href: 'user-management.html', icon: '👥', label: '用户管理', roles: ['admin'] }
+                    ]}
+                ];
+                var navHtml = '';
+                navGroups.forEach(function(g) {
+                    if (!g.roles.includes(role)) return;
+                    var items = g.items.filter(function(i) { return i.roles.includes(role); });
+                    if (!items.length) return;
+                    navHtml += '<div class="nav-group-label">' + g.title + '</div>';
+                    items.forEach(function(i) {
+                        var active = currentPage === i.href ? ' active' : '';
+                        navHtml += '<a href="' + i.href + '" class="nav-item' + active + '"><span class="nav-icon">' + i.icon + '</span><span>' + i.label + '</span></a>';
+                    });
+                });
+                navHtml += '<a href="project-list.html" class="nav-item" style="margin-top:auto;"><span class="nav-icon">←</span><span>返回项目列表</span></a>';
+                sidebar.innerHTML = '<div class="sidebar-header"><div class="logo">📦</div><span class="brand-name">冷库项目信息管理系统</span></div><nav class="sidebar-nav">' + navHtml + '</nav><div class="sidebar-footer" style="padding:12px 16px;font-size:11px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.1);text-align:center;line-height:1.6;">V1.0.0<br>&copy; 天津天商酷凌科技有限公司</div>';
+            }
+        })();
+    </script>
     <script src="assets/js/config-home-fab.js?v=20260329"></script>
 </body>
 </html>

@@ -12,12 +12,19 @@ class EquipmentCategory(Base):
     """
     设备类型表 (Level 1)
     管理员维护，如：冷风机、温控器、电表
+    semantic_type 用于系统级语义映射，同一 semantic_type 默认唯一（防撞车）
     """
     __tablename__ = "equipment_categories"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, unique=True, index=True, comment="类型名称，如：冷风机")
     code = Column(String(50), nullable=False, unique=True, index=True, comment="类型编码，如：air_cooler")
+    semantic_type = Column(
+        String(50),
+        nullable=True,
+        index=True,
+        comment="语义类型：air_cooler/thermostat/unit/meter/freezer/defrost_controller 等，同值默认唯一"
+    )
     description = Column(Text, comment="描述")
     
     created_by = Column(Integer, ForeignKey("users.id"), comment="创建人ID")

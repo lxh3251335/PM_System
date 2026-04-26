@@ -27,6 +27,12 @@ async def get_categories(
     return db.query(EquipmentCategory).offset(skip).limit(limit).all()
 
 
+@router.get("/semantic-types")
+async def get_semantic_types():
+    """返回系统预定义的语义类型枚举（供前端下拉使用）"""
+    return schemas.SEMANTIC_TYPES
+
+
 @router.post("/categories", response_model=schemas.EquipmentCategory, status_code=201)
 async def create_category(
     category: schemas.EquipmentCategoryCreate,
@@ -39,6 +45,17 @@ async def create_category(
         (EquipmentCategory.code == category.code) | (EquipmentCategory.name == category.name)
     ).first():
         raise HTTPException(status_code=400, detail="类型编码或名称已存在")
+
+    # semantic_type 唯一性校验（同语义类型默认只允许一个分类）
+    if category.semantic_type:
+        existing = db.query(EquipmentCategory).filter(
+            EquipmentCategory.semantic_type == category.semantic_type
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"语义类型 '{category.semantic_type}' 已被 '{existing.name}' 占用，同语义类型默认只允许一个分类"
+            )
     
     db_cat = EquipmentCategory(**category.model_dump())
     db.add(db_cat)
@@ -59,8 +76,22 @@ async def update_category(
     db_cat = db.query(EquipmentCategory).filter(EquipmentCategory.id == cat_id).first()
     if not db_cat:
         raise HTTPException(status_code=404, detail="类型不存在")
-    
-    for k, v in cat_update.model_dump(exclude_unset=True).items():
+
+    update_data = cat_update.model_dump(exclude_unset=True)
+    # semantic_type 唯一性校验
+    new_semantic = update_data.get("semantic_type")
+    if new_semantic and new_semantic != db_cat.semantic_type:
+        existing = db.query(EquipmentCategory).filter(
+            EquipmentCategory.semantic_type == new_semantic,
+            EquipmentCategory.id != cat_id
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"语义类型 '{new_semantic}' 已被 '{existing.name}' 占用"
+            )
+
+    for k, v in update_data.items():
         setattr(db_cat, k, v)
     db.commit()
     db.refresh(db_cat)

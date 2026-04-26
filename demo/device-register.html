@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>设备登记 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <script src="assets/js/version-badge.js?v=20260418c"></script>
     <style>
         .container {
@@ -157,6 +157,34 @@
 
         .device-tab:hover {
             color: var(--primary-color);
+        }
+
+        /* 视图模式 Tab 样式 */
+        .view-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            margin-bottom: -2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .view-tab:hover {
+            color: var(--primary-color);
+            background: #f5f5f5;
+        }
+        .view-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+        .view-tab-icon {
+            font-size: 16px;
         }
 
         .form-card {
@@ -372,7 +400,7 @@
     <div class="container">
         <!-- 步骤指示器 -->
         <div class="steps"></div>
-        <script src="assets/js/step-nav.js"></script>
+        <script src="assets/js/step-nav.js?v=20260426b"></script>
         <script>renderStepNav(3);</script>
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
@@ -393,15 +421,19 @@
             <!-- 动态生成 -->
         </div>
 
-        <!-- 视图模式切换 + 冷库筛选 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <span style="font-size: 14px; color: var(--text-secondary);">视图模式：</span>
-                <button class="btn btn-primary" id="viewModeType" onclick="setViewMode('type')" style="padding: 6px 16px; font-size: 13px;">按设备类型</button>
-                <button class="btn" id="viewModeRoom" onclick="setViewMode('room')" style="padding: 6px 16px; font-size: 13px; border:1px solid #d9d9d9;">按冷库分组</button>
-                <button class="btn" id="viewModeRelation" onclick="setViewMode('relation')" style="padding: 6px 16px; font-size: 13px; border:1px solid #d9d9d9;">设备关系拓扑</button>
-            </div>
-            <div id="coldRoomFilterBar" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+        <!-- 视图模式 Tab 切换 -->
+        <div class="view-mode-tabs" style="display:flex; border-bottom:2px solid #e8e8e8; margin-bottom:16px;">
+            <button class="view-tab active" id="viewModeType" onclick="setViewMode('type')">
+                <span class="view-tab-icon">📋</span> 按设备类型
+            </button>
+            <button class="view-tab" id="viewModeRoom" onclick="setViewMode('room')">
+                <span class="view-tab-icon">🏠</span> 按冷库分组
+            </button>
+            <button class="view-tab" id="viewModeRelation" onclick="setViewMode('relation')">
+                <span class="view-tab-icon">🔗</span> 设备关系拓扑
+            </button>
+            <div style="flex:1;"></div>
+            <div id="coldRoomFilterBar" style="display:flex; gap:6px; align-items:center; padding-right:8px;"></div>
         </div>
 
         <!-- 设备类型选项卡 -->
@@ -740,13 +772,7 @@
             modes.forEach(m => {
                 const btn = document.getElementById('viewMode' + m.charAt(0).toUpperCase() + m.slice(1));
                 if (btn) {
-                    if (m === mode) {
-                        btn.className = 'btn btn-primary';
-                        btn.style.border = 'none';
-                    } else {
-                        btn.className = 'btn';
-                        btn.style.border = '1px solid #d9d9d9';
-                    }
+                    btn.classList.toggle('active', m === mode);
                 }
             });
 

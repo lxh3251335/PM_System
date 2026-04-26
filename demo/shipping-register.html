@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>发货登记 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <style>
         .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px; }
         .card h3 { margin: 0 0 20px 0; font-size: 18px; color: var(--text-primary); }
@@ -79,11 +79,31 @@
         </div>
 
         <div class="card">
-            <div class="filter-bar">
+            <div class="filter-bar" style="flex-wrap:wrap; gap:10px;">
                 <label style="font-weight: 500;">选择项目：</label>
-                <select id="projectSelect" onchange="onProjectChange()" style="min-width: 300px;">
-                    <option value="">-- 请选择项目 --</option>
+                <div style="position:relative; min-width:400px;">
+                    <input type="text" id="projectSearchInput" placeholder="输入项目名称关键字筛选..." style="width:100%; padding:8px 12px; border:1px solid #d9d9d9; border-radius:4px; font-size:14px;" oninput="filterProjectList()" onfocus="showProjectDropdown()" />
+                    <div id="projectDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #d9d9d9; border-top:none; border-radius:0 0 4px 4px; max-height:280px; overflow-y:auto; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+                <input type="hidden" id="projectSelectValue" />
+                <span style="color:#d9d9d9;">|</span>
+                <label>筛选：</label>
+                <select id="filterStatus" onchange="applyFilters()" style="min-width:90px;">
+                    <option value="">全部状态</option>
+                    <option value="pending">待发货</option>
+                    <option value="shipped">已发货</option>
+                    <option value="arrived">已签收</option>
                 </select>
+                <select id="filterCourier" onchange="applyFilters()" style="min-width:100px;">
+                    <option value="">全部快递</option>
+                </select>
+                <select id="filterEndCustomer" onchange="applyFilters()" style="min-width:120px;">
+                    <option value="">全部终端客户</option>
+                </select>
+                <input type="text" id="filterKeyword" placeholder="单号/收件人..." oninput="applyFilters()" style="width:140px;" />
+                <button class="btn btn-secondary btn-sm" onclick="clearFilters()">清除</button>
                 <button class="btn btn-primary btn-sm" id="addShipmentBtn" onclick="showAddForm()" style="display:none;">+ 新增发货记录</button>
             </div>
         </div>
@@ -172,8 +192,8 @@
         </main>
     </div><!-- app-container -->
 
-    <script src="assets/js/nav.js"></script>
-    <script src="assets/js/step-nav.js"></script>
+    <script src="assets/js/nav.js?v=20260426b"></script>
+    <script src="assets/js/step-nav.js?v=20260426b"></script>
     <script src="assets/js/config-home-fab.js?v=20260329"></script>
     <script>
         requireAuth();
@@ -184,6 +204,8 @@
         let currentProjectId = null;
         let projects = [];
         let records = [];
+        let allRecords = []; // 全部项目模式下存储所有记录
+        let filteredRecords = []; // 筛选后的记录
 
         function initStepNav() {
             if (isAdmin() && isFlowMode) {
@@ -210,47 +232,189 @@
 
             try {
                 projects = await api.projects.getProjects();
-                const select = document.getElementById('projectSelect');
-                (projects || []).forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p.id;
-                    opt.textContent = `${p.project_no} - ${p.name} (${p.end_customer || '-'})`;
-                    select.appendChild(opt);
-                });
+                renderProjectDropdown();
 
                 // 如果有上下文项目，自动选中
                 const savedProjId = localStorage.getItem('currentProjectId');
                 if (savedProjId) {
-                    select.value = savedProjId;
-                    onProjectChange();
+                    selectProject(savedProjId);
                 }
             } catch (e) {
                 console.warn('加载项目列表失败:', e.message);
             }
+
+            // 点击外部关闭下拉
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('projectDropdown');
+                const input = document.getElementById('projectSearchInput');
+                if (!dropdown.contains(e.target) && e.target !== input) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function renderProjectDropdown(filterText) {
+            const dropdown = document.getElementById('projectDropdown');
+            const keyword = (filterText || '').toLowerCase().trim();
+            let html = '<div class="proj-option" data-value="__ALL__" onclick="selectProject(\'__ALL__\')" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; background:#e6f7ff; font-weight:500;">📋 查看全部项目</div>';
+            
+            const filtered = projects.filter(p => {
+                if (!keyword) return true;
+                const searchStr = `${p.project_no} ${p.name} ${p.end_customer || ''}`.toLowerCase();
+                return searchStr.includes(keyword);
+            });
+
+            if (filtered.length === 0 && keyword) {
+                html += '<div style="padding:16px; text-align:center; color:#999;">无匹配项目</div>';
+            } else {
+                filtered.forEach(p => {
+                    html += `<div class="proj-option" data-value="${p.id}" onclick="selectProject('${p.id}')" style="padding:10px 12px; cursor:pointer; border-bottom:1px solid #f5f5f5;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">
+                        <div style="font-weight:500;">${p.project_no} - ${p.name}</div>
+                        <div style="font-size:12px; color:#999;">终端客户：${p.end_customer || '-'}</div>
+                    </div>`;
+                });
+            }
+            dropdown.innerHTML = html;
+        }
+
+        function showProjectDropdown() {
+            // 点击时清空搜索框以便重新选择
+            const input = document.getElementById('projectSearchInput');
+            if (input.value === '📋 全部项目' || currentProjectId) {
+                input.value = '';
+            }
+            renderProjectDropdown('');
+            document.getElementById('projectDropdown').style.display = 'block';
+        }
+
+        function filterProjectList() {
+            const input = document.getElementById('projectSearchInput');
+            // 如果是显示文本则不过滤
+            if (input.value === '📋 全部项目') {
+                renderProjectDropdown('');
+            } else {
+                renderProjectDropdown(input.value);
+            }
+            document.getElementById('projectDropdown').style.display = 'block';
+        }
+
+        function selectProject(projectId) {
+            document.getElementById('projectDropdown').style.display = 'none';
+            document.getElementById('projectSelectValue').value = projectId;
+            
+            if (projectId === '__ALL__') {
+                document.getElementById('projectSearchInput').value = '📋 全部项目';
+                currentProjectId = '__ALL__';
+                document.getElementById('addShipmentBtn').style.display = 'none'; // 全部模式下隐藏新增
+            } else {
+                const proj = projects.find(p => String(p.id) === String(projectId));
+                if (proj) {
+                    document.getElementById('projectSearchInput').value = `${proj.project_no} - ${proj.name}`;
+                }
+                currentProjectId = projectId;
+                if (isAdmin()) document.getElementById('addShipmentBtn').style.display = '';
+            }
+            onProjectChange();
         }
 
         async function onProjectChange() {
-            const projectId = document.getElementById('projectSelect').value;
-            if (!projectId) {
+            if (!currentProjectId) {
                 document.getElementById('recordList').innerHTML = '<div class="empty-state">请先选择项目</div>';
                 document.getElementById('recordCount').textContent = '';
+                document.getElementById('recordFilterBar').style.display = 'none';
                 return;
             }
-            currentProjectId = projectId;
             await loadRecords();
-            await loadGateways();
-            await prefillRecipient();
+            if (currentProjectId !== '__ALL__') {
+                await loadGateways();
+                await prefillRecipient();
+            }
         }
 
         async function loadRecords() {
             try {
-                records = await api.mailing.getRecords(currentProjectId);
-                renderRecords();
+                if (currentProjectId === '__ALL__') {
+                    // 全部项目模式：获取所有项目的发货记录
+                    allRecords = [];
+                    for (const proj of projects) {
+                        try {
+                            const recs = await api.mailing.getRecords(proj.id);
+                            (recs || []).forEach(r => {
+                                r._projectName = proj.name;
+                                r._projectNo = proj.project_no;
+                                r._endCustomer = proj.end_customer || '-';
+                                allRecords.push(r);
+                            });
+                        } catch (e) { /* skip */ }
+                    }
+                    records = allRecords;
+                } else {
+                    records = await api.mailing.getRecords(currentProjectId);
+                    const proj = projects.find(p => String(p.id) === String(currentProjectId));
+                    if (proj) {
+                        records.forEach(r => {
+                            r._projectName = proj.name;
+                            r._projectNo = proj.project_no;
+                            r._endCustomer = proj.end_customer || '-';
+                        });
+                    }
+                }
+                filteredRecords = records;
+                buildCourierFilter();
+                buildEndCustomerFilter();
+                applyFilters();
             } catch (e) {
                 console.warn('加载发货记录失败:', e.message);
                 records = [];
+                filteredRecords = [];
                 renderRecords();
             }
+        }
+
+        function buildCourierFilter() {
+            const couriers = [...new Set(records.map(r => r.courier_company).filter(Boolean))];
+            const select = document.getElementById('filterCourier');
+            select.innerHTML = '<option value="">全部快递</option>' + couriers.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function buildEndCustomerFilter() {
+            const customers = [...new Set(records.map(r => r._endCustomer).filter(c => c && c !== '-'))];
+            const select = document.getElementById('filterEndCustomer');
+            select.innerHTML = '<option value="">全部终端客户</option>' + customers.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function applyFilters() {
+            const status = document.getElementById('filterStatus').value;
+            const courier = document.getElementById('filterCourier').value;
+            const endCustomer = document.getElementById('filterEndCustomer').value;
+            const keyword = (document.getElementById('filterKeyword').value || '').toLowerCase().trim();
+
+            filteredRecords = records.filter(r => {
+                // 状态筛选
+                if (status) {
+                    const rStatus = r.actual_arrival_date ? 'arrived' : (r.mailing_date ? 'shipped' : 'pending');
+                    if (rStatus !== status) return false;
+                }
+                // 快递公司
+                if (courier && r.courier_company !== courier) return false;
+                // 终端客户
+                if (endCustomer && r._endCustomer !== endCustomer) return false;
+                // 关键字
+                if (keyword) {
+                    const searchStr = `${r.tracking_no || ''} ${r.recipient_name || ''} ${r._projectName || ''} ${r._endCustomer || ''}`.toLowerCase();
+                    if (!searchStr.includes(keyword)) return false;
+                }
+                return true;
+            });
+            renderRecords();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterCourier').value = '';
+            document.getElementById('filterEndCustomer').value = '';
+            document.getElementById('filterKeyword').value = '';
+            applyFilters();
         }
 
         async function loadGateways() {
@@ -281,21 +445,24 @@
 
         function renderRecords() {
             const container = document.getElementById('recordList');
-            document.getElementById('recordCount').textContent = `(${records.length}条)`;
+            const displayRecords = filteredRecords || records;
+            document.getElementById('recordCount').textContent = `(${displayRecords.length}条${filteredRecords.length !== records.length ? '，共' + records.length + '条' : ''})`;
 
-            if (!records || records.length === 0) {
-                container.innerHTML = '<div class="empty-state">暂无发货记录</div>';
+            if (!displayRecords || displayRecords.length === 0) {
+                container.innerHTML = '<div class="empty-state">' + (records.length > 0 ? '无匹配记录' : '暂无发货记录') + '</div>';
                 return;
             }
 
-            const adminActions = isAdmin();
+            const adminActions = isAdmin() && currentProjectId !== '__ALL__';
+            const showProjectCol = true; // 始终显示项目列
             let html = '<table><thead><tr>';
+            if (showProjectCol) html += '<th>项目名称</th><th>终端客户</th>';
             html += '<th>快递公司</th><th>快递单号</th><th>邮寄日期</th><th>预计到达</th><th>实际到达</th>';
             html += '<th>收件人</th><th>物品</th><th>快捷复制</th><th>状态</th>';
             if (adminActions) html += '<th>操作</th>';
             html += '</tr></thead><tbody>';
 
-            records.forEach(r => {
+            displayRecords.forEach(r => {
                 let status = '已发货';
                 let statusClass = 'status-shipped';
                 if (r.actual_arrival_date) {
@@ -307,6 +474,10 @@
                 }
 
                 html += '<tr>';
+                if (showProjectCol) {
+                    html += `<td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r._projectNo || ''} ${r._projectName || ''}">${r._projectName || '-'}</td>`;
+                    html += `<td style="max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r._endCustomer || ''}">${r._endCustomer || '-'}</td>`;
+                }
                 html += `<td>${r.courier_company || '-'}</td>`;
                 html += `<td><code>${r.tracking_no || '-'}</code></td>`;
                 html += `<td>${r.mailing_date || '-'}</td>`;
@@ -399,7 +570,9 @@
         }
 
         function getRecordById(recordId) {
-            return (records || []).find(function (x) { return Number(x.id) === Number(recordId); });
+            // 先在当前筛选后的列表找，再在全部记录找
+            return (filteredRecords || []).find(function (x) { return Number(x.id) === Number(recordId); }) ||
+                   (records || []).find(function (x) { return Number(x.id) === Number(recordId); });
         }
 
         function copyToClipboard(text) {

@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>创建冷库 - 冷库项目信息管理系统</title>
     <link rel="stylesheet" href="assets/css/app.css">
-    <script src="assets/js/config.js?v=20260223"></script>
-    <script src="assets/js/api.js?v=20260418c"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
     <style>
         .create-container {
             max-width: 900px;
@@ -306,7 +306,7 @@
     <div class="create-container">
         <!-- 步骤指示器 -->
         <div class="steps"></div>
-        <script src="assets/js/step-nav.js"></script>
+        <script src="assets/js/step-nav.js?v=20260426b"></script>
         <script>renderStepNav(2);</script>
         <script src="assets/js/config-home-fab.js?v=20260329"></script>
 
@@ -385,6 +385,41 @@
                     <button type="submit" class="btn btn-primary">添加到列表</button>
                 </div>
             </form>
+        </div>
+
+        <!-- 批量录入表格 -->
+        <div class="form-card" id="batchSection" style="margin-top: 24px;">
+            <div class="form-section-title">批量录入冷库</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <p style="color:var(--text-secondary);font-size:13px;margin:0;">在下表中快速录入多个冷库，或通过 Excel 模板导入。</p>
+                <div style="display:flex;gap:8px;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="downloadExcelTemplate()">📥 下载模板</button>
+                    <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin:0;">
+                        📤 导入 Excel
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="importExcelFile(this)">
+                    </label>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="batchTable" style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <thead style="background:#fafafa;">
+                        <tr>
+                            <th style="padding:8px;border:1px solid #d9d9d9;min-width:120px;">冷库名称 <span style="color:#f5222d;">*</span></th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;min-width:130px;">类型 <span style="color:#f5222d;">*</span></th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;width:70px;">面积㎡ <span style="color:#f5222d;">*</span></th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;width:70px;">高度m <span style="color:#f5222d;">*</span></th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;width:80px;">容积m³</th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;min-width:100px;">制冷剂 <span style="color:#f5222d;">*</span></th>
+                            <th style="padding:8px;border:1px solid #d9d9d9;width:50px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:12px;">
+                <button type="button" class="btn btn-secondary" onclick="addBatchRow()">+ 添加一行</button>
+                <button type="button" class="btn btn-primary" onclick="submitBatch()">批量提交</button>
+            </div>
         </div>
 
         <!-- 已创建的冷库列表 -->
@@ -722,6 +757,248 @@
 
         // 初始化渲染
         renderColdRooms();
+
+        /* ========== 批量录入逻辑 ========== */
+        const ROOM_TYPES = [
+            { value: 'low_temp', label: '低温库', tempMin: -18, tempMax: -15 },
+            { value: 'refrigerated', label: '冷藏库', tempMin: 1, tempMax: 4 },
+            { value: 'medium_temp', label: '中温库', tempMin: 8, tempMax: 10 },
+            { value: 'low_temp_cabinet', label: '低温冷柜', tempMin: -18, tempMax: -15 },
+            { value: 'medium_temp_cabinet', label: '中温冷柜', tempMin: 2, tempMax: 8 }
+        ];
+        const REFRIGERANTS = ['R410A', 'R404A', 'R507', 'R134a', 'R22'];
+
+        let batchRowId = 0;
+
+        function buildTypeOptions() {
+            return '<option value="">请选择</option>' + ROOM_TYPES.map(t => `<option value="${t.value}">${t.label}</option>`).join('');
+        }
+        function buildRefrigerantOptions() {
+            return '<option value="">请选择</option>' + REFRIGERANTS.map(r => `<option value="${r}">${r}</option>`).join('');
+        }
+
+        function addBatchRow() {
+            batchRowId++;
+            const tbody = document.getElementById('batchBody');
+            const tr = document.createElement('tr');
+            tr.dataset.rowId = batchRowId;
+            tr.innerHTML = `
+                <td style="padding:6px;border:1px solid #d9d9d9;"><input type="text" class="b-name" style="width:100%;padding:6px;border:1px solid #d9d9d9;border-radius:4px;"></td>
+                <td style="padding:6px;border:1px solid #d9d9d9;"><select class="b-type" style="width:100%;padding:6px;border:1px solid #d9d9d9;border-radius:4px;">${buildTypeOptions()}</select></td>
+                <td style="padding:6px;border:1px solid #d9d9d9;"><input type="number" step="0.01" class="b-area" style="width:100%;padding:6px;border:1px solid #d9d9d9;border-radius:4px;"></td>
+                <td style="padding:6px;border:1px solid #d9d9d9;"><input type="number" step="0.01" class="b-height" style="width:100%;padding:6px;border:1px solid #d9d9d9;border-radius:4px;"></td>
+                <td style="padding:6px;border:1px solid #d9d9d9;text-align:center;background:#f5f5f5;" class="b-volume">--</td>
+                <td style="padding:6px;border:1px solid #d9d9d9;"><select class="b-ref" style="width:100%;padding:6px;border:1px solid #d9d9d9;border-radius:4px;">${buildRefrigerantOptions()}</select></td>
+                <td style="padding:6px;border:1px solid #d9d9d9;text-align:center;"><button type="button" onclick="removeBatchRow(this)" style="color:#ff4d4f;background:none;border:none;cursor:pointer;font-size:16px;">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+            const areaInput = tr.querySelector('.b-area');
+            const heightInput = tr.querySelector('.b-height');
+            const volCell = tr.querySelector('.b-volume');
+            function calcVol() {
+                const a = parseFloat(areaInput.value) || 0;
+                const h = parseFloat(heightInput.value) || 0;
+                volCell.textContent = (a && h) ? (a * h).toFixed(2) : '--';
+            }
+            areaInput.addEventListener('input', calcVol);
+            heightInput.addEventListener('input', calcVol);
+        }
+
+        function removeBatchRow(btn) {
+            btn.closest('tr').remove();
+        }
+
+        async function submitBatch() {
+            const rows = document.querySelectorAll('#batchBody tr');
+            if (rows.length === 0) {
+                api.projects.showError('请先添加至少一行');
+                return;
+            }
+            const items = [];
+            let hasError = false;
+            rows.forEach((tr, idx) => {
+                const name = tr.querySelector('.b-name').value.trim();
+                const typeVal = tr.querySelector('.b-type').value;
+                const area = parseFloat(tr.querySelector('.b-area').value);
+                const height = parseFloat(tr.querySelector('.b-height').value);
+                const ref = tr.querySelector('.b-ref').value;
+                if (!name || !typeVal || !area || !height || !ref) {
+                    hasError = true;
+                    tr.style.background = '#fff1f0';
+                } else {
+                    tr.style.background = '';
+                    const typeMeta = ROOM_TYPES.find(t => t.value === typeVal);
+                    items.push({
+                        project_id: projectId,
+                        name,
+                        room_type: typeVal,
+                        design_temp_min: typeMeta ? typeMeta.tempMin : 0,
+                        design_temp_max: typeMeta ? typeMeta.tempMax : 0,
+                        area,
+                        height,
+                        volume: parseFloat((area * height).toFixed(2)),
+                        refrigerant_type: ref
+                    });
+                }
+            });
+            if (hasError) {
+                api.projects.showError('请完善标红行的必填项');
+                return;
+            }
+            let successCount = 0;
+            for (const item of items) {
+                try {
+                    if (isProductionMode() && projectId) {
+                        const result = await api.projects.createColdRoom(projectId, item);
+                        coldRooms.push(result);
+                    } else {
+                        item.id = Date.now() + Math.random();
+                        coldRooms.push(item);
+                        localStorage.setItem('coldRooms', JSON.stringify(coldRooms));
+                    }
+                    successCount++;
+                } catch (e) {
+                    console.error('批量添加失败', e);
+                }
+            }
+            document.getElementById('batchBody').innerHTML = '';
+            renderColdRooms();
+            api.projects.showSuccess(`成功批量添加 ${successCount} 个冷库`);
+        }
+
+        // 页面加载后默认添加 3 行
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 0; i < 3; i++) addBatchRow();
+        });
+
+        /* ========== Excel 模板导入/导出 ========== */
+        function downloadExcelTemplate() {
+            // 生成 CSV 模板（兼容性好，无需额外库）
+            const headers = ['冷库名称', '类型', '面积(㎡)', '高度(m)', '制冷剂'];
+            const typeHint = ROOM_TYPES.map(t => t.label).join('/');
+            const refHint = REFRIGERANTS.join('/');
+            const exampleRows = [
+                ['1号低温库', '低温库', '100', '4', 'R404A'],
+                ['2号冷藏库', '冷藏库', '80', '3.5', 'R410A'],
+                ['示例行(请删除)', '', '', '', '']
+            ];
+            
+            let csv = '\uFEFF'; // BOM for Excel UTF-8
+            csv += headers.join(',') + '\n';
+            csv += `# 类型可选：${typeHint}\n`;
+            csv += `# 制冷剂可选：${refHint}\n`;
+            exampleRows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '冷库批量导入模板.csv';
+            link.click();
+            URL.revokeObjectURL(link.href);
+            
+            api.projects.showSuccess('模板已下载，请用 Excel 打开编辑后再导入');
+        }
+
+        function importExcelFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    parseAndFillCSV(text);
+                    api.projects.showSuccess('导入成功，请检查数据后提交');
+                } catch (err) {
+                    console.error('导入失败:', err);
+                    api.projects.showError('导入失败：' + err.message);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+            input.value = '';
+        }
+
+        function parseAndFillCSV(csvText) {
+            const lines = csvText.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
+            if (lines.length < 2) {
+                throw new Error('文件内容为空或格式不正确');
+            }
+            
+            // 跳过表头
+            const dataLines = lines.slice(1);
+            
+            // 清空现有行
+            document.getElementById('batchBody').innerHTML = '';
+            
+            let importedCount = 0;
+            dataLines.forEach(line => {
+                if (!line.trim()) return;
+                
+                // 解析 CSV 行（支持引号包裹）
+                const cells = parseCSVLine(line);
+                if (cells.length < 5) return;
+                
+                const [name, typeLabel, area, height, ref] = cells.map(c => c.trim());
+                
+                // 跳过示例行或空行
+                if (!name || name.includes('示例') || name.includes('请删除')) return;
+                
+                // 添加新行
+                addBatchRow();
+                const tr = document.querySelector('#batchBody tr:last-child');
+                
+                // 填充数据
+                tr.querySelector('.b-name').value = name;
+                
+                // 匹配类型
+                const typeMatch = ROOM_TYPES.find(t => t.label === typeLabel || t.value === typeLabel);
+                if (typeMatch) {
+                    tr.querySelector('.b-type').value = typeMatch.value;
+                }
+                
+                // 填充面积和高度
+                tr.querySelector('.b-area').value = area || '';
+                tr.querySelector('.b-height').value = height || '';
+                
+                // 计算容积
+                const a = parseFloat(area) || 0;
+                const h = parseFloat(height) || 0;
+                tr.querySelector('.b-volume').textContent = (a && h) ? (a * h).toFixed(2) : '--';
+                
+                // 匹配制冷剂
+                if (REFRIGERANTS.includes(ref)) {
+                    tr.querySelector('.b-ref').value = ref;
+                }
+                
+                importedCount++;
+            });
+            
+            if (importedCount === 0) {
+                throw new Error('未找到有效数据行');
+            }
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        }
     </script>
 </body>
 </html>

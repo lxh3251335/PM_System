@@ -23,14 +23,34 @@ const CONFIG = {
     PM_EXPORT_CONFIG_VERSION: '2',
 
     /**
+     * 动态版本号：基于时间戳，开发模式每次刷新都会获取最新资源
+     * 生产环境可改为固定版本号或构建时注入
+     */
+    ASSET_VERSION: (function() {
+        // 开发模式：使用时间戳，每分钟更新一次（避免频繁请求）
+        const now = new Date();
+        return now.getFullYear().toString() +
+               String(now.getMonth() + 1).padStart(2, '0') +
+               String(now.getDate()).padStart(2, '0') +
+               String(now.getHours()).padStart(2, '0') +
+               String(now.getMinutes()).padStart(2, '0');
+    })(),
+
+    /**
      * 若用 Live Server 等非 8000 端口打开 demo，相对路径 /api 会打到错误端口。
      * 此时自动把 API 指到本机 uvicorn 默认端口 8000（仅 localhost/127.0.0.1）。
      */
     _applyLocalApiOverride: function () {
         if (typeof window === 'undefined') return;
+        const proto = window.location.protocol || '';
         const h = window.location.hostname;
         const p = window.location.port;
         const local = h === '127.0.0.1' || h === 'localhost';
+        // file:// 或部分环境下 hostname 为空：相对路径 /api 无效，固定指向本机后端
+        if (proto === 'file:' || (!h && proto !== 'https:' && proto !== 'http:')) {
+            this.API_BASE_URL = 'http://127.0.0.1:8000/api';
+            return;
+        }
         if (local && p && p !== '8000') {
             this.API_BASE_URL = 'http://' + h + ':8000/api';
         }
@@ -70,7 +90,43 @@ function getStorageKey(key) {
     return `${CONFIG.STORAGE_PREFIX}${key}`;
 }
 
+/**
+ * 获取带版本号的资源路径
+ * @param {string} path - 资源路径
+ * @returns {string} 带版本号的路径
+ */
+function getVersionedUrl(path) {
+    const separator = path.includes('?') ? '&' : '?';
+    return `${path}${separator}v=${CONFIG.ASSET_VERSION}`;
+}
+
+/**
+ * 动态加载 JS 文件（自动带版本号）
+ * @param {string} src - JS 文件路径
+ * @returns {Promise}
+ */
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = getVersionedUrl(src);
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+/**
+ * 动态加载 CSS 文件（自动带版本号）
+ * @param {string} href - CSS 文件路径
+ */
+function loadStyle(href) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = getVersionedUrl(href);
+    document.head.appendChild(link);
+}
+
 // 导出（如果需要）
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CONFIG, isDemoMode, isProductionMode, getApiUrl, getStorageKey };
+    module.exports = { CONFIG, isDemoMode, isProductionMode, getApiUrl, getStorageKey, getVersionedUrl, loadScript, loadStyle };
 }

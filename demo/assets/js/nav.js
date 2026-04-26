@@ -3,31 +3,48 @@
  * 在所有页面（除 login.html / index.html）引入此文件
  */
 (function () {
-    // 登录检查
-    if (typeof requireAuth === 'function') {
-        requireAuth();
+    function initNav() {
+        // 登录检查
+        if (typeof requireAuth === 'function') {
+            requireAuth();
+        }
+
+        // 构建侧边栏导航（如果页面有 #sidebar 容器）
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && !sidebar.querySelector('.sidebar-header')) {
+            renderSidebar(sidebar);
+        }
+
+        // 顶栏用户信息（如果页面有 .user-menu 或 #userMenu）
+        renderUserMenu();
     }
 
-    // 构建侧边栏导航（如果页面有 #sidebar 容器）
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        renderSidebar(sidebar);
+    // 确保 DOM 加载完成后执行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNav);
+    } else {
+        initNav();
     }
-
-    // 顶栏用户信息（如果页面有 .user-menu 或 #userMenu）
-    renderUserMenu();
 
     function renderSidebar(container) {
-        const role = getCurrentRole();
+        var role = 'customer';
+        try {
+            if (typeof getCurrentRole === 'function') {
+                role = getCurrentRole();
+            }
+        } catch (e) {
+            console.warn('nav.js: getCurrentRole error', e);
+        }
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
+        // 分组导航菜单配置
         var navGroups = [
             {
                 title: '项目配置',
                 roles: ['admin', 'customer'],
                 items: [
                     { href: 'project-list.html', icon: '📋', label: '项目管理', roles: ['admin', 'customer'] },
-                    { href: 'shipping-register.html', icon: '📦', label: '发货登记', roles: ['admin'] },
+                    { href: 'shipping-register.html', icon: '📦', label: '发货登记', roles: ['admin'] }
                 ]
             },
             {
@@ -37,7 +54,7 @@
                     { href: 'equipment-config.html', icon: '🧩', label: '设备配置管理', roles: ['admin'] },
                     { href: 'business-options.html', icon: '⚙️', label: '业务类型配置', roles: ['admin'] },
                     { href: 'gateway-inventory.html', icon: '🗄️', label: '网关库存', roles: ['admin'] },
-                    { href: 'user-management.html', icon: '👥', label: '用户管理', roles: ['admin'] },
+                    { href: 'user-management.html', icon: '👥', label: '用户管理', roles: ['admin'] }
                 ]
             }
         ];
@@ -58,6 +75,12 @@
             });
         });
 
+        // 底部固定：返回项目列表
+        navHtml += '<a href="project-list.html" class="nav-item" style="margin-top:auto;">' +
+            '<span class="nav-icon">←</span>' +
+            '<span>返回项目列表</span>' +
+            '</a>';
+
         container.innerHTML =
             '<div class="sidebar-header">' +
             '    <div class="logo">📦</div>' +
@@ -65,10 +88,6 @@
             '</div>' +
             '<nav class="sidebar-nav">' +
             navHtml +
-            '    <a href="project-list.html" class="nav-item" style="margin-top: auto;">' +
-            '        <span class="nav-icon">←</span>' +
-            '        <span>返回项目列表</span>' +
-            '    </a>' +
             '</nav>' +
             '<div class="sidebar-footer" style="padding:12px 16px;font-size:11px;color:rgba(255,255,255,0.4);border-top:1px solid rgba(255,255,255,0.1);text-align:center;line-height:1.6;">' +
             '    V1.0.0<br>&copy; 天津天商酷凌科技有限公司' +
@@ -80,7 +99,12 @@
         if (!menuEl) return;
 
         const username = localStorage.getItem('currentUsername') || '未登录';
-        const role = getCurrentRole();
+        var role = 'customer';
+        try {
+            if (typeof getCurrentRole === 'function') {
+                role = getCurrentRole();
+            }
+        } catch (e) {}
         const roleLabel = role === 'admin' ? '管理员' : '客户';
 
         const logoutBtn = '<button class="btn-logout" onclick="doLogout()" style="margin-left:12px;">退出登录</button>';
@@ -90,6 +114,7 @@
             '</span>' + logoutBtn;
     }
 })();
+
 
 function doLogout() {
     localStorage.removeItem(getStorageKey('token'));
